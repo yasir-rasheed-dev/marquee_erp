@@ -1,0 +1,34 @@
+﻿import { Outlet } from 'react-router-dom';
+import { useState } from 'react';
+import Sidebar from './Sidebar';
+import Header from './Header';
+
+const DashboardLayout = () => {
+  const [collapsed, setCollapsed] = useState(false);
+
+  return (
+    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1A1A]">
+      {/* ── Sidebar ── */}
+      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+
+      {/* ── Header ── */}
+      <Header sidebarCollapsed={collapsed} />
+
+      {/* ── Main Content ── */}
+      <main
+        className={`
+          min-h-screen transition-all duration-300
+          pt-4 pb-8
+          ${collapsed ? 'lg:ml-[80px] lg:px-6' : 'lg:ml-[280px] lg:px-8'}
+        `}
+        style={{ marginTop: '64px' }}
+      >
+        <div className="container mx-auto max-w-7xl">
+          <Outlet />
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default DashboardLayout;
