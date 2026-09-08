@@ -3424,32 +3424,145 @@ model Role {
 }
 
 // 2. Permission Resources & Actions (Aapke existing enums bilkul theek hain)
+// schema.prisma
+
 enum PermissionResource {
+  // ═══════════════════════════════════════════════════════════
+  // 1. DASHBOARD
+  // ═══════════════════════════════════════════════════════════
   dashboard
-  bookings
-  customers
-  events
-  services
-  menu_packages
-  inventory
-  kitchen
-  kds
-  kitchen_sheet
-  production_plan
-  recipe_manager
-  wastage_log
-  accounts
-  fixed_assets
-  procurement
-  hr
-  reports
-  settings
+
+  // ═══════════════════════════════════════════════════════════
+  // 2. BOOKINGS (All Pages)
+  // ═══════════════════════════════════════════════════════════
+  bookings                    // Main Bookings
+  bookings_create            // Create Booking
+  bookings_calendar          // Booking Calendar
+  bookings_list              // All Bookings List
+
+  // ═══════════════════════════════════════════════════════════
+  // 3. CUSTOMERS
+  // ═══════════════════════════════════════════════════════════
+  customers                  // Main Customers
+  customers_add              // Add Customer
+
+  // ═══════════════════════════════════════════════════════════
+  // 4. EVENTS
+  // ═══════════════════════════════════════════════════════════
+  events                     // Main Events
+  events_add                 // Add Event
+
+  // ═══════════════════════════════════════════════════════════
+  // 5. SERVICES
+  // ═══════════════════════════════════════════════════════════
+  services                   // Main Services
+  services_list              // Services List
+
+  // ═══════════════════════════════════════════════════════════
+  // 6. MENU & PACKAGES (All Pages)
+  // ═══════════════════════════════════════════════════════════
+  menus                      // Main Menu
+  menus_add                  // Add Menu
+  menu_packages              // Packages
+  menu_items                 // Menu Items
+  menu_categories            // Categories
+  menu_units                 // Units
+
+  // ═══════════════════════════════════════════════════════════
+  // 7. POS
+  // ═══════════════════════════════════════════════════════════
+  pos                        // POS Terminal
+
+  // ═══════════════════════════════════════════════════════════
+  // 8. INVENTORY (All Pages)
+  // ═══════════════════════════════════════════════════════════
+  inventory                  // Main Inventory
+  inventory_item_master      // Item Master
+  inventory_stock_transfer   // Stock Transfer
+  inventory_stock_adjustment // Stock Adjustment
+
+  // ═══════════════════════════════════════════════════════════
+  // 9. KITCHEN (All Pages)
+  // ═══════════════════════════════════════════════════════════
+  kitchen                    // Main Kitchen
+  kitchen_sheet              // Kitchen Sheet
+  kds                        // KDS (Kitchen Display System)
+  production_plan            // Production Plan
+  recipe_manager             // Recipe Manager
+  wastage_log                // Wastage Log
+
+  // ═══════════════════════════════════════════════════════════
+  // 10. ACCOUNTS (All Pages)
+  // ═══════════════════════════════════════════════════════════
+  accounts                   // Main Accounts
+  accounts_list              // Accounts List
+  payment_voucher            // Payment Voucher
+  expense_voucher            // Expense Voucher
+  voucher_list               // Voucher List
+  ledger                     // Ledger
+  day_book                   // Day Book
+
+  // ═══════════════════════════════════════════════════════════
+  // 11. FIXED ASSETS (All Pages)
+  // ═══════════════════════════════════════════════════════════
+  fixed_assets               // Main Fixed Assets
+  fixed_assets_add           // Add Asset
+  fixed_assets_adjustments   // Asset Adjustments
+
+  // ═══════════════════════════════════════════════════════════
+  // 12. PROCUREMENT (All Pages)
+  // ═══════════════════════════════════════════════════════════
+  procurement                // Main Procurement
+  suppliers                  // Suppliers
+  purchase_orders            // Purchase Orders
+  purchase_orders_create     // Create PO
+  grn                        // GRN (Bills)
+  purchase_return            // Purchase Return
+
+  // ═══════════════════════════════════════════════════════════
+  // 13. HR (All Pages)
+  // ═══════════════════════════════════════════════════════════
+  hr                         // Main HR
+  staff_list                 // Staff List
+  employees_add              // Add Employee
+  attendance                 // Attendance
+  payroll                    // Payroll
+  leave                      // Leave
+  advance_loan               // Advance & Loan
+  event_staff                // Event Staff
+  hr_setup                   // HR Setup
+
+  // ═══════════════════════════════════════════════════════════
+  // 14. REPORTS (All Pages)
+  // ═══════════════════════════════════════════════════════════
+  reports                    // Main Reports
+  reports_dashboard          // Reports Dashboard
+  profit_loss                // Profit & Loss
+  reports_bookings           // Booking & Event Reports
+  reports_inventory          // Inventory & Stock Reports
+  reports_hr                 // HR & Payroll Reports
+  reports_finance            // Financial Reports
+  reports_kitchen            // Kitchen & Production Reports
+  reports_purchases          // Supplier & Purchase Reports
+  reports_customers          // Customer & Sale Reports
+
+  // ═══════════════════════════════════════════════════════════
+  // 15. SETTINGS (All Pages)
+  // ═══════════════════════════════════════════════════════════
+  settings                   // Main Settings
+  settings_branches          // Branch Settings
+  settings_halls             // Hall Settings
+  settings_receipt           // Receipt Settings
+  settings_tax               // Tax Config
+  settings_roles             // Roles
+  settings_backup            // Backup
+
+  // ═══════════════════════════════════════════════════════════
+  // 16. SYSTEM
+  // ═══════════════════════════════════════════════════════════
   users
   branches
   companies
-  payroll
-  attendance
-  loans
 }
 
 enum PermissionAction {

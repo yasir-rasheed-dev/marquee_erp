@@ -240,38 +240,38 @@ export default function CustomerManagement() {
   const formatCurrency = (val) => new Intl.NumberFormat('en-PK', { style: 'currency', currency: 'PKR' }).format(val || 0);
 
   return (
-    <div className="min-h-screen pb-12 relative" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen pb-12 relative" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <ToastContainer />
 
       {/* TOP HEADER */}
-      <div className="border-b backdrop-blur-xl bg-white/90 sticky top-0 z-30 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+      <div className="border-b backdrop-blur-xl bg-white/90 sticky top-0 z-30 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-[0_4px_12px_rgba(169,122,31,0.3)] text-white">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.3)] text-white">
               <Users className="w-6 h-6" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-800">Customer Management</h1>
               <p className="text-xs font-medium text-gray-500">
                 Manage client profiles, catering preferences and complete event booking ledgers
-                {currentBranch && <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-[#F4E7C9] text-[#8B6914] font-bold">📍 {currentBranch.name}</span>}
+                {currentBranch && <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-amber-100/80 text-[#8B6914] font-bold">📍 {currentBranch.name}</span>}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             {/* VIEW MODE TOGGLE BUTTONS */}
-            <div className="bg-white p-1 rounded-xl border border-[#E0D8CC] flex items-center shadow-sm">
+            <div className="bg-white p-1 rounded-xl border border-slate-300 flex items-center shadow-sm">
               <button 
                 onClick={() => setViewMode('grid')} 
                 title="Grid Card View"
-                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
               >
                 <LayoutGrid size={18} />
               </button>
               <button 
                 onClick={() => setViewMode('table')} 
                 title="Table View"
-                className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
               >
                 <TableIcon size={18} />
               </button>
@@ -279,7 +279,7 @@ export default function CustomerManagement() {
 
             <button 
               onClick={() => handleOpenModal('create')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white shadow-md hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white shadow-md hover:scale-[1.02]"
             >
               <Plus size={18} /> Add Customer
             </button>
@@ -291,21 +291,21 @@ export default function CustomerManagement() {
 
         {/* STATS CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-amber-50 text-[#A97A1F]"><Users size={24} /></div>
+          <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-4">
+            <div className="p-3 rounded-xl bg-amber-50 text-[#2563EB]"><Users size={24} /></div>
             <div>
               <span className="text-xs text-gray-400 uppercase font-bold tracking-wider block">Total Customers</span>
               <span className="text-2xl font-bold font-mono text-gray-800">{stats.totalCustomers}</span>
             </div>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-4">
+          <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-4">
             <div className="p-3 rounded-xl bg-emerald-50 text-emerald-600"><Calendar size={24} /></div>
             <div>
               <span className="text-xs text-gray-400 uppercase font-bold tracking-wider block">Clients with Bookings</span>
               <span className="text-2xl font-bold font-mono text-emerald-700">{stats.activeWithBookings}</span>
             </div>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-4">
+          <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-4">
             <div className="p-3 rounded-xl bg-blue-50 text-blue-600"><Building size={24} /></div>
             <div>
               <span className="text-xs text-gray-400 uppercase font-bold tracking-wider block">Total Events Booked</span>
@@ -315,7 +315,7 @@ export default function CustomerManagement() {
         </div>
 
         {/* ADVANCED FILTER BAR */}
-        <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="relative">
             <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input 
@@ -323,7 +323,7 @@ export default function CustomerManagement() {
               value={search} 
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name, phone, email or CNIC..." 
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#A97A1F] text-sm"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2563EB] text-sm"
             />
           </div>
           <div>
@@ -332,7 +332,7 @@ export default function CustomerManagement() {
               value={cityFilter} 
               onChange={(e) => setCityFilter(e.target.value)}
               placeholder="Filter by City (e.g. Hasilpur)" 
-              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#A97A1F] text-sm"
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2563EB] text-sm"
             />
           </div>
           <div>
@@ -354,15 +354,15 @@ export default function CustomerManagement() {
         {/* CONTENT VIEW: GRID OR TABLE */}
         {loading ? (
           <div className="text-center py-20">
-            <div className="w-12 h-12 rounded-full border-4 border-t-[#A97A1F] animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
+            <div className="w-12 h-12 rounded-full border-4 border-t-[#2563EB] animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
             <p className="mt-4 text-sm font-bold text-gray-600">Loading customers...</p>
           </div>
         ) : filteredCustomers.length === 0 ? (
-          <div className="bg-white rounded-2xl p-12 text-center border border-[#E0D8CC] shadow-sm">
+          <div className="bg-white rounded-2xl p-12 text-center border border-slate-300 shadow-sm">
             <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
             <h3 className="text-lg font-bold text-gray-800 mb-1">No Customers Found</h3>
             <p className="text-sm text-gray-500">Get started by creating your first client record.</p>
-            <button onClick={() => handleOpenModal('create')} className="mt-4 px-5 py-2.5 bg-[#A97A1F] text-white rounded-xl text-xs font-bold shadow-sm">
+            <button onClick={() => handleOpenModal('create')} className="mt-4 px-5 py-2.5 bg-[#2563EB] text-white rounded-xl text-xs font-bold shadow-sm">
               <Plus size={14} className="inline mr-1" /> Add Customer
             </button>
           </div>
@@ -370,7 +370,7 @@ export default function CustomerManagement() {
           /* ── CARDS GRID VIEW ── */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedCustomers.map(cust => (
-              <div key={cust.id} className="bg-white rounded-2xl border border-[#E0D8CC] p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+              <div key={cust.id} className="bg-white rounded-2xl border border-slate-300 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div className="min-w-0">
@@ -387,7 +387,7 @@ export default function CustomerManagement() {
                     </div>
                     <div className="flex flex-col items-end gap-1 shrink-0">
                       {cust.city && (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-[#A97A1F] border border-amber-200">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-[#2563EB] border border-amber-200">
                           {cust.city}
                         </span>
                       )}
@@ -404,13 +404,13 @@ export default function CustomerManagement() {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-[#F0ECE6] flex items-center justify-between">
+                <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between">
                   <div className="flex items-center gap-1">
-                    <button onClick={() => handleViewHistory(cust.id)} title="View Event History Ledger" className="p-2 rounded-xl hover:bg-amber-100 text-[#A97A1F] transition-all"><History size={16} /></button>
-                    <button onClick={() => handleOpenModal('edit', cust.id)} title="Edit Customer" className="p-2 rounded-xl hover:bg-amber-50 text-[#A97A1F] transition-all"><Edit2 size={16} /></button>
+                    <button onClick={() => handleViewHistory(cust.id)} title="View Event History Ledger" className="p-2 rounded-xl hover:bg-amber-100 text-[#2563EB] transition-all"><History size={16} /></button>
+                    <button onClick={() => handleOpenModal('edit', cust.id)} title="Edit Customer" className="p-2 rounded-xl hover:bg-amber-50 text-[#2563EB] transition-all"><Edit2 size={16} /></button>
                     <button onClick={() => handleDelete(cust.id)} title="Delete Customer" className="p-2 rounded-xl hover:bg-red-50 text-red-600 transition-all"><Trash2 size={16} /></button>
                   </div>
-                  <button onClick={() => handleOpenModal('view', cust.id)} className="px-3 py-1.5 rounded-xl border border-[#E0D8CC] text-xs font-semibold text-gray-700 hover:bg-gray-50">
+                  <button onClick={() => handleOpenModal('view', cust.id)} className="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-semibold text-gray-700 hover:bg-gray-50">
                     View Profile
                   </button>
                 </div>
@@ -419,11 +419,11 @@ export default function CustomerManagement() {
           </div>
         ) : (
           /* ── TABLE VIEW ── */
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#FAF8F4] border-b border-[#E0D8CC] text-xs font-bold text-gray-600 uppercase tracking-wider">
+                  <tr className="bg-slate-50 border-b border-slate-300 text-xs font-bold text-gray-600 uppercase tracking-wider">
                     <th className="py-3.5 px-4">Customer Details</th>
                     <th className="py-3.5 px-4">Contact Info</th>
                     <th className="py-3.5 px-4">Type / City</th>
@@ -456,10 +456,10 @@ export default function CustomerManagement() {
                       </td>
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <button onClick={() => handleViewHistory(cust.id)} title="View Event History Ledger" className="p-1.5 rounded-lg hover:bg-amber-100 text-[#A97A1F] transition-all"><History size={15} /></button>
-                          <button onClick={() => handleOpenModal('edit', cust.id)} title="Edit Customer" className="p-1.5 rounded-lg hover:bg-amber-50 text-[#A97A1F] transition-all"><Edit2 size={15} /></button>
+                          <button onClick={() => handleViewHistory(cust.id)} title="View Event History Ledger" className="p-1.5 rounded-lg hover:bg-amber-100 text-[#2563EB] transition-all"><History size={15} /></button>
+                          <button onClick={() => handleOpenModal('edit', cust.id)} title="Edit Customer" className="p-1.5 rounded-lg hover:bg-amber-50 text-[#2563EB] transition-all"><Edit2 size={15} /></button>
                           <button onClick={() => handleDelete(cust.id)} title="Delete Customer" className="p-1.5 rounded-lg hover:bg-red-50 text-red-600 transition-all"><Trash2 size={15} /></button>
-                          <button onClick={() => handleOpenModal('view', cust.id)} className="ml-2 px-2.5 py-1 rounded-lg border border-[#E0D8CC] text-xs font-semibold text-gray-700 hover:bg-gray-50">
+                          <button onClick={() => handleOpenModal('view', cust.id)} className="ml-2 px-2.5 py-1 rounded-lg border border-slate-300 text-xs font-semibold text-gray-700 hover:bg-gray-50">
                             View
                           </button>
                         </div>
@@ -474,7 +474,7 @@ export default function CustomerManagement() {
 
         {/* ── PAGINATION BAR ── */}
         {!loading && filteredCustomers.length > 0 && (
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
             <p className="text-xs text-gray-500 font-medium">
               Showing <span className="font-bold text-gray-800">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
               <span className="font-bold text-gray-800">{Math.min(currentPage * itemsPerPage, filteredCustomers.length)}</span> of{' '}
@@ -485,7 +485,7 @@ export default function CustomerManagement() {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="p-2 rounded-xl border border-[#E0D8CC] text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-all"
+                className="p-2 rounded-xl border border-slate-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-all"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -501,8 +501,8 @@ export default function CustomerManagement() {
                         onClick={() => setCurrentPage(page)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                           currentPage === page
-                            ? 'bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white shadow-sm'
-                            : 'border border-[#E0D8CC] text-gray-600 hover:bg-gray-50'
+                            ? 'bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white shadow-sm'
+                            : 'border border-slate-300 text-gray-600 hover:bg-gray-50'
                         }`}
                       >
                         {page}
@@ -514,7 +514,7 @@ export default function CustomerManagement() {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-xl border border-[#E0D8CC] text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-all"
+                className="p-2 rounded-xl border border-slate-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-all"
               >
                 <ChevronRight size={16} />
               </button>
@@ -527,12 +527,12 @@ export default function CustomerManagement() {
       {/* CUSTOMER CREATE / EDIT / VIEW MODAL */}
       {isModalOpen && (
         <div className="fixed inset-y-0 right-0 left-0 lg:left-64 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl border border-[#E0D8CC] overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl border border-slate-300 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
             
             {/* Modal Header */}
-            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b bg-[#FAF8F4] flex items-center justify-between border-[#E0D8CC] sticky top-0 z-20">
+            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b bg-slate-50 flex items-center justify-between border-slate-300 sticky top-0 z-20">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-amber-100 text-[#A97A1F]">
+                <div className="p-2 rounded-xl bg-amber-100 text-[#2563EB]">
                   <Users size={20} />
                 </div>
                 <div>
@@ -541,7 +541,7 @@ export default function CustomerManagement() {
                     {modalMode === 'edit' && 'Edit Customer Details'}
                     {modalMode === 'view' && 'Customer Profile Details'}
                   </h2>
-                  <p className="text-xs text-[#A97A1F] mt-0.5 font-medium">📍 Branch: <strong>{currentBranch?.name}</strong></p>
+                  <p className="text-xs text-[#2563EB] mt-0.5 font-medium">📍 Branch: <strong>{currentBranch?.name}</strong></p>
                 </div>
               </div>
               <button onClick={handleCloseModal} className="p-2 rounded-xl hover:bg-gray-200 text-gray-600"><X size={20} /></button>
@@ -591,9 +591,9 @@ export default function CustomerManagement() {
                       { key: 'individual', label: 'Individual', icon: Users },
                       { key: 'organization', label: 'Organization', icon: Building2 },
                     ].map(type => (
-                      <label key={type.key} className={`cursor-pointer border-2 rounded-xl p-2.5 text-center transition-all ${form.customerType === type.key ? 'border-[#A97A1F] bg-amber-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
+                      <label key={type.key} className={`cursor-pointer border-2 rounded-xl p-2.5 text-center transition-all ${form.customerType === type.key ? 'border-[#2563EB] bg-amber-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
                         <input type="radio" name="customerType" className="hidden" checked={form.customerType === type.key} onChange={() => setForm({...form, customerType: type.key})} disabled={modalMode === 'view'} />
-                        <type.icon size={16} className="mx-auto mb-1" style={{ color: form.customerType === type.key ? '#A97A1F' : '#9CA3AF' }} />
+                        <type.icon size={16} className="mx-auto mb-1" style={{ color: form.customerType === type.key ? '#2563EB' : '#9CA3AF' }} />
                         <span className="text-[11px] font-bold block">{type.label}</span>
                       </label>
                     ))}
@@ -692,7 +692,7 @@ export default function CustomerManagement() {
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-xs text-amber-900 uppercase flex items-center gap-1.5"><ShieldAlert size={15} /> Emergency Contacts</span>
                     {modalMode !== 'view' && (
-                      <button type="button" onClick={() => setForm({...form, emergencyContacts: [...form.emergencyContacts, { name: '', relation: '', phone: '', isPrimary: false }]})} className="px-3 py-1.5 bg-[#A97A1F] text-white rounded-xl text-xs font-bold shadow-sm">+ Add Contact</button>
+                      <button type="button" onClick={() => setForm({...form, emergencyContacts: [...form.emergencyContacts, { name: '', relation: '', phone: '', isPrimary: false }]})} className="px-3 py-1.5 bg-[#2563EB] text-white rounded-xl text-xs font-bold shadow-sm">+ Add Contact</button>
                     )}
                   </div>
 
@@ -712,10 +712,10 @@ export default function CustomerManagement() {
             </div>
 
             {/* Modal Footer */}
-            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t bg-[#FAF8F4] flex items-center justify-end gap-3 border-[#E0D8CC] sticky bottom-0 z-20">
+            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t bg-slate-50 flex items-center justify-end gap-3 border-slate-300 sticky bottom-0 z-20">
               <button type="button" onClick={handleCloseModal} className="px-5 py-2.5 rounded-xl border text-gray-600 text-sm font-semibold hover:bg-gray-50">Close</button>
               {modalMode !== 'view' && (
-                <button type="submit" form="customerForm" disabled={saving} className="px-7 py-2.5 bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white font-semibold rounded-xl shadow-md text-sm hover:opacity-95">
+                <button type="submit" form="customerForm" disabled={saving} className="px-7 py-2.5 bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white font-semibold rounded-xl shadow-md text-sm hover:opacity-95">
                   {saving ? 'Saving...' : (modalMode === 'edit' ? 'Update Customer' : 'Save Customer')}
                 </button>
               )}
@@ -728,9 +728,9 @@ export default function CustomerManagement() {
       {/* CUSTOMER HISTORY & COMPLETE EVENT LEDGER MODAL */}
       {selectedCustomerHistory && (
         <div className="fixed inset-y-0 right-0 left-0 lg:left-64 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl border border-[#E0D8CC] overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl border border-slate-300 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
             
-            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b bg-[#FAF8F4] flex items-center justify-between border-[#E0D8CC] sticky top-0 z-20">
+            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b bg-slate-50 flex items-center justify-between border-slate-300 sticky top-0 z-20">
               <div>
                 <h3 className="font-bold text-base sm:text-lg text-gray-800">{selectedCustomerHistory.name} — Complete Event History Ledger</h3>
                 <p className="text-xs text-gray-500 font-mono mt-0.5">Phone: {selectedCustomerHistory.phone} | CNIC: {selectedCustomerHistory.cnic || 'N/A'} | City: {selectedCustomerHistory.city || 'N/A'}</p>
@@ -751,14 +751,14 @@ export default function CustomerManagement() {
               )}
 
               <div className="space-y-4">
-                <h4 className="font-bold text-sm text-gray-700 uppercase tracking-wider flex items-center gap-1.5"><Calendar size={16} className="text-[#A97A1F]" /> Booked Halls, Events, Menus & Bill Ledger</h4>
+                <h4 className="font-bold text-sm text-gray-700 uppercase tracking-wider flex items-center gap-1.5"><Calendar size={16} className="text-[#2563EB]" /> Booked Halls, Events, Menus & Bill Ledger</h4>
 
                 {selectedCustomerHistory.bookings?.length > 0 ? (
                   selectedCustomerHistory.bookings.map(b => (
                     <div key={b.id} className="p-4 rounded-2xl border border-gray-200 bg-gray-50/50 space-y-3 shadow-sm">
                       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 pb-2 border-b border-gray-200">
                         <div>
-                          <span className="font-bold text-gray-900 text-base">{b.bookingNo} — Event Type: <span className="text-[#A97A1F] uppercase">{b.eventType}</span></span>
+                          <span className="font-bold text-gray-900 text-base">{b.bookingNo} — Event Type: <span className="text-[#2563EB] uppercase">{b.eventType}</span></span>
                           <span className="text-xs text-gray-500 block mt-0.5">
                             📅 <strong>Event Date:</strong> {new Date(b.eventDate).toDateString()} | 🕒 <strong>Slot:</strong> {new Date(b.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(b.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
@@ -808,7 +808,7 @@ export default function CustomerManagement() {
               </div>
             </div>
 
-            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t bg-[#FAF8F4] flex items-center justify-end gap-3 border-[#E0D8CC] sticky bottom-0 z-20">
+            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t bg-slate-50 flex items-center justify-end gap-3 border-slate-300 sticky bottom-0 z-20">
               <button onClick={() => setSelectedCustomerHistory(null)} className="px-6 py-2.5 bg-gray-800 text-white rounded-xl text-sm font-semibold shadow-md hover:bg-gray-700">Close Ledger</button>
             </div>
 

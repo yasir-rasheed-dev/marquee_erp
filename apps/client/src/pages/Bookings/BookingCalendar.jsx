@@ -102,7 +102,7 @@ const BookingCalendar = () => {
       {/* Modern Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-amber-50 text-[#A97A1F] rounded-xl">
+          <div className="p-3 bg-amber-50 text-[#2563EB] rounded-xl">
             <CalendarIcon className="w-6 h-6" />
           </div>
           <div>
@@ -117,7 +117,7 @@ const BookingCalendar = () => {
             <Printer className="w-4 h-4" /> Print Schedule
           </Button>
           <Link to="/bookings/create">
-            <Button variant="primary" size="md" className="flex items-center gap-2 bg-[#A97A1F] hover:bg-[#966b1a] text-white">
+            <Button variant="primary" size="md" className="flex items-center gap-2 bg-[#2563EB] hover:bg-[#966b1a] text-white">
               <Plus className="w-4 h-4" /> New Booking
             </Button>
           </Link>
@@ -132,7 +132,7 @@ const BookingCalendar = () => {
             <Button variant="outline" size="sm" className="p-2.5 rounded-xl" onClick={() => navigateMonth(-1)}>
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button variant="primary" size="sm" className="px-4 py-2 rounded-xl bg-[#A97A1F] text-white" onClick={goToToday}>
+            <Button variant="primary" size="sm" className="px-4 py-2 rounded-xl bg-[#2563EB] text-white" onClick={goToToday}>
               Today
             </Button>
             <Button variant="outline" size="sm" className="p-2.5 rounded-xl" onClick={() => navigateMonth(1)}>
@@ -187,7 +187,7 @@ const BookingCalendar = () => {
                   key={h.id || h.name}
                   onClick={() => setSelectedHall(active ? 'all' : h.name)}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold border transition-all ${
-                    active ? 'ring-2 ring-offset-1 ring-[#A97A1F] shadow-sm' : 'opacity-70 hover:opacity-100'
+                    active ? 'ring-2 ring-offset-1 ring-[#2563EB] shadow-sm' : 'opacity-70 hover:opacity-100'
                   }`}
                   style={{ backgroundColor: active ? `${colorStyle.cssVar}15` : '#F9FAFB', borderColor: colorStyle.cssVar, color: colorStyle.cssVar }}
                 >
@@ -245,7 +245,7 @@ const BookingCalendar = () => {
       <div className="flex items-center justify-between mb-2">
         <span className={`text-xs font-bold w-7 h-7 flex items-center justify-center rounded-xl ${
           highlightToday 
-            ? 'bg-[#A97A1F] text-white shadow-sm' 
+            ? 'bg-[#2563EB] text-white shadow-sm' 
             : isPastDate
               ? 'text-gray-400 bg-gray-100 line-through'
               : 'text-gray-700 bg-gray-100'

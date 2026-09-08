@@ -95,6 +95,7 @@ const employeeRoutes = require('./src/routes/employee.routes');
 const rolePermissionRoutes = require('./src/routes/rolePermissionRoutes'); 
 const backupRoutes = require('./src/routes/backup.routes');
 const receiptSettingsRoutes = require('./src/routes/receiptSettings');
+const reportRoutes = require('./src/routes/report.routes');
 
 // const userRoutes = require('./src/routes/user.routes');      // If exists
 // const inventoryRoutes = require('./src/routes/inventory.routes'); // If exists
@@ -133,6 +134,7 @@ app.use('/api/employee', employeeRoutes);
 app.use('/api/role-permissions', rolePermissionRoutes);
 app.use('/api/backups', backupRoutes);
 app.use('/api/receipt-settings', receiptSettingsRoutes);
+app.use('/api/reports', reportRoutes);
 // app.use('/api/users', userRoutes);                          // If exists
 // app.use('/api/inventory', inventoryRoutes);                 // If exists
 // app.use('/api/packages', packageRoutes);                    // If exists

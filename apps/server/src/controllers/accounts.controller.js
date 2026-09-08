@@ -866,7 +866,7 @@ const getAllTransactions = async (req, res) => {
       });
     }
 
-        const { search, category, type, page = 1, limit = 50 } = req.query;
+    const { search, category, type, fromDate, toDate, from, to, startDate, endDate, bankAccountId, page = 1, limit = 50, all } = req.query;
 
     const where = {
       branchId,
@@ -875,6 +875,25 @@ const getAllTransactions = async (req, res) => {
     };
 
     if (category) where.category = category.toUpperCase();
+    if (bankAccountId) where.bankAccountId = parseInt(bankAccountId);
+
+    const fDate = fromDate || from || startDate;
+    const tDate = toDate || to || endDate;
+
+    if (fDate || tDate) {
+      where.transactionDate = {};
+      if (fDate) {
+        const s = new Date(fDate);
+        s.setHours(0, 0, 0, 0);
+        where.transactionDate.gte = s;
+      }
+      if (tDate) {
+        const e = new Date(tDate);
+        e.setHours(23, 59, 59, 999);
+        where.transactionDate.lte = e;
+      }
+    }
+
     if (search) {
       where.OR = [
         { description: { contains: search, mode: 'insensitive' } },
@@ -883,12 +902,16 @@ const getAllTransactions = async (req, res) => {
       ];
     }
 
+    const isAll = all === 'true' || limit === 'all' || limit === '-1';
+    const parsedLimit = isAll ? 5000 : Math.min(parseInt(limit) || 50, 1000);
+    const parsedPage = isAll ? 1 : Math.max(parseInt(page) || 1, 1);
+
     const [transactions, total] = await Promise.all([
       prisma.accountTransaction.findMany({
         where,
         orderBy: { transactionDate: 'desc' },
-        skip: (parseInt(page) - 1) * parseInt(limit),
-        take: parseInt(limit),
+        skip: isAll ? undefined : (parsedPage - 1) * parsedLimit,
+        take: isAll ? undefined : parsedLimit,
         include: {
           bankAccount: { select: { id: true, bankName: true, accountNumber: true } },
           createdByUser: { select: { id: true, name: true } },

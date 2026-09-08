@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════
 // services/inventoryDeduction.service.js
-// AUTO INVENTORY DEDUCTION — Recipe → Menu → Booking → Event
-// Biryani Degh (Recipe) × 3 = 6kg Rice + 6kg Oil auto deduct
+// AUTO INVENTORY DEDUCTION — Recipe (BOM) → Degh/Plate Math → Booking → Event
+// Formula: Total Guests / conversionRate (e.g. 50) = Deghs × Recipe Qty (e.g. 12kg) = Raw Stock
 // ═══════════════════════════════════════════════════════════
 
 const { PrismaClient } = require('@prisma/client');
@@ -20,8 +20,8 @@ const AUTO_DEDUCT_REF_TYPE = 'AUTO_RECIPE_DEDUCT';
  * @param {number} options.userId - User performing the action
  * @param {number} options.branchId - Branch ID for validation
  * @param {boolean} options.dryRun - If true, only calculates without deducting
- * @param {string} options.triggerSource - 'production_plan' | 'event_execution' | 'manual'
- * @param {number} options.referenceId - ProductionPlan ID or EventExecution ID
+ * @param {string} options.triggerSource - 'production_plan' | 'event_execution' | 'kitchen_order' | 'manual'
+ * @param {number} options.referenceId - Reference entity ID
  * @returns {Object} Deduction result with details
  */
 const deductInventoryForBooking = async (bookingId, options = {}) => {
@@ -33,7 +33,7 @@ const deductInventoryForBooking = async (bookingId, options = {}) => {
     referenceId = null
   } = options;
 
-  // ── 1. Fetch Booking with all menu data ──
+  // ── 1. Fetch Booking with menus, dishes, and custom items ──
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: {
@@ -45,23 +45,57 @@ const deductInventoryForBooking = async (bookingId, options = {}) => {
                 include: {
                   items: {
                     include: {
-                      recipeIngredients: {
+                      item: {
                         include: {
-                          inventoryItem: {
-                            select: {
-                              id: true,
-                              name: true,
-                              currentStock: true,
-                              avgCostPrice: true,
-                              lastCostPrice: true,
-                              unit: true,
-                              manageStock: true,
-                              branchId: true
+                          recipeIngredients: {
+                            include: {
+                              inventoryItem: {
+                                select: {
+                                  id: true,
+                                  name: true,
+                                  currentStock: true,
+                                  avgCostPrice: true,
+                                  lastCostPrice: true,
+                                  unit: true,
+                                  manageStock: true,
+                                  branchId: true
+                                }
+                              },
+                              unitRef: { select: { id: true, name: true, symbol: true } }
                             }
-                          },
-                          unitRef: { select: { id: true, name: true, symbol: true } }
+                          }
                         }
                       }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      customItems: true,
+      bookingMenuItems: {
+        include: {
+          menuItem: {
+            include: {
+              item: {
+                include: {
+                  recipeIngredients: {
+                    include: {
+                      inventoryItem: {
+                        select: {
+                          id: true,
+                          name: true,
+                          currentStock: true,
+                          avgCostPrice: true,
+                          lastCostPrice: true,
+                          unit: true,
+                          manageStock: true,
+                          branchId: true
+                        }
+                      },
+                      unitRef: { select: { id: true, name: true, symbol: true } }
                     }
                   }
                 }
@@ -97,86 +131,181 @@ const deductInventoryForBooking = async (bookingId, options = {}) => {
     );
   }
 
-  // ── 3. Calculate all ingredients needed ──
+  // ── 3. Load Recipes for Custom Items (if any) ──
+  const customItemIds = (booking.customItems || [])
+    .map(ci => ci.itemId)
+    .filter(id => id && !isNaN(parseInt(id)));
+
+  let customItemsWithRecipes = [];
+  if (customItemIds.length > 0) {
+    customItemsWithRecipes = await prisma.item.findMany({
+      where: { id: { in: customItemIds } },
+      include: {
+        recipeIngredients: {
+          include: {
+            inventoryItem: {
+              select: {
+                id: true,
+                name: true,
+                currentStock: true,
+                avgCostPrice: true,
+                lastCostPrice: true,
+                unit: true,
+                manageStock: true,
+                branchId: true
+              }
+            },
+            unitRef: { select: { id: true, name: true, symbol: true } }
+          }
+        }
+      }
+    });
+  }
+
+  // ── 4. Calculate all ingredients needed ──
   const ingredientMap = new Map(); // inventoryItemId → aggregated data
   const dishUsageList = []; // For EventDishUsage tracking
+  const bookingGuestCount = Math.max(parseInt(booking.guestCount) || 100, 1);
 
-  for (const bookingMenu of booking.menus) {
+  // Helper function to add ingredient to map
+  const addIngredientToMap = (recipe, dishMultiplier, dishName, deghCount) => {
+    if (!recipe.inventoryItemId || !recipe.inventoryItem) return;
+
+    const inv = recipe.inventoryItem;
+    const recipeQty = parseFloat(recipe.quantity) || 0;
+    const totalQty = parseFloat((recipeQty * dishMultiplier).toFixed(3));
+
+    if (totalQty <= 0) return;
+
+    const key = inv.id;
+    if (!ingredientMap.has(key)) {
+      ingredientMap.set(key, {
+        inventoryItemId: inv.id,
+        inventoryItemName: inv.name,
+        currentStock: parseFloat(inv.currentStock) || 0,
+        avgCostPrice: parseFloat(inv.avgCostPrice) || parseFloat(recipe.costPerUnit) || 0,
+        unit: recipe.unit || inv.unit || 'kg',
+        unitId: recipe.unitId,
+        manageStock: inv.manageStock,
+        totalRequired: 0,
+        usedInDishes: []
+      });
+    }
+
+    const agg = ingredientMap.get(key);
+    agg.totalRequired = parseFloat((agg.totalRequired + totalQty).toFixed(3));
+    agg.usedInDishes.push({
+      menuItemName: dishName,
+      recipeQty,
+      dishUnits: deghCount,
+      lineTotal: totalQty
+    });
+  };
+
+  // A) Process Standard Menus (from BookingMenu)
+  for (const bookingMenu of booking.menus || []) {
     const menu = bookingMenu.menu;
     if (!menu) continue;
 
-    // How many "sets" of this menu were ordered
-    const menuQuantity = parseFloat(bookingMenu.quantity) || 1;
-
-    // Guest scaling factor: if menu designed for 100 guests but booking has 300
-    const menuGuestCount = Math.max(parseInt(menu.guestCount) || 100, 1);
-    const bookingGuestCount = Math.max(parseInt(booking.guestCount) || menuGuestCount, 1);
-    const guestScaleFactor = bookingGuestCount / menuGuestCount;
-
     for (const category of menu.categories || []) {
       for (const menuItem of category.items || []) {
-        const recipes = menuItem.recipeIngredients || [];
+        const dishItem = menuItem.item;
+        const recipes = dishItem?.recipeIngredients || [];
         if (recipes.length === 0) continue;
 
-        // Calculate how many "units" of this dish we need
-        // menuItem.quantityPerHead = amount per guest (or per menu base)
+        // ── Degh vs Plate conversion calculation ──
+        // e.g. 50 plates in 1 Degh
+        const conversionRate = parseFloat(menuItem.conversionRate || dishItem?.conversionRate) || 50;
+        const isBulk = menuItem.isBulkUnit !== false && (
+          (menuItem.unit && menuItem.unit.toLowerCase().includes('degh')) ||
+          (dishItem?.unit && dishItem.unit.toLowerCase().includes('degh')) ||
+          menuItem.isBulkUnit || dishItem?.isBulkUnit
+        );
+
         const qtyPerHead = parseFloat(menuItem.quantityPerHead) || 1;
-        const totalDishUnits = menuQuantity * guestScaleFactor * qtyPerHead;
+        const totalPlates = bookingGuestCount * qtyPerHead;
+        // If bulk unit (Degh), totalDeghs = totalPlates / conversionRate (e.g. 100 / 50 = 2 Degh)
+        const totalDeghs = isBulk ? parseFloat((totalPlates / conversionRate).toFixed(2)) : totalPlates;
 
         for (const recipe of recipes) {
-          if (!recipe.inventoryItemId || !recipe.inventoryItem) {
-            // Recipe ingredient not linked to inventory — skip but warn
-            console.warn(`[AutoDeduct] Recipe ingredient "${recipe.name}" has no inventory link (MenuItem: ${menuItem.name})`);
-            continue;
-          }
-
-          const inv = recipe.inventoryItem;
-          const recipeQty = parseFloat(recipe.quantity) || 0;
-          const totalQty = recipeQty * totalDishUnits;
-
-          if (totalQty <= 0) continue;
-
-          // Aggregate by inventory item
-          const key = inv.id;
-          if (!ingredientMap.has(key)) {
-            ingredientMap.set(key, {
-              inventoryItemId: inv.id,
-              inventoryItemName: inv.name,
-              currentStock: parseFloat(inv.currentStock) || 0,
-              avgCostPrice: parseFloat(inv.avgCostPrice) || parseFloat(recipe.costPerUnit) || 0,
-              unit: recipe.unit || inv.unit || 'unit',
-              unitId: recipe.unitId,
-              manageStock: inv.manageStock,
-              totalRequired: 0,
-              usedInDishes: []
-            });
-          }
-
-          const agg = ingredientMap.get(key);
-          agg.totalRequired += totalQty;
-          agg.usedInDishes.push({
-            menuItemName: menuItem.name,
-            recipeQty,
-            dishUnits: totalDishUnits,
-            lineTotal: totalQty
-          });
+          addIngredientToMap(recipe, totalDeghs, menuItem.name, totalDeghs);
         }
 
-        // Track dish usage for history
         dishUsageList.push({
           menuItemId: menuItem.id,
           dishName: menuItem.name,
-          plannedQuantity: totalDishUnits,
-          actualQuantity: totalDishUnits, // Same for auto-deduct
-          unit: menuItem.unit || 'Degh',
+          plannedQuantity: totalDeghs,
+          actualQuantity: totalDeghs,
+          unit: menuItem.unit || (isBulk ? 'Degh' : 'plate'),
           unitId: menuItem.unitId,
-          costPerUnit: parseFloat(menuItem.costPrice) || 0
+          costPerUnit: parseFloat(menuItem.costPrice || dishItem?.costPrice) || 0
         });
       }
     }
   }
 
-  // ── 4. Check stock availability ──
+  // B) Process Booking Custom Items
+  for (const customItem of booking.customItems || []) {
+    if (!customItem.itemId) continue;
+    const dishItem = customItemsWithRecipes.find(i => i.id === customItem.itemId);
+    if (!dishItem) continue;
+
+    const recipes = dishItem.recipeIngredients || [];
+    if (recipes.length === 0) continue;
+
+    const conversionRate = parseFloat(dishItem.conversionRate) || 50;
+    const isBulk = dishItem.isBulkUnit !== false && (
+      (customItem.unit && customItem.unit.toLowerCase().includes('degh')) ||
+      (dishItem.unit && dishItem.unit.toLowerCase().includes('degh')) ||
+      dishItem.isBulkUnit
+    );
+
+    const orderedQty = parseFloat(customItem.quantity) || 1;
+    let totalDeghs = orderedQty;
+
+    // If unit is plates, convert to Deghs
+    if (customItem.unit && (customItem.unit.toLowerCase().includes('plate') || customItem.unit.toLowerCase() === 'pcs')) {
+      totalDeghs = parseFloat((orderedQty / conversionRate).toFixed(2));
+    }
+
+    for (const recipe of recipes) {
+      addIngredientToMap(recipe, totalDeghs, customItem.itemName, totalDeghs);
+    }
+
+    dishUsageList.push({
+      menuItemId: null,
+      dishName: customItem.itemName,
+      plannedQuantity: totalDeghs,
+      actualQuantity: totalDeghs,
+      unit: customItem.unit || (isBulk ? 'Degh' : 'plate'),
+      unitId: null,
+      costPerUnit: parseFloat(dishItem.costPrice) || 0
+    });
+  }
+
+  // C) Process Direct BookingMenuItem (if populated)
+  for (const bmi of booking.bookingMenuItems || []) {
+    if (bmi.isDeducted) continue;
+    const menuItem = bmi.menuItem;
+    if (!menuItem) continue;
+    const dishItem = menuItem.item;
+    const recipes = dishItem?.recipeIngredients || [];
+    if (recipes.length === 0) continue;
+
+    const conversionRate = parseFloat(menuItem.conversionRate || dishItem?.conversionRate) || 50;
+    const orderedQty = parseFloat(bmi.quantity) || 1;
+    let totalDeghs = orderedQty;
+
+    if (bmi.unit && (bmi.unit.toLowerCase().includes('plate') || bmi.unit.toLowerCase() === 'pcs')) {
+      totalDeghs = parseFloat((orderedQty / conversionRate).toFixed(2));
+    }
+
+    for (const recipe of recipes) {
+      addIngredientToMap(recipe, totalDeghs, menuItem.name, totalDeghs);
+    }
+  }
+
+  // ── 5. Check stock availability ──
   const shortages = [];
   const deductions = [];
 
@@ -203,7 +332,7 @@ const deductInventoryForBooking = async (bookingId, options = {}) => {
     }
   }
 
-  // ── 5. If shortages, return error ──
+  // ── 6. If shortages, return error ──
   if (shortages.length > 0) {
     return {
       success: false,
@@ -214,12 +343,12 @@ const deductInventoryForBooking = async (bookingId, options = {}) => {
     };
   }
 
-  // ── 6. If dry run, return preview only ──
+  // ── 7. If dry run, return preview only ──
   if (dryRun) {
     return {
       success: true,
       dryRun: true,
-      message: `DRY RUN: Would deduct ${deductions.length} ingredient(s) for booking #${bookingId}`,
+      message: `DRY RUN: Would deduct ${deductions.length} ingredient(s) for booking #${booking.bookingNo || bookingId}`,
       deductions: deductions.map(d => ({
         inventoryItemId: d.inventoryItemId,
         name: d.inventoryItemName,

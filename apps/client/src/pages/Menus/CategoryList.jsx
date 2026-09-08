@@ -33,7 +33,7 @@ export default function CategoryList() {
     name: '', 
     code: '', 
     description: '', 
-    color: '#C89B3C', 
+    color: '#2563EB', 
     icon: ''
   });
 
@@ -76,7 +76,7 @@ export default function CategoryList() {
         name: form.name,
         code: form.code || null,
         description: form.description || null,
-        color: form.color || '#C89B3C',
+        color: form.color || '#2563EB',
         icon: form.icon || null,
         scope: 'MENU'
       };
@@ -110,7 +110,7 @@ export default function CategoryList() {
       
       setShowModal(false);
       setEditingId(null);
-      setForm({ name: '', code: '', description: '', color: '#C89B3C', icon: '' });
+      setForm({ name: '', code: '', description: '', color: '#2563EB', icon: '' });
       refetch();
     } catch (e) { 
       if (e.response?.status === 401) {
@@ -128,7 +128,7 @@ export default function CategoryList() {
       name: cat.name, 
       code: cat.code || '', 
       description: cat.description || '', 
-      color: cat.color || '#C89B3C', 
+      color: cat.color || '#2563EB', 
       icon: cat.icon || ''
     });
     setEditingId(cat.id);
@@ -155,10 +155,10 @@ export default function CategoryList() {
   // ── Loading State ──
   if (loading && !categories) {
     return (
-      <div className="flex items-center justify-center h-64" style={{ backgroundColor: '#F5F2EB' }}>
+      <div className="flex items-center justify-center h-64" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
         <div className="text-center">
-          <div className="w-12 h-12 rounded-full border-4 border-t-[#A97A1F] animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
-          <p className="mt-4 text-sm font-medium" style={{ color: '#4A4A4A' }}>Loading menu categories...</p>
+          <div className="w-12 h-12 rounded-full border-4 border-t-[#2563EB] animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
+          <p className="mt-4 text-sm font-medium" style={{ color: '#334155' }}>Loading menu categories...</p>
         </div>
       </div>
     );
@@ -175,21 +175,21 @@ export default function CategoryList() {
   const paginatedCategories = categoryList.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <div className="min-h-screen p-6" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <div className="max-w-6xl mx-auto">
         {/* ── Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-[0_4px_12px_rgba(169,122,31,0.3)]">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.3)]">
                 <Tag className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#1A1A1A' }}>Menu Categories</h1>
-                <p className="text-sm font-medium flex items-center gap-2" style={{ color: '#4A4A4A' }}>
+                <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>Menu Categories</h1>
+                <p className="text-sm font-medium flex items-center gap-2" style={{ color: '#334155' }}>
                   Manage categories specific to menu items 
                   {currentBranch && (
-                    <span className="px-2 py-0.5 rounded-full text-xs bg-[#F4E7C9] text-[#8B6914] font-bold">
+                    <span className="px-2 py-0.5 rounded-full text-xs bg-amber-100/80 text-[#8B6914] font-bold">
                       {currentBranch.name}
                     </span>
                   )}
@@ -200,18 +200,18 @@ export default function CategoryList() {
           
           <div className="flex items-center gap-3">
             {/* VIEW MODE TOGGLE BUTTONS */}
-            <div className="bg-white p-1 rounded-xl border border-[#E0D8CC] flex items-center shadow-sm">
+            <div className="bg-white p-1 rounded-xl border border-slate-300 flex items-center shadow-sm">
               <button 
                 onClick={() => setViewMode('grid')} 
                 title="Grid Card View"
-                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
               >
                 <LayoutGrid size={18} />
               </button>
               <button 
                 onClick={() => setViewMode('table')} 
                 title="Table View"
-                className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
               >
                 <TableIcon size={18} />
               </button>
@@ -221,9 +221,9 @@ export default function CategoryList() {
               onClick={() => { 
                 setShowModal(true); 
                 setEditingId(null); 
-                setForm({ name: '', code: '', description: '', color: '#C89B3C', icon: '' }); 
+                setForm({ name: '', code: '', description: '', color: '#2563EB', icon: '' }); 
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white shadow-[0_4px_12px_rgba(169,122,31,0.3)] hover:shadow-[0_4px_20px_rgba(169,122,31,0.4)] hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white shadow-[0_4px_12px_rgba(37,99,235,0.3)] hover:shadow-[0_4px_20px_rgba(37,99,235,0.4)] hover:scale-[1.02]"
             >
               <Plus size={18} /> Add Menu Category
             </button>
@@ -232,28 +232,28 @@ export default function CategoryList() {
 
         {/* ── Stats ── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-          <div className="bg-white rounded-2xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-[#E0D8CC]">
-            <p className="text-2xl font-bold" style={{ color: '#1A1A1A' }}>{categoryCount}</p>
-            <p className="text-xs font-medium" style={{ color: '#4A4A4A' }}>Total Categories</p>
+          <div className="bg-white rounded-2xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-slate-300">
+            <p className="text-2xl font-bold" style={{ color: '#0F172A' }}>{categoryCount}</p>
+            <p className="text-xs font-medium" style={{ color: '#334155' }}>Total Categories</p>
           </div>
-          <div className="bg-white rounded-2xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-[#E0D8CC]">
+          <div className="bg-white rounded-2xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-slate-300">
             <p className="text-2xl font-bold" style={{ color: '#1B5E20' }}>
               {activeCategories.length}
             </p>
-            <p className="text-xs font-medium" style={{ color: '#4A4A4A' }}>Active Categories</p>
+            <p className="text-xs font-medium" style={{ color: '#334155' }}>Active Categories</p>
           </div>
-          <div className="bg-white rounded-2xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-[#E0D8CC]">
-            <p className="text-2xl font-bold" style={{ color: '#A97A1F' }}>
+          <div className="bg-white rounded-2xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-slate-300">
+            <p className="text-2xl font-bold" style={{ color: '#2563EB' }}>
               {totalItems}
             </p>
-            <p className="text-xs font-medium" style={{ color: '#4A4A4A' }}>Linked Menu Items</p>
+            <p className="text-xs font-medium" style={{ color: '#334155' }}>Linked Menu Items</p>
           </div>
         </div>
 
         {/* ── Search ── */}
-        <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-[#E0D8CC] p-4 mb-4">
+        <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-slate-300 p-4 mb-4">
           <div className="relative">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#7A7A7A' }} />
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#475569' }} />
             <input 
               type="text" 
               value={search} 
@@ -262,8 +262,8 @@ export default function CategoryList() {
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
               style={{ 
                 backgroundColor: '#FFFFFF', 
-                borderColor: '#E0D8CC', 
-                color: '#1A1A1A'
+                borderColor: '#CBD5E1', 
+                color: '#0F172A'
               }} 
             />
           </div>
@@ -272,22 +272,22 @@ export default function CategoryList() {
         {/* ── Modal Pop-up Form ── */}
         {showModal && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl w-full max-w-lg p-6 shadow-2xl border border-[#E0D8CC] animate-in fade-in zoom-in duration-200">
+            <div className="bg-white rounded-3xl w-full max-w-lg p-6 shadow-2xl border border-slate-300 animate-in fade-in zoom-in duration-200">
               <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-100">
                 <div>
-                  <h3 className="font-bold text-lg" style={{ color: '#1A1A1A' }}>
+                  <h3 className="font-bold text-lg" style={{ color: '#0F172A' }}>
                     {editingId ? 'Edit Menu Category' : 'New Menu Category'}
                   </h3>
-                  <p className="text-sm font-medium" style={{ color: '#4A4A4A' }}>
+                  <p className="text-sm font-medium" style={{ color: '#334155' }}>
                     {editingId ? 'Update category details' : 'Create a new menu category'}
                   </p>
-                  <p className="text-xs mt-1" style={{ color: '#A97A1F' }}>
+                  <p className="text-xs mt-1" style={{ color: '#2563EB' }}>
                     📍 Will be saved in: <strong>{currentBranch?.name || 'Current Branch'}</strong>
                   </p>
                 </div>
                 <button 
                   onClick={() => setShowModal(false)}
-                  className="p-2 rounded-xl hover:bg-[#F5F2EB] transition-all text-gray-400 hover:text-gray-600"
+                  className="p-2 rounded-xl hover:bg-[#F1F5F9] transition-all text-gray-400 hover:text-gray-600"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -295,7 +295,7 @@ export default function CategoryList() {
               
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                     Category Name <span style={{ color: '#B71C1C' }}>*</span>
                   </label>
                   <input 
@@ -305,14 +305,14 @@ export default function CategoryList() {
                     placeholder="e.g., Main Course, Rice, BBQ"
                     className="w-full px-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
                     style={{ 
-                      borderColor: '#E0D8CC', 
+                      borderColor: '#CBD5E1', 
                       backgroundColor: '#FFFFFF', 
-                      color: '#1A1A1A'
+                      color: '#0F172A'
                     }} 
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                     Code
                   </label>
                   <input 
@@ -321,14 +321,14 @@ export default function CategoryList() {
                     placeholder="e.g., MENU-CAT-01"
                     className="w-full px-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm font-mono"
                     style={{ 
-                      borderColor: '#E0D8CC', 
+                      borderColor: '#CBD5E1', 
                       backgroundColor: '#FFFFFF', 
-                      color: '#1A1A1A'
+                      color: '#0F172A'
                     }} 
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                     Color
                   </label>
                   <div className="flex items-center gap-3">
@@ -336,13 +336,13 @@ export default function CategoryList() {
                       type="color" 
                       value={form.color} 
                       onChange={(e) => setForm({ ...form, color: e.target.value })} 
-                      className="w-12 h-12 rounded-xl cursor-pointer border border-[#E0D8CC] p-1" 
+                      className="w-12 h-12 rounded-xl cursor-pointer border border-slate-300 p-1" 
                     />
-                    <span className="text-sm font-medium" style={{ color: '#7A7A7A' }}>{form.color}</span>
+                    <span className="text-sm font-medium" style={{ color: '#475569' }}>{form.color}</span>
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                     Description
                   </label>
                   <textarea 
@@ -352,24 +352,24 @@ export default function CategoryList() {
                     placeholder="Add a description for this menu category"
                     className="w-full px-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm resize-none"
                     style={{ 
-                      borderColor: '#E0D8CC', 
+                      borderColor: '#CBD5E1', 
                       backgroundColor: '#FFFFFF', 
-                      color: '#1A1A1A'
+                      color: '#0F172A'
                     }} 
                   />
                 </div>
-                <div className="flex gap-3 pt-4 border-t" style={{ borderColor: '#F0ECE6' }}>
+                <div className="flex gap-3 pt-4 border-t" style={{ borderColor: '#E2E8F0' }}>
                   <button 
                     type="button" 
                     onClick={() => setShowModal(false)} 
-                    className="flex-1 px-4 py-2.5 rounded-xl font-bold text-sm transition-all hover:bg-gray-100 bg-gray-50 border border-[#E0D8CC]"
-                    style={{ color: '#4A4A4A' }}
+                    className="flex-1 px-4 py-2.5 rounded-xl font-bold text-sm transition-all hover:bg-gray-100 bg-gray-50 border border-slate-300"
+                    style={{ color: '#334155' }}
                   >
                     Cancel
                   </button>
                   <button 
                     type="submit" 
-                    className="flex-1 px-4 py-2.5 rounded-xl font-bold text-white text-sm transition-all bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] shadow-[0_4px_12px_rgba(169,122,31,0.3)] hover:scale-[1.02]"
+                    className="flex-1 px-4 py-2.5 rounded-xl font-bold text-white text-sm transition-all bg-gradient-to-r from-[#2563EB] to-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.3)] hover:scale-[1.02]"
                   >
                     {editingId ? 'Update Category' : 'Create Category'}
                   </button>
@@ -384,19 +384,19 @@ export default function CategoryList() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {paginatedCategories.map(cat => (
               <div key={cat.id} 
-                className="bg-white rounded-xl border border-[#E0D8CC] p-3 transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:scale-[1.02]"
-                style={{ borderLeft: `3px solid ${cat.color || '#C89B3C'}` }}
+                className="bg-white rounded-xl border border-slate-300 p-3 transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:scale-[1.02]"
+                style={{ borderLeft: `3px solid ${cat.color || '#2563EB'}` }}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
-                      style={{ backgroundColor: cat.color || '#C89B3C' }}>
+                      style={{ backgroundColor: cat.color || '#2563EB' }}>
                       {cat.name?.charAt(0).toUpperCase() || '?'}
                     </div>
                     <div>
-                      <h3 className="font-bold text-sm" style={{ color: '#1A1A1A' }}>{cat.name}</h3>
+                      <h3 className="font-bold text-sm" style={{ color: '#0F172A' }}>{cat.name}</h3>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-medium" style={{ color: '#7A7A7A' }}>
+                        <span className="text-[10px] font-medium" style={{ color: '#475569' }}>
                           {cat._count?.menuItems || cat._count?.items || 0} menu items
                         </span>
                       </div>
@@ -405,8 +405,8 @@ export default function CategoryList() {
                   <div className="flex gap-0.5">
                     <button 
                       onClick={() => handleEdit(cat)} 
-                      className="p-1 rounded-lg transition-all hover:scale-110 hover:bg-[#F4E7C9] hover:text-[#A97A1F]"
-                      style={{ color: '#7A7A7A' }}
+                      className="p-1 rounded-lg transition-all hover:scale-110 hover:bg-amber-100/80 hover:text-[#2563EB]"
+                      style={{ color: '#475569' }}
                       title="Edit"
                     >
                       <Edit2 size={12} />
@@ -414,7 +414,7 @@ export default function CategoryList() {
                     <button 
                       onClick={() => handleDelete(cat.id)} 
                       className="p-1 rounded-lg transition-all hover:scale-110 hover:bg-[#FFEBEE] hover:text-[#B71C1C]"
-                      style={{ color: '#7A7A7A' }}
+                      style={{ color: '#475569' }}
                       title="Delete"
                     >
                       <Trash2 size={12} />
@@ -422,7 +422,7 @@ export default function CategoryList() {
                   </div>
                 </div>
                 {cat.description && (
-                  <p className="text-[10px] font-medium mt-1.5 line-clamp-1" style={{ color: '#7A7A7A' }}>{cat.description}</p>
+                  <p className="text-[10px] font-medium mt-1.5 line-clamp-1" style={{ color: '#475569' }}>{cat.description}</p>
                 )}
                 {cat.code && (
                   <p className="text-[9px] font-mono mt-0.5" style={{ color: '#B0A89C' }}>Code: {cat.code}</p>
@@ -431,11 +431,11 @@ export default function CategoryList() {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-sm overflow-hidden hidden sm:block">
+          <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden hidden sm:block">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#FAF8F4] border-b border-[#E0D8CC] text-xs font-bold text-gray-600 uppercase tracking-wider">
+                  <tr className="bg-slate-50 border-b border-slate-300 text-xs font-bold text-gray-600 uppercase tracking-wider">
                     <th className="py-3.5 px-4">Category Name</th>
                     <th className="py-3.5 px-4">Code</th>
                     <th className="py-3.5 px-4">Description</th>
@@ -449,7 +449,7 @@ export default function CategoryList() {
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2.5">
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-sm"
-                            style={{ backgroundColor: cat.color || '#C89B3C' }}>
+                            style={{ backgroundColor: cat.color || '#2563EB' }}>
                             {cat.name?.charAt(0).toUpperCase() || '?'}
                           </div>
                           <span className="font-bold text-gray-900">{cat.name}</span>
@@ -457,7 +457,7 @@ export default function CategoryList() {
                       </td>
                       <td className="py-3.5 px-4">
                         {cat.code ? (
-                          <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-[#F4E7C9] text-[#8B6914]">
+                          <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-amber-100/80 text-[#8B6914]">
                             {cat.code}
                           </span>
                         ) : (
@@ -468,13 +468,13 @@ export default function CategoryList() {
                         {cat.description || 'No description provided'}
                       </td>
                       <td className="py-3.5 px-4 text-center">
-                        <span className="px-2.5 py-1 bg-amber-50 text-[#A97A1F] font-bold rounded-full text-xs">
+                        <span className="px-2.5 py-1 bg-amber-50 text-[#2563EB] font-bold rounded-full text-xs">
                           {cat._count?.menuItems || cat._count?.items || 0}
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <button onClick={() => handleEdit(cat)} title="Edit Category" className="p-1.5 rounded-lg hover:bg-amber-50 text-[#A97A1F] transition-all">
+                          <button onClick={() => handleEdit(cat)} title="Edit Category" className="p-1.5 rounded-lg hover:bg-amber-50 text-[#2563EB] transition-all">
                             <Edit2 size={15} />
                           </button>
                           <button onClick={() => handleDelete(cat.id)} title="Delete Category" className="p-1.5 rounded-lg hover:bg-red-50 text-[#B71C1C] transition-all">
@@ -492,7 +492,7 @@ export default function CategoryList() {
 
         {/* ── Pagination Controls ── */}
         {categoryCount > 0 && (
-          <div className="mt-6 bg-white rounded-2xl border border-[#E0D8CC] p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+          <div className="mt-6 bg-white rounded-2xl border border-slate-300 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
             <div className="text-xs text-gray-600 font-medium">
               Showing <span className="font-bold text-gray-800">{startIndex + 1}</span> to{' '}
               <span className="font-bold text-gray-800">{Math.min(startIndex + itemsPerPage, categoryCount)}</span> of{' '}
@@ -503,7 +503,7 @@ export default function CategoryList() {
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                className="px-3 py-1.5 rounded-xl border border-[#E0D8CC] bg-white text-xs font-semibold text-gray-700 hover:bg-[#F5F2EB] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-gray-700 hover:bg-[#F1F5F9] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
                 Previous
               </button>
@@ -515,8 +515,8 @@ export default function CategoryList() {
                     onClick={() => setCurrentPage(page)}
                     className={`w-8 h-8 text-xs font-bold rounded-xl transition-all ${
                       currentPage === page
-                        ? 'bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white shadow-sm scale-105'
-                        : 'bg-white border border-[#E0D8CC] text-gray-600 hover:bg-[#F5F2EB]'
+                        ? 'bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white shadow-sm scale-105'
+                        : 'bg-white border border-slate-300 text-gray-600 hover:bg-[#F1F5F9]'
                     }`}
                   >
                     {page}
@@ -527,7 +527,7 @@ export default function CategoryList() {
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                className="px-3 py-1.5 rounded-xl border border-[#E0D8CC] bg-white text-xs font-semibold text-gray-700 hover:bg-[#F5F2EB] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-gray-700 hover:bg-[#F1F5F9] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
                 Next
               </button>
@@ -537,16 +537,16 @@ export default function CategoryList() {
 
         {/* ── Empty State ── */}
         {categoryList.length === 0 && !loading && (
-          <div className="bg-white rounded-2xl p-12 text-center border border-[#E0D8CC]">
+          <div className="bg-white rounded-2xl p-12 text-center border border-slate-300">
             <Tag className="w-16 h-16 mx-auto mb-4" style={{ color: '#B0A89C' }} />
-            <h3 className="text-lg font-bold mb-2" style={{ color: '#1A1A1A' }}>No Menu Categories Found</h3>
-            <p className="text-sm font-medium" style={{ color: '#7A7A7A' }}>
+            <h3 className="text-lg font-bold mb-2" style={{ color: '#0F172A' }}>No Menu Categories Found</h3>
+            <p className="text-sm font-medium" style={{ color: '#475569' }}>
               {search ? 'Try adjusting your search' : 'Create your first menu category to get started'}
             </p>
             {!search && (
               <button 
-                onClick={() => { setShowModal(true); setEditingId(null); setForm({ name: '', code: '', description: '', color: '#C89B3C', icon: '' }); }}
-                className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white shadow-[0_4px_12px_rgba(169,122,31,0.3)] hover:scale-[1.02]"
+                onClick={() => { setShowModal(true); setEditingId(null); setForm({ name: '', code: '', description: '', color: '#2563EB', icon: '' }); }}
+                className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white shadow-[0_4px_12px_rgba(37,99,235,0.3)] hover:scale-[1.02]"
               >
                 <Plus size={16} /> Add Menu Category
               </button>

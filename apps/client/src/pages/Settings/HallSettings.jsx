@@ -241,20 +241,20 @@ export default function HallSettings() {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-6" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen p-4 md:p-6" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-[0_4px_12px_rgba(169,122,31,0.3)]">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.3)]">
               <Building className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold" style={{ color: '#1A1A1A' }}>Hall & Venue Management</h1>
-              <p className="text-sm font-medium flex items-center gap-2" style={{ color: '#4A4A4A' }}>
+              <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>Hall & Venue Management</h1>
+              <p className="text-sm font-medium flex items-center gap-2" style={{ color: '#334155' }}>
                 Configure halls, pricing modes & sessions
                 {currentBranch && (
-                  <span className="px-2 py-0.5 rounded-full text-xs bg-[#F4E7C9] text-[#8B6914] font-bold">
+                  <span className="px-2 py-0.5 rounded-full text-xs bg-amber-100/80 text-[#8B6914] font-bold">
                     {currentBranch.name}
                   </span>
                 )}
@@ -262,17 +262,17 @@ export default function HallSettings() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center bg-white border border-[#E0D8CC] rounded-xl p-1 shadow-sm">
+            <div className="flex items-center bg-white border border-slate-300 rounded-xl p-1 shadow-sm">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-[#A97A1F] text-white' : 'text-gray-500 hover:text-gray-800'}`}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-[#2563EB] text-white' : 'text-gray-500 hover:text-gray-800'}`}
                 title="Grid View"
               >
                 <LayoutGrid size={18} />
               </button>
               <button
                 onClick={() => setViewMode('table')}
-                className={`p-2 rounded-lg transition-colors ${viewMode === 'table' ? 'bg-[#A97A1F] text-white' : 'text-gray-500 hover:text-gray-800'}`}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'table' ? 'bg-[#2563EB] text-white' : 'text-gray-500 hover:text-gray-800'}`}
                 title="Table View"
               >
                 <TableIcon size={18} />
@@ -284,7 +284,7 @@ export default function HallSettings() {
                 resetForm();
                 setShowForm(true); 
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white shadow-[0_4px_12px_rgba(169,122,31,0.3)] hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white shadow-[0_4px_12px_rgba(37,99,235,0.3)] hover:scale-[1.02]"
             >
               <Plus size={18} /> Add Hall
             </button>
@@ -292,16 +292,16 @@ export default function HallSettings() {
         </div>
 
         {/* Search */}
-        <div className="bg-white rounded-2xl shadow-sm border border-[#E0D8CC] p-4 mb-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-300 p-4 mb-6">
           <div className="relative">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#7A7A7A' }} />
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#475569' }} />
             <input 
               type="text" 
               value={search} 
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search halls by name or code..." 
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20 text-sm"
-              style={{ backgroundColor: '#FAF8F4', borderColor: '#E0D8CC', color: '#1A1A1A' }} 
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 text-sm"
+              style={{ backgroundColor: '#F8FAFC', borderColor: '#CBD5E1', color: '#0F172A' }} 
             />
           </div>
         </div>
@@ -309,18 +309,18 @@ export default function HallSettings() {
         {/* Modal Form */}
         {showForm && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
-            <div className="bg-white rounded-2xl border border-[#E0D8CC] w-full max-w-2xl p-6 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-2xl border border-slate-300 w-full max-w-2xl p-6 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h3 className="font-bold text-lg" style={{ color: '#1A1A1A' }}>
+                  <h3 className="font-bold text-lg" style={{ color: '#0F172A' }}>
                     {editingId ? 'Edit Hall' : 'New Hall'}
                   </h3>
-                  <p className="text-xs mt-1 font-medium" style={{ color: '#A97A1F' }}>
+                  <p className="text-xs mt-1 font-medium" style={{ color: '#2563EB' }}>
                     📍 Branch: <strong>{currentBranch?.name}</strong>
                   </p>
                 </div>
-                <button onClick={() => setShowForm(false)} className="p-2 rounded-xl hover:bg-[#F5F2EB] transition-colors">
-                  <X className="w-5 h-5" style={{ color: '#4A4A4A' }} />
+                <button onClick={() => setShowForm(false)} className="p-2 rounded-xl hover:bg-[#F1F5F9] transition-colors">
+                  <X className="w-5 h-5" style={{ color: '#334155' }} />
                 </button>
               </div>
 
@@ -328,7 +328,7 @@ export default function HallSettings() {
                 {/* Basic Info */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                   <div className="md:col-span-6">
-                    <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+                    <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                       Hall Name *
                     </label>
                     <input 
@@ -336,24 +336,24 @@ export default function HallSettings() {
                       value={form.name} 
                       onChange={(e) => setForm({ ...form, name: e.target.value })} 
                       placeholder="e.g., Royal Ballroom" 
-                      className="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20"
-                      style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }} 
+                      className="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                      style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }} 
                     />
                   </div>
                   <div className="md:col-span-3">
-                    <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+                    <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                       Code
                     </label>
                     <input 
                       value={form.code} 
                       onChange={(e) => setForm({ ...form, code: e.target.value })} 
                       placeholder="e.g., HALL-01" 
-                      className="w-full px-4 py-2.5 rounded-xl border text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20"
-                      style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }} 
+                      className="w-full px-4 py-2.5 rounded-xl border text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                      style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }} 
                     />
                   </div>
                   <div className="md:col-span-3">
-                    <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+                    <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                       Capacity *
                     </label>
                     <input 
@@ -363,15 +363,15 @@ export default function HallSettings() {
                       value={form.capacity} 
                       onChange={(e) => setForm({ ...form, capacity: e.target.value })} 
                       placeholder="500" 
-                      className="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20"
-                      style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }} 
+                      className="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                      style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }} 
                     />
                   </div>
                 </div>
 
                 {/* Pricing Type */}
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider block mb-2" style={{ color: '#4A4A4A' }}>
+                  <label className="text-xs font-bold uppercase tracking-wider block mb-2" style={{ color: '#334155' }}>
                     Pricing Mode *
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -380,7 +380,7 @@ export default function HallSettings() {
                         key={opt.key}
                         className={`cursor-pointer border-2 rounded-xl p-3.5 transition-all ${
                           form.pricingType === opt.key 
-                            ? 'border-[#A97A1F] bg-amber-50/60' 
+                            ? 'border-[#2563EB] bg-amber-50/60' 
                             : 'border-gray-200 hover:border-gray-300 bg-white'
                         }`}
                       >
@@ -390,7 +390,7 @@ export default function HallSettings() {
                             name="pricingType"
                             checked={form.pricingType === opt.key}
                             onChange={() => setForm({ ...form, pricingType: opt.key })}
-                            className="accent-[#A97A1F] w-4 h-4"
+                            className="accent-[#2563EB] w-4 h-4"
                           />
                           <div>
                             <p className="font-bold text-sm text-gray-800">{opt.label}</p>
@@ -403,7 +403,7 @@ export default function HallSettings() {
                 </div>
 
                 {/* Conditional Pricing Fields */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#FAF8F4] p-4 rounded-xl border border-[#E0D8CC]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-300">
                   {(form.pricingType === 'per_seat' || form.pricingType === 'both') && (
                     <div>
                       <label className="text-xs font-bold uppercase tracking-wider block mb-1.5 text-gray-700">
@@ -417,11 +417,11 @@ export default function HallSettings() {
                         value={form.perSeatPrice} 
                         onChange={(e) => setForm({ ...form, perSeatPrice: e.target.value })} 
                         placeholder="e.g., 150" 
-                        className="w-full px-4 py-2.5 rounded-xl border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20"
-                        style={{ borderColor: '#E0D8CC' }} 
+                        className="w-full px-4 py-2.5 rounded-xl border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                        style={{ borderColor: '#CBD5E1' }} 
                       />
                       {form.capacity && form.perSeatPrice && (
-                        <p className="text-[11px] text-[#A97A1F] font-semibold mt-1">
+                        <p className="text-[11px] text-[#2563EB] font-semibold mt-1">
                           Estimated Total ({form.capacity} seats × Rs {form.perSeatPrice}): {formatCurrency(Number(form.capacity) * Number(form.perSeatPrice))}
                         </p>
                       )}
@@ -441,8 +441,8 @@ export default function HallSettings() {
                         value={form.price} 
                         onChange={(e) => setForm({ ...form, price: e.target.value })} 
                         placeholder="e.g., 50000" 
-                        className="w-full px-4 py-2.5 rounded-xl border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20"
-                        style={{ borderColor: '#E0D8CC' }} 
+                        className="w-full px-4 py-2.5 rounded-xl border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                        style={{ borderColor: '#CBD5E1' }} 
                       />
                     </div>
                   )}
@@ -450,7 +450,7 @@ export default function HallSettings() {
 
                 {/* Description */}
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                     Description
                   </label>
                   <textarea 
@@ -458,22 +458,22 @@ export default function HallSettings() {
                     onChange={(e) => setForm({ ...form, description: e.target.value })} 
                     rows={2} 
                     placeholder="Optional details about the hall..." 
-                    className="w-full px-4 py-2.5 rounded-xl border text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20"
-                    style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }} 
+                    className="w-full px-4 py-2.5 rounded-xl border text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                    style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }} 
                   />
                 </div>
 
                 {/* Sessions Builder */}
-                <div className="border-t pt-5" style={{ borderColor: '#F0ECE6' }}>
+                <div className="border-t pt-5" style={{ borderColor: '#E2E8F0' }}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <Clock size={16} style={{ color: '#A97A1F' }} />
-                      <h4 className="font-bold text-sm" style={{ color: '#1A1A1A' }}>Hall Sessions / Time Slots</h4>
+                      <Clock size={16} style={{ color: '#2563EB' }} />
+                      <h4 className="font-bold text-sm" style={{ color: '#0F172A' }}>Hall Sessions / Time Slots</h4>
                     </div>
                     <button 
                       type="button" 
                       onClick={handleAddSession} 
-                      className="px-3 py-1.5 bg-[#F4E7C9] text-[#8B6914] rounded-lg text-xs font-bold hover:bg-[#EEDBB5] transition-colors"
+                      className="px-3 py-1.5 bg-amber-100/80 text-[#8B6914] rounded-lg text-xs font-bold hover:bg-[#EEDBB5] transition-colors"
                     >
                       + Add Session
                     </button>
@@ -481,13 +481,13 @@ export default function HallSettings() {
                   
                   <div className="space-y-2.5">
                     {form.sessions.map((session, index) => (
-                      <div key={index} className="flex flex-wrap sm:flex-nowrap gap-2 items-center bg-[#FAF8F4] p-3 rounded-xl border border-[#E0D8CC]">
+                      <div key={index} className="flex flex-wrap sm:flex-nowrap gap-2 items-center bg-slate-50 p-3 rounded-xl border border-slate-300">
                         <input 
                           placeholder="Session Name" 
                           value={session.name} 
                           onChange={(e) => handleSessionChange(index, 'name', e.target.value)} 
-                          className="flex-1 min-w-[120px] px-3 py-2 rounded-lg border text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20"
-                          style={{ borderColor: '#E0D8CC' }} 
+                          className="flex-1 min-w-[120px] px-3 py-2 rounded-lg border text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                          style={{ borderColor: '#CBD5E1' }} 
                         />
                         <div className="flex items-center gap-1.5">
                           <span className="text-[10px] font-bold text-gray-500 uppercase">From</span>
@@ -495,8 +495,8 @@ export default function HallSettings() {
                             type="time" 
                             value={session.startTime} 
                             onChange={(e) => handleSessionChange(index, 'startTime', e.target.value)} 
-                            className="px-2.5 py-2 rounded-lg border text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20"
-                            style={{ borderColor: '#E0D8CC' }} 
+                            className="px-2.5 py-2 rounded-lg border text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                            style={{ borderColor: '#CBD5E1' }} 
                           />
                         </div>
                         <div className="flex items-center gap-1.5">
@@ -505,8 +505,8 @@ export default function HallSettings() {
                             type="time" 
                             value={session.endTime} 
                             onChange={(e) => handleSessionChange(index, 'endTime', e.target.value)} 
-                            className="px-2.5 py-2 rounded-lg border text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20"
-                            style={{ borderColor: '#E0D8CC' }} 
+                            className="px-2.5 py-2 rounded-lg border text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                            style={{ borderColor: '#CBD5E1' }} 
                           />
                         </div>
                         <div className="flex items-center gap-1.5">
@@ -516,8 +516,8 @@ export default function HallSettings() {
                             min="15"
                             value={session.duration} 
                             onChange={(e) => handleSessionChange(index, 'duration', e.target.value)} 
-                            className="w-16 px-2.5 py-2 rounded-lg border text-xs font-mono text-center focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20"
-                            style={{ borderColor: '#E0D8CC' }} 
+                            className="w-16 px-2.5 py-2 rounded-lg border text-xs font-mono text-center focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                            style={{ borderColor: '#CBD5E1' }} 
                           />
                           <span className="text-[10px] text-gray-500">m</span>
                         </div>
@@ -535,19 +535,19 @@ export default function HallSettings() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-3 pt-4 border-t" style={{ borderColor: '#F0ECE6' }}>
+                <div className="flex gap-3 pt-4 border-t" style={{ borderColor: '#E2E8F0' }}>
                   <button 
                     type="button" 
                     onClick={() => setShowForm(false)} 
                     className="flex-1 px-4 py-2.5 border rounded-xl font-bold text-sm hover:bg-gray-50 transition-colors"
-                    style={{ borderColor: '#E0D8CC' }}
+                    style={{ borderColor: '#CBD5E1' }}
                   >
                     Cancel
                   </button>
                   <button 
                     type="submit" 
                     disabled={submitting}
-                    className="flex-1 px-4 py-2.5 rounded-xl font-bold text-white text-sm bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 px-4 py-2.5 rounded-xl font-bold text-white text-sm bg-gradient-to-r from-[#2563EB] to-[#2563EB] hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {submitting ? (
                       <span className="animate-pulse">Saving...</span>
@@ -566,7 +566,7 @@ export default function HallSettings() {
         {/* Halls Content View */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="w-12 h-12 rounded-full border-4 animate-spin" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
+            <div className="w-12 h-12 rounded-full border-4 animate-spin" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
           </div>
         ) : viewMode === 'grid' ? (
           /* Grid View */
@@ -574,12 +574,12 @@ export default function HallSettings() {
             {filteredHalls.map(hall => {
               const badge = getPricingBadge(hall.pricingType);
               return (
-                <div key={hall.id} className="bg-white rounded-2xl border border-[#E0D8CC] p-5 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                <div key={hall.id} className="bg-white rounded-2xl border border-slate-300 p-5 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
                   <div>
                     <div className="flex items-start justify-between mb-3">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-bold text-base truncate" style={{ color: '#1A1A1A' }}>{hall.name}</h3>
+                          <h3 className="font-bold text-base truncate" style={{ color: '#0F172A' }}>{hall.name}</h3>
                           <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${badge.className}`}>
                             {badge.label}
                           </span>
@@ -589,7 +589,7 @@ export default function HallSettings() {
                       <div className="flex gap-1 shrink-0">
                         <button 
                           onClick={() => handleEdit(hall)} 
-                          className="p-1.5 rounded-lg hover:bg-[#F4E7C9] text-gray-500 hover:text-[#A97A1F] transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-amber-100/80 text-gray-500 hover:text-[#2563EB] transition-colors"
                           title="Edit"
                         >
                           <Edit2 size={14} />
@@ -621,7 +621,7 @@ export default function HallSettings() {
                     )}
 
                     {/* Sessions */}
-                    <div className="bg-[#FAF8F4] rounded-xl p-3 border border-[#E0D8CC]">
+                    <div className="bg-slate-50 rounded-xl p-3 border border-slate-300">
                       <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-1">
                         <Clock size={11} /> Sessions ({hall.sessions?.length || 0})
                       </p>
@@ -629,7 +629,7 @@ export default function HallSettings() {
                         {hall.sessions?.map(s => (
                           <div key={s.id} className="flex justify-between items-center text-xs">
                             <span className="font-semibold text-gray-800">{s.name}</span>
-                            <span className="font-mono text-gray-500 bg-white px-2 py-0.5 rounded-md border border-[#E0D8CC]">
+                            <span className="font-mono text-gray-500 bg-white px-2 py-0.5 rounded-md border border-slate-300">
                               {s.startTime} - {s.endTime}
                             </span>
                           </div>
@@ -643,11 +643,11 @@ export default function HallSettings() {
           </div>
         ) : (
           /* Table View */
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#FAF8F4] border-b border-[#E0D8CC] text-xs uppercase tracking-wider font-bold text-gray-600">
+                  <tr className="bg-slate-50 border-b border-slate-300 text-xs uppercase tracking-wider font-bold text-gray-600">
                     <th className="p-4">Hall Name</th>
                     <th className="p-4">Code</th>
                     <th className="p-4">Pricing Mode</th>
@@ -657,11 +657,11 @@ export default function HallSettings() {
                     <th className="p-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E0D8CC] text-sm">
+                <tbody className="divide-y divide-[#CBD5E1] text-sm">
                   {filteredHalls.map(hall => {
                     const badge = getPricingBadge(hall.pricingType);
                     return (
-                      <tr key={hall.id} className="hover:bg-[#FAF8F4]/50 transition-colors">
+                      <tr key={hall.id} className="hover:bg-slate-50/50 transition-colors">
                         <td className="p-4 font-bold text-gray-900">
                           {hall.name}
                           {hall.description && <p className="text-xs font-normal text-gray-400 truncate max-w-xs">{hall.description}</p>}
@@ -686,7 +686,7 @@ export default function HallSettings() {
                           <div className="flex items-center justify-end gap-1">
                             <button 
                               onClick={() => handleEdit(hall)} 
-                              className="p-1.5 rounded-lg hover:bg-[#F4E7C9] text-gray-500 hover:text-[#A97A1F] transition-colors"
+                              className="p-1.5 rounded-lg hover:bg-amber-100/80 text-gray-500 hover:text-[#2563EB] transition-colors"
                               title="Edit"
                             >
                               <Edit2 size={14} />
@@ -710,9 +710,9 @@ export default function HallSettings() {
         )}
 
         {!loading && filteredHalls.length === 0 && (
-          <div className="bg-white rounded-2xl p-12 text-center border border-[#E0D8CC]">
+          <div className="bg-white rounded-2xl p-12 text-center border border-slate-300">
             <Building className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <h3 className="text-lg font-bold mb-2" style={{ color: '#1A1A1A' }}>No Halls Found</h3>
+            <h3 className="text-lg font-bold mb-2" style={{ color: '#0F172A' }}>No Halls Found</h3>
             <p className="text-sm text-gray-500">Create your first banquet hall with sessions.</p>
           </div>
         )}

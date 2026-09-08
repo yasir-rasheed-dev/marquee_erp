@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authMiddleware, authorize } = require('../common/middleware/auth');
+const { authMiddleware, permissionGuard } = require('../common/middleware/auth');
 const {
   getMenus,
   getMenu,
@@ -14,15 +14,15 @@ const {
 router.use(authMiddleware);
 
 // ── Static routes first (no :id parameter) ──
-router.get('/branch/:branchId', authorize('admin', 'super_admin', 'manager'), getMenusByBranch);
+router.get('/branch/:branchId', permissionGuard('menus', 'view'), getMenusByBranch);
 
-// ── General routes (All authenticated users) ──
-router.get('/', getMenus);
+// ── General routes ──
+router.get('/', permissionGuard('menus', 'view'), getMenus);
 
-// ── Then dynamic routes (with :id parameter) ──
-router.get('/:id', getMenu);
-router.post('/', authorize('admin', 'super_admin', 'manager'), createMenu);
-router.put('/:id', authorize('admin', 'super_admin', 'manager'), updateMenu);
-router.delete('/:id', authorize('admin', 'super_admin'), deleteMenu);
+// ── Dynamic routes (with :id parameter) ──
+router.get('/:id', permissionGuard('menus', 'view'), getMenu);
+router.post('/', permissionGuard('menus', 'create'), createMenu);
+router.put('/:id', permissionGuard('menus', 'edit'), updateMenu);
+router.delete('/:id', permissionGuard('menus', 'delete'), deleteMenu);
 
 module.exports = router;

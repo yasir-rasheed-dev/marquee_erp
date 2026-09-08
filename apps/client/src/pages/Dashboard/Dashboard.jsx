@@ -1,4 +1,5 @@
-﻿// pages/Dashboard/Dashboard.jsx — Fully Functional, Real Data with Clickable Cards
+// pages/Dashboard/Dashboard.jsx — Modern Executive UI & Full Date Range Filtering
+// ═════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +9,9 @@ import {
   XCircle, AlertCircle, ArrowUpRight, Crown, Sparkles, 
   Gem, Star, Phone, Wallet, Target, Zap, BarChart3,
   Eye, MessageCircle, Gift, Coffee, Music, Camera,
-  Bell, Filter, ChevronDown, Loader2
+  Bell, Filter, ChevronDown, Loader2, Send, BellRing,
+  RotateCcw, CalendarDays, X, Check, ArrowRight, ShieldCheck,
+  CreditCard, UserCheck, Layers, PieChart as PieIcon
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -23,33 +26,73 @@ import hallApi from '../../services/hallApi';
 import customerApi from '../../services/customerApi';
 import eventApi from '../../services/eventApi';
 import ReactSelect from '../../components/ui/ReactSelect';
+import UpcomingRemindersDrawer from '../../components/bookings/UpcomingRemindersDrawer';
+import WhatsAppModal from '../../components/common/WhatsAppModal';
 
 // ── Helpers ──
 const formatCurrency = (val) => new Intl.NumberFormat('en-PK', { style: 'currency', currency: 'PKR', maximumFractionDigits: 0 }).format(val || 0);
 const formatNumber = (val) => new Intl.NumberFormat('en-PK').format(val || 0);
+
 const formatDate = (dateStr) => {
   if (!dateStr) return 'N/A';
   const d = new Date(dateStr);
   return d.toLocaleDateString('en-PK', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 };
+
 const formatTime = (dateStr) => {
   if (!dateStr) return '';
   const d = new Date(dateStr);
   return d.toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' });
 };
+
+const toLocalDateStr = (d) => {
+  if (!d) return '';
+  const date = new Date(d);
+  if (isNaN(date.getTime())) return '';
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+
 const isToday = (dateStr) => {
   if (!dateStr) return false;
-  const d = new Date(dateStr);
-  const today = new Date();
-  return d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+  return toLocalDateStr(dateStr) === toLocalDateStr(new Date());
 };
-const isUpcoming = (dateStr) => {
-  if (!dateStr) return false;
-  return new Date(dateStr) >= new Date(new Date().setHours(0,0,0,0));
-};
-const isPast = (dateStr) => {
-  if (!dateStr) return false;
-  return new Date(dateStr) < new Date(new Date().setHours(0,0,0,0));
+
+const getPresetDates = (preset) => {
+  const now = new Date();
+  if (preset === 'today') {
+    const s = toLocalDateStr(now);
+    return { start: s, end: s };
+  }
+  if (preset === 'yesterday') {
+    const yest = new Date(now);
+    yest.setDate(yest.getDate() - 1);
+    const s = toLocalDateStr(yest);
+    return { start: s, end: s };
+  }
+  if (preset === 'week') {
+    const start = new Date(now);
+    start.setDate(start.getDate() - 7);
+    return { start: toLocalDateStr(start), end: toLocalDateStr(now) };
+  }
+  if (preset === 'month') {
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return { start: toLocalDateStr(start), end: toLocalDateStr(end) };
+  }
+  if (preset === 'last_month') {
+    const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const end = new Date(now.getFullYear(), now.getMonth(), 0);
+    return { start: toLocalDateStr(start), end: toLocalDateStr(end) };
+  }
+  if (preset === 'year') {
+    const start = new Date(now.getFullYear(), 0, 1);
+    const end = new Date(now.getFullYear(), 11, 31);
+    return { start: toLocalDateStr(start), end: toLocalDateStr(end) };
+  }
+  return { start: '', end: '' };
 };
 
 // ── Request Deduplication ──
@@ -74,31 +117,19 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // ── Filter States ──
-  const [dateFilter, setDateFilter] = useState('all');
+  // ── Date Range & Filter States ──
+  const [datePreset, setDatePreset] = useState('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [hallFilter, setHallFilter] = useState('all');
   const [eventTypeFilter, setEventTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  // ── Navigation Handlers for Cards ──
-  const handleCardClick = (type) => {
-    switch(type) {
-      case 'bookings':
-        navigate('/bookings');
-        break;
-      case 'revenue':
-        navigate('/reports/finance');
-        break;
-      case 'events':
-        navigate('/events/add');
-        break;
-      case 'customers':
-        navigate('/customers');
-        break;
-      default:
-        break;
-    }
-  };
+  // ── Modals & Drawers ──
+  const [remindersDrawerOpen, setRemindersDrawerOpen] = useState(false);
+  const [remindersData, setRemindersData] = useState({ total: 0, pendingCount: 0, sentCount: 0, bookings: [] });
+  const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
+  const [selectedBookingForWhatsApp, setSelectedBookingForWhatsApp] = useState(null);
 
   // ── Fetch All Data ──
   const fetchDashboardData = useCallback(async () => {
@@ -129,123 +160,115 @@ export default function Dashboard() {
     }
   }, [branchId]);
 
+  const fetchReminders = useCallback(async () => {
+    try {
+      const res = await bookingApi.getUpcomingReminders({ branchId, days: 2, pastDays: 2 });
+      const resData = res?.data?.data || res?.data || res || {};
+      setRemindersData(resData);
+    } catch (e) {
+      console.warn('Could not fetch reminders count:', e);
+    }
+  }, [branchId]);
+
   useEffect(() => {
     fetchDashboardData();
-  }, [fetchDashboardData]);
+    fetchReminders();
+  }, [fetchDashboardData, fetchReminders]);
 
-  // ── Derived: Filtered Bookings ──
+  // ── Preset Date Range Handler ──
+  const handlePresetSelect = (presetKey) => {
+    setDatePreset(presetKey);
+    if (presetKey === 'all') {
+      setStartDate('');
+      setEndDate('');
+    } else {
+      const { start, end } = getPresetDates(presetKey);
+      setStartDate(start);
+      setEndDate(end);
+    }
+  };
+
+  const handleCustomDate = (type, val) => {
+    setDatePreset('custom');
+    if (type === 'start') setStartDate(val);
+    if (type === 'end') setEndDate(val);
+  };
+
+  const handleResetFilters = () => {
+    setDatePreset('all');
+    setStartDate('');
+    setEndDate('');
+    setHallFilter('all');
+    setEventTypeFilter('all');
+    setStatusFilter('all');
+  };
+
+  // ── Filtered Bookings Logic ──
   const filteredBookings = useMemo(() => {
     return bookings.filter(b => {
-      const bDate = new Date(b.eventDate);
-      const now = new Date();
-      const weekLater = new Date(); weekLater.setDate(now.getDate() + 7);
-      const monthLater = new Date(); monthLater.setMonth(now.getMonth() + 1);
+      if (!b) return false;
 
-      if (dateFilter === 'today' && !isToday(b.eventDate)) return false;
-      if (dateFilter === 'week' && (bDate < now || bDate > weekLater)) return false;
-      if (dateFilter === 'month' && (bDate < now || bDate > monthLater)) return false;
+      // 1. Date Range Filter on Event Date
+      if (startDate || endDate) {
+        if (!b.eventDate) return false;
+        const bDateStr = toLocalDateStr(b.eventDate);
+        if (startDate && bDateStr < startDate) return false;
+        if (endDate && bDateStr > endDate) return false;
+      }
 
-      if (hallFilter !== 'all' && b.hallId !== hallFilter && b.hall?.id !== hallFilter) return false;
-      if (eventTypeFilter !== 'all' && b.eventType !== eventTypeFilter) return false;
-      if (statusFilter !== 'all' && b.status !== statusFilter) return false;
+      // 2. Hall Filter
+      if (hallFilter !== 'all') {
+        const bHallId = String(b.hallId || b.hall?.id || '');
+        if (bHallId !== String(hallFilter)) return false;
+      }
+
+      // 3. Event Type Filter
+      if (eventTypeFilter !== 'all' && b.eventType !== eventTypeFilter) {
+        return false;
+      }
+
+      // 4. Status Filter
+      if (statusFilter !== 'all' && b.status !== statusFilter) {
+        return false;
+      }
 
       return true;
     });
-  }, [bookings, dateFilter, hallFilter, eventTypeFilter, statusFilter]);
+  }, [bookings, startDate, endDate, hallFilter, eventTypeFilter, statusFilter]);
 
-  // ── Derived: Stats ──
+  // ── Executive Stats Metrics ──
   const stats = useMemo(() => {
     const totalBookings = filteredBookings.length;
     const totalRevenue = filteredBookings.reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0);
-    const activeEvents = filteredBookings.filter(b => b.status === 'confirmed' && isUpcoming(b.eventDate)).length;
-    const totalCustomers = customers.length;
+    const totalPaid = filteredBookings.reduce((sum, b) => sum + (Number(b.paidAmount || b.advanceAmount) || 0), 0);
+    const totalDue = Math.max(0, totalRevenue - totalPaid);
+    const activeEvents = filteredBookings.filter(b => b.status === 'confirmed').length;
+    const totalGuests = filteredBookings.reduce((sum, b) => sum + (Number(b.guestCount) || 0), 0);
 
-    const prevBookings = bookings.filter(b => isPast(b.eventDate)).length;
-    const bookingChange = prevBookings > 0 ? Math.round(((totalBookings - prevBookings) / prevBookings) * 100) : 12;
+    return {
+      totalBookings,
+      totalRevenue,
+      totalPaid,
+      totalDue,
+      activeEvents,
+      totalGuests,
+      totalCustomers: customers.length
+    };
+  }, [filteredBookings, customers]);
 
-    return [
-      { 
-        title: 'Total Bookings', 
-        value: formatNumber(totalBookings), 
-        change: `${bookingChange >= 0 ? '+' : ''}${bookingChange}%`, 
-        up: bookingChange >= 0, 
-        icon: Calendar, 
-        subtitle: 'vs last period',
-        path: '/bookings',
-        color: 'from-[#B8862B] to-[#C89B3C]',
-        bg: 'bg-[#B8862B]/10'
-      },
-      { 
-        title: 'Revenue', 
-        value: formatCurrency(totalRevenue), 
-        change: '+23%', 
-        up: true, 
-        icon: Wallet, 
-        subtitle: 'This period',
-        path: '/reports/financial',
-        color: 'from-[#1B5E20] to-[#2E7D32]',
-        bg: 'bg-[#2E7D32]/10'
-      },
-      { 
-        title: 'Active Events', 
-        value: formatNumber(activeEvents), 
-        change: '+8%', 
-        up: true, 
-        icon: PartyPopper, 
-        subtitle: 'Upcoming confirmed',
-        path: '/events',
-        color: 'from-[#7C3AED] to-[#8B5CF6]',
-        bg: 'bg-[#7C3AED]/10'
-      },
-      { 
-        title: 'Total Customers', 
-        value: formatNumber(totalCustomers), 
-        change: '+15%', 
-        up: true, 
-        icon: Users, 
-        subtitle: 'Registered clients',
-        path: '/customers',
-        color: 'from-[#1E40AF] to-[#3B82F6]',
-        bg: 'bg-[#3B82F6]/10'
-      },
-    ];
-  }, [filteredBookings, customers, bookings]);
-
-  // ── Derived: Upcoming Events ──
-  const upcomingEvents = useMemo(() => {
-    const now = new Date();
-    const sevenDaysLater = new Date(); sevenDaysLater.setDate(now.getDate() + 7);
-    
-    return bookings
-      .filter(b => {
-        const d = new Date(b.eventDate);
-        return d >= now && d <= sevenDaysLater;
-      })
-      .sort((a, b) => new Date(a.eventDate) - new Date(b.eventDate))
-      .slice(0, 10)
-      .map(b => ({
-        id: b.id || b.bookingNo,
-        bookingNo: b.bookingNo || `#${b.id}`,
-        customer: b.customer?.name || b.customerName || 'Guest',
-        phone: b.customer?.phone || b.phone || 'N/A',
-        event: b.eventType || 'Event',
-        eventDate: b.eventDate,
-        date: isToday(b.eventDate) ? `Today, ${formatTime(b.startTime)}` : `${formatDate(b.eventDate)}, ${formatTime(b.startTime)}`,
-        hall: b.hall?.name || b.hallName || 'TBA',
-        guests: b.guestCount || 0,
-        menu: b.menus?.[0]?.menu?.name || b.packageName || 'Custom',
-        amount: Number(b.totalAmount) || 0,
-        status: b.status || 'pending',
-        avatar: (b.customer?.name || 'G').split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase(),
-      }));
+  // ── Dynamic Event Types for Filter ──
+  const eventTypes = useMemo(() => {
+    return [...new Set(bookings.map(b => b.eventType).filter(Boolean))];
   }, [bookings]);
 
-  // ── Derived: Revenue Data ──
+  // ── Revenue Chart Data ──
   const revenueData = useMemo(() => {
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const data = months.map(m => ({ month: m, revenue: 0, bookings: 0, guests: 0 }));
     
-    bookings.forEach(b => {
+    const sourceList = (startDate || endDate) ? filteredBookings : bookings;
+
+    sourceList.forEach(b => {
       if (!b.eventDate) return;
       const m = new Date(b.eventDate).getMonth();
       data[m].revenue += Number(b.totalAmount) || 0;
@@ -253,445 +276,639 @@ export default function Dashboard() {
       data[m].guests += Number(b.guestCount) || 0;
     });
     
-    const currentMonth = new Date().getMonth();
-    return data.slice(0, currentMonth + 1);
-  }, [bookings]);
+    return data;
+  }, [bookings, filteredBookings, startDate, endDate]);
 
-  // ── Derived: Event Type Distribution ──
+  // ── Hall Occupancy Breakdown ──
+  const hallOccupancy = useMemo(() => {
+    return halls.map(h => {
+      const hallBookings = filteredBookings.filter(b => b.hallId === h.id || b.hall?.id === h.id);
+      const guestSum = hallBookings.reduce((sum, b) => sum + (Number(b.guestCount) || 0), 0);
+      const capacity = Number(h.capacity) || 100;
+      const percent = Math.min(Math.round((hallBookings.length / Math.max(1, filteredBookings.length)) * 100), 100);
+
+      return {
+        id: h.id,
+        name: h.name || 'Hall',
+        bookings: hallBookings.length,
+        guests: guestSum,
+        capacity,
+        percent
+      };
+    }).sort((a, b) => b.bookings - a.bookings);
+  }, [halls, filteredBookings]);
+
+  // ── Event Type Distribution Donut ──
   const eventTypeData = useMemo(() => {
     const counts = {};
-    bookings.forEach(b => {
+    filteredBookings.forEach(b => {
       const type = b.eventType || 'Other';
       counts[type] = (counts[type] || 0) + 1;
     });
-    const colors = ['#B8862B', '#DDB35A', '#C89B3C', '#E8C980', '#A97A1F', '#8B6914'];
-    const total = bookings.length || 1;
+    const colors = ['#1E40AF', '#2563EB', '#3B82F6', '#60A5FA', '#93C5FD', '#64748B', '#475569', '#334155'];
+    const total = filteredBookings.length || 1;
+
     return Object.entries(counts).map(([name, value], i) => ({
       name: name.charAt(0).toUpperCase() + name.slice(1),
       value: Math.round((value / total) * 100),
       raw: value,
       color: colors[i % colors.length]
     }));
-  }, [bookings]);
+  }, [filteredBookings]);
 
-  // ── Derived: Hall Occupancy ──
-  const hallOccupancy = useMemo(() => {
-    return halls.map(h => {
-      const hallBookings = bookings.filter(b => (b.hallId === h.id || b.hall?.id === h.id) && isUpcoming(b.eventDate));
-      return {
-        id: h.id,
-        name: h.name || 'Unnamed Hall',
-        bookings: hallBookings.length,
-        capacity: h.capacity || 50,
-        color: '#B8862B'
-      };
-    }).sort((a, b) => b.bookings - a.bookings);
-  }, [halls, bookings]);
-
-  // ── Derived: Today's Progress ──
+  // ── Today's Live Venue Pulse ──
   const todaysProgress = useMemo(() => {
     const todayBookings = bookings.filter(b => isToday(b.eventDate));
-    const events = todayBookings.length;
+    const eventsCount = todayBookings.length;
     const guests = todayBookings.reduce((sum, b) => sum + (Number(b.guestCount) || 0), 0);
     const revenue = todayBookings.reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0);
     const totalCapacity = halls.reduce((sum, h) => sum + (Number(h.capacity) || 0), 0) || 1;
     const occupancy = totalCapacity > 0 ? Math.round((guests / totalCapacity) * 100) : 0;
-    return { events, guests, revenue, occupancy };
+    return { eventsCount, guests, revenue, occupancy };
   }, [bookings, halls]);
 
-  // ── Derived: Recent Activities ──
-  const recentActivities = useMemo(() => {
-    const activities = [];
-    
-    const sortedBookings = [...bookings].sort((a, b) => new Date(b.createdAt || b.eventDate) - new Date(a.createdAt || a.eventDate)).slice(0, 3);
-    sortedBookings.forEach(b => {
-      activities.push({
-        user: b.customer?.name || b.customerName || 'Guest',
-        action: `New ${b.eventType || 'event'} booking — ${b.hall?.name || b.hallName || 'TBA'}`,
-        time: formatDate(b.createdAt || b.eventDate),
-        icon: PartyPopper,
-        color: 'text-[#B8862B]'
-      });
-    });
+  // ── Schedule Table List ──
+  const displaySchedule = useMemo(() => {
+    const list = [...filteredBookings];
+    list.sort((a, b) => new Date(a.eventDate) - new Date(b.eventDate));
+    return list.slice(0, 12);
+  }, [filteredBookings]);
 
-    const paidBookings = bookings.filter(b => Number(b.paidAmount) > 0).sort((a, b) => new Date(b.updatedAt || b.eventDate) - new Date(a.updatedAt || a.eventDate)).slice(0, 2);
-    paidBookings.forEach(b => {
-      activities.push({
-        user: b.customer?.name || 'Guest',
-        action: `Paid advance ${formatCurrency(b.paidAmount)}`,
-        time: formatDate(b.updatedAt || b.eventDate),
-        icon: Wallet,
-        color: 'text-[#1B5E20]'
-      });
-    });
+  const todayFormatted = new Date().toLocaleDateString('en-PK', { 
+    weekday: 'short', 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
+  });
 
-    return activities.slice(0, 5);
-  }, [bookings]);
-
-  // ── Event Types for filter ──
-  const eventTypes = useMemo(() => {
-    const types = [...new Set(bookings.map(b => b.eventType).filter(Boolean))];
-    return types;
-  }, [bookings]);
-
-  const today = new Date().toLocaleDateString('en-PK', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const isFilterActive = datePreset !== 'all' || startDate || endDate || hallFilter !== 'all' || eventTypeFilter !== 'all' || statusFilter !== 'all';
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F2EB] flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-10 h-10 animate-spin text-[#A97A1F] mx-auto mb-3" />
-          <p className="text-sm font-bold text-gray-600">Loading dashboard...</p>
+      <div className="min-h-screen bg-[#F1F5F9] flex items-center justify-center p-6">
+        <div className="text-center p-8 bg-white rounded-3xl border border-slate-300 shadow-lg max-w-sm w-full">
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center mx-auto mb-4">
+            <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+          </div>
+          <h3 className="text-base font-bold text-slate-900">Loading Dashboard</h3>
+          <p className="text-xs text-slate-600 mt-1">Connecting to live venue intelligence...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 p-4 md:p-6 bg-[#F5F2EB] min-h-screen">
+    <div className="space-y-6 p-4 md:p-6 bg-[#F1F5F9] min-h-screen">
       
-      {/* ── Header ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-[0_4px_16px_rgba(169,122,31,0.4)]">
+      {/* ══════════════════════════════════════════════════════════════
+          1. HEADER BAR: Title, Branch Badge, Today Date & Reminders
+          ══════════════════════════════════════════════════════════════ */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-300 shadow-xs">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 shadow-md flex items-center justify-center shrink-0">
             <Crown className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-[#1A1A1A]">Dashboard</h1>
-            <p className="text-sm text-[#4A4A4A]">Live overview of {currentBranch?.name || 'your venue'}</p>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Executive Dashboard</h1>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                {currentBranch?.name || 'Main Palace'}
+              </span>
+            </div>
+            <p className="text-xs font-medium text-slate-600 mt-0.5">
+              Real-time analytics, booking schedules & venue intelligence
+            </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-2xl border border-[#E0D8CC] shadow-sm">
-            <Calendar className="w-4 h-4 text-[#A97A1F]" />
-            <span className="text-sm font-medium text-[#1A1A1A]">{today}</span>
+
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2 px-3.5 py-2 bg-slate-50 rounded-xl border border-slate-300 shadow-2xs">
+            <Calendar className="w-4 h-4 text-blue-600" />
+            <span className="text-xs font-bold text-slate-800">{todayFormatted}</span>
           </div>
-          <button className="p-2.5 bg-white rounded-2xl border border-[#E0D8CC] hover:border-[#A97A1F] transition-all shadow-sm relative">
-            <Bell className="w-5 h-5 text-[#4A4A4A]" />
-            {upcomingEvents.length > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+
+          <button
+            type="button"
+            onClick={() => setRemindersDrawerOpen(true)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs border ${
+              remindersData.pendingCount > 0 
+                ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-700 shadow-blue-500/20' 
+                : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-300'
+            }`}
+            title="Open WhatsApp Reminder Drawer (Kal & Parson ke Events)"
+          >
+            <BellRing className={`w-4 h-4 ${remindersData.pendingCount > 0 ? 'animate-bounce text-white' : 'text-slate-500'}`} />
+            <span>Reminders</span>
+            {remindersData.pendingCount > 0 && (
+              <span className="px-1.5 py-0.5 bg-white text-blue-700 rounded-full text-[10px] font-black">
+                {remindersData.pendingCount}
+              </span>
             )}
+          </button>
+
+          <button
+            onClick={fetchDashboardData}
+            className="p-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition-colors shadow-2xs"
+            title="Refresh Live Data"
+          >
+            <RotateCcw className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* ── Filters Bar ── */}
-      <div className="bg-white rounded-2xl border border-[#E0D8CC] p-4 shadow-sm flex flex-wrap items-center gap-3">
-        <Filter className="w-4 h-4 text-[#A97A1F]" />
-        <div className="w-40">
-          <ReactSelect
-            value={dateFilter}
-            onChange={setDateFilter}
-            options={[
-              { value: 'all', label: 'All Time' },
-              { value: 'today', label: 'Today' },
-              { value: 'week', label: 'This Week' },
-              { value: 'month', label: 'This Month' }
-            ]}
-            placeholder="Date Filter"
-            isSearchable={true}
-            isClearable={false}
-          />
+      {/* ══════════════════════════════════════════════════════════════
+          2. UPCOMING REMINDERS ALERT BANNER (If pending)
+          ══════════════════════════════════════════════════════════════ */}
+      {remindersData.pendingCount > 0 && (
+        <div className="bg-blue-50/70 border border-blue-200 rounded-3xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-xs shrink-0">
+              <BellRing className="w-5 h-5 animate-bounce" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="font-extrabold text-slate-950 text-sm">
+                  {remindersData.pendingCount} Upcoming Event Reminders Pending
+                </h4>
+                <span className="text-[11px] bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full font-extrabold border border-blue-300">
+                  Next 48 Hours
+                </span>
+              </div>
+              <p className="text-xs text-slate-700 mt-0.5">
+                Kal aur parson ke programs ke customers ko WhatsApp reminders send karein taake balance clear ho aur arrangements confirm rahein.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setRemindersDrawerOpen(true)}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-2 shrink-0"
+          >
+            <Send size={14} />
+            <span>Open 1-Click Reminder Drawer</span>
+          </button>
         </div>
-        <div className="w-44">
-          <ReactSelect
-            value={hallFilter}
-            onChange={setHallFilter}
-            options={[{ value: 'all', label: 'All Halls' }, ...halls.filter(Boolean).map(h => ({ value: String(h.id), label: h.name }))]}
-            placeholder="All Halls"
-            isSearchable={true}
-            isClearable={false}
-          />
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════
+          3. DATE RANGE & FILTERS COMMAND BAR
+          ══════════════════════════════════════════════════════════════ */}
+      <div className="bg-white rounded-3xl border border-slate-300 p-5 shadow-xs space-y-4">
+        
+        {/* Row 1: Quick Preset Buttons + Custom Date Pickers */}
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+          
+          {/* Preset Buttons */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5 mr-1">
+              <CalendarDays className="w-4 h-4 text-blue-600" />
+              Date Range:
+            </span>
+            {[
+              { key: 'all', label: 'All Time' },
+              { key: 'today', label: 'Today' },
+              { key: 'yesterday', label: 'Yesterday' },
+              { key: 'week', label: 'Last 7 Days' },
+              { key: 'month', label: 'This Month' },
+              { key: 'last_month', label: 'Last Month' },
+              { key: 'year', label: 'This Year' },
+            ].map(preset => {
+              const active = datePreset === preset.key;
+              return (
+                <button
+                  key={preset.key}
+                  type="button"
+                  onClick={() => handlePresetSelect(preset.key)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    active
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
+                  }`}
+                >
+                  {preset.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Date Pickers: From & To */}
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-1.5">
+              <span className="text-[11px] font-bold text-slate-600 uppercase">From:</span>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => handleCustomDate('start', e.target.value)}
+                className="bg-transparent text-xs font-bold text-slate-900 focus:outline-none cursor-pointer"
+              />
+            </div>
+
+            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-1.5">
+              <span className="text-[11px] font-bold text-slate-600 uppercase">To:</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => handleCustomDate('end', e.target.value)}
+                className="bg-transparent text-xs font-bold text-slate-900 focus:outline-none cursor-pointer"
+              />
+            </div>
+
+            {(startDate || endDate) && (
+              <button
+                type="button"
+                onClick={() => handlePresetSelect('all')}
+                className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                title="Clear Custom Date Range"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
-        <div className="w-44">
-          <ReactSelect
-            value={eventTypeFilter}
-            onChange={setEventTypeFilter}
-            options={[{ value: 'all', label: 'All Event Types' }, ...eventTypes.map(t => ({ value: t, label: t.charAt(0).toUpperCase() + t.slice(1) }))]}
-            placeholder="Event Type"
-            isSearchable={true}
-            isClearable={false}
-          />
+
+        {/* Row 2: Secondary Dropdowns (Hall, Event Type, Status) & Feedback */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center gap-3 flex-wrap flex-1">
+            <div className="w-44">
+              <ReactSelect
+                value={hallFilter}
+                onChange={setHallFilter}
+                options={[
+                  { value: 'all', label: 'All Halls' },
+                  ...halls.filter(Boolean).map(h => ({ value: String(h.id), label: h.name }))
+                ]}
+                placeholder="Hall Filter"
+                isSearchable={true}
+                isClearable={false}
+              />
+            </div>
+
+            <div className="w-44">
+              <ReactSelect
+                value={eventTypeFilter}
+                onChange={setEventTypeFilter}
+                options={[
+                  { value: 'all', label: 'All Event Types' },
+                  ...eventTypes.map(t => ({ value: t, label: t.charAt(0).toUpperCase() + t.slice(1) }))
+                ]}
+                placeholder="Event Type"
+                isSearchable={true}
+                isClearable={false}
+              />
+            </div>
+
+            <div className="w-40">
+              <ReactSelect
+                value={statusFilter}
+                onChange={setStatusFilter}
+                options={[
+                  { value: 'all', label: 'All Status' },
+                  { value: 'confirmed', label: 'Confirmed' },
+                  { value: 'in_progress', label: 'In Progress' },
+                  { value: 'completed', label: 'Completed' },
+                  { value: 'tentative', label: 'Tentative' },
+                  { value: 'cancelled', label: 'Cancelled' }
+                ]}
+                placeholder="Status"
+                isSearchable={true}
+                isClearable={false}
+              />
+            </div>
+
+            {isFilterActive && (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Reset Filters
+              </button>
+            )}
+          </div>
+
+          {/* Active Period Feedback Badge */}
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-300">
+              Showing: <span className="text-blue-600 font-black">{filteredBookings.length}</span> Bookings
+              {startDate && endDate && (
+                <span className="text-slate-500 font-medium ml-1">({startDate} to {endDate})</span>
+              )}
+            </span>
+          </div>
         </div>
-        <div className="w-40">
-          <ReactSelect
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={[
-              { value: 'all', label: 'All Status' },
-              { value: 'confirmed', label: 'Confirmed' },
-              { value: 'pending', label: 'Pending' },
-              { value: 'cancelled', label: 'Cancelled' },
-              { value: 'completed', label: 'Completed' }
-            ]}
-            placeholder="Status"
-            isSearchable={true}
-            isClearable={false}
-          />
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════
+          4. HERO KPI STAT METRIC CARDS (Uniform Executive Corporate Theme)
+          ══════════════════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        {/* Total Bookings */}
+        <div 
+          onClick={() => navigate('/bookings')}
+          className="bg-white rounded-3xl border border-slate-300 p-5 hover:shadow-md transition-all duration-300 group cursor-pointer relative overflow-hidden"
+        >
+          <div className="h-1 w-full absolute top-0 left-0 bg-blue-600" />
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center transition-transform group-hover:scale-110 shadow-2xs">
+              <Calendar className="w-6 h-6" />
+            </div>
+            <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+              Period View
+            </span>
+          </div>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Total Bookings</h3>
+          <p className="text-3xl font-extrabold text-slate-900 tracking-tight">{formatNumber(stats.totalBookings)}</p>
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-xs text-slate-600">
+            <span>Confirmed: <strong className="text-slate-900 font-bold">{stats.activeEvents}</strong></span>
+            <span className="flex items-center gap-1 text-blue-600 font-bold group-hover:underline">
+              View All <ArrowUpRight className="w-3.5 h-3.5" />
+            </span>
+          </div>
         </div>
-        <button onClick={fetchDashboardData} className="ml-auto px-4 py-2 bg-[#A97A1F] text-white rounded-xl text-xs font-bold hover:opacity-90 transition-opacity">
-          Refresh
+
+        {/* Total Revenue */}
+        <div 
+          onClick={() => navigate('/reports/finance')}
+          className="bg-white rounded-3xl border border-slate-300 p-5 hover:shadow-md transition-all duration-300 group cursor-pointer relative overflow-hidden"
+        >
+          <div className="h-1 w-full absolute top-0 left-0 bg-blue-600" />
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center transition-transform group-hover:scale-110 shadow-2xs">
+              <Wallet className="w-6 h-6" />
+            </div>
+            <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+              Total Inflow
+            </span>
+          </div>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Gross Revenue</h3>
+          <p className="text-3xl font-extrabold text-slate-900 tracking-tight">{formatCurrency(stats.totalRevenue)}</p>
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-xs text-slate-600">
+            <span>Collected: <strong className="text-slate-900 font-bold">{formatCurrency(stats.totalPaid)}</strong></span>
+            <span className="flex items-center gap-1 text-slate-700 font-semibold">
+              Due: {formatCurrency(stats.totalDue)}
+            </span>
+          </div>
+        </div>
+
+        {/* Total Guests Served */}
+        <div 
+          onClick={() => navigate('/events')}
+          className="bg-white rounded-3xl border border-slate-300 p-5 hover:shadow-md transition-all duration-300 group cursor-pointer relative overflow-hidden"
+        >
+          <div className="h-1 w-full absolute top-0 left-0 bg-blue-600" />
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center transition-transform group-hover:scale-110 shadow-2xs">
+              <PartyPopper className="w-6 h-6" />
+            </div>
+            <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+              Guests
+            </span>
+          </div>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Expected Guests</h3>
+          <p className="text-3xl font-extrabold text-slate-900 tracking-tight">{formatNumber(stats.totalGuests)}</p>
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-xs text-slate-600">
+            <span>Across <strong className="text-slate-800">{stats.totalBookings}</strong> events</span>
+            <span className="flex items-center gap-1 text-blue-600 font-bold group-hover:underline">
+              Capacity Pulse
+            </span>
+          </div>
+        </div>
+
+        {/* Registered Clients */}
+        <div 
+          onClick={() => navigate('/customers')}
+          className="bg-white rounded-3xl border border-slate-300 p-5 hover:shadow-md transition-all duration-300 group cursor-pointer relative overflow-hidden"
+        >
+          <div className="h-1 w-full absolute top-0 left-0 bg-blue-600" />
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center transition-transform group-hover:scale-110 shadow-2xs">
+              <Users className="w-6 h-6" />
+            </div>
+            <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+              Clients
+            </span>
+          </div>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Client Database</h3>
+          <p className="text-3xl font-extrabold text-slate-900 tracking-tight">{formatNumber(stats.totalCustomers)}</p>
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-xs text-slate-600">
+            <span>Registered Venue Clients</span>
+            <span className="flex items-center gap-1 text-blue-600 font-bold group-hover:underline">
+              Manage <ArrowUpRight className="w-3.5 h-3.5" />
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════
+          5. QUICK ACTIONS STRIP (Fast Venue Operations)
+          ══════════════════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <button
+          type="button"
+          onClick={() => navigate('/bookings/create')}
+          className="p-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs flex items-center justify-between hover:shadow-md hover:scale-[1.01] transition-all duration-200 shadow-xs group"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-white/20 rounded-xl group-hover:rotate-12 transition-transform">
+              <Calendar className="w-4 h-4" />
+            </div>
+            <span>+ New Booking</span>
+          </div>
+          <ArrowRight className="w-4 h-4 opacity-80 group-hover:translate-x-1 transition-transform" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => navigate('/bookings/calendar')}
+          className="p-4 rounded-2xl bg-white border border-slate-300 hover:border-blue-600 text-slate-800 font-bold text-xs flex items-center justify-between hover:shadow-sm transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-110 transition-transform">
+              <CalendarDays className="w-4 h-4" />
+            </div>
+            <span>Event Calendar</span>
+          </div>
+          <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => navigate('/menus')}
+          className="p-4 rounded-2xl bg-white border border-slate-300 hover:border-blue-600 text-slate-800 font-bold text-xs flex items-center justify-between hover:shadow-sm transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-110 transition-transform">
+              <Gem className="w-4 h-4" />
+            </div>
+            <span>Menu & Packages</span>
+          </div>
+          <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => navigate('/reports/finance')}
+          className="p-4 rounded-2xl bg-white border border-slate-300 hover:border-blue-600 text-slate-800 font-bold text-xs flex items-center justify-between hover:shadow-sm transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-110 transition-transform">
+              <BarChart3 className="w-4 h-4" />
+            </div>
+            <span>Finance & P&L</span>
+          </div>
+          <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
         </button>
       </div>
 
-      {/* ── Stats Cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, i) => (
-          <div 
-            key={i} 
-            onClick={() => handleCardClick(stat.path === '/bookings' ? 'bookings' : stat.path === '/reports/financial' ? 'revenue' : stat.path === '/events' ? 'events' : 'customers')}
-            className="bg-white rounded-2xl border border-[#E0D8CC] p-6 hover:shadow-lg hover:border-[#A97A1F] transition-all duration-300 group cursor-pointer"
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className={`p-3 rounded-xl bg-gradient-to-br from-[#A97A1F]/15 to-[#C89B3C]/15 group-hover:from-[#A97A1F]/25 group-hover:to-[#C89B3C]/25 transition-all`}>
-                <stat.icon className="w-5 h-5 text-[#A97A1F]" />
-              </div>
-              <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${stat.up ? 'bg-[#1B5E20]/10 text-[#1B5E20]' : 'bg-[#B71C1C]/10 text-[#B71C1C]'}`}>
-                {stat.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                {stat.change}
-              </div>
-            </div>
-            <h3 className="text-[#4A4A4A] text-sm font-medium mb-1">{stat.title}</h3>
-            <p className="text-2xl font-bold text-[#1A1A1A]">{stat.value}</p>
-            <p className="text-xs text-[#7A7A7A] mt-1 flex items-center gap-1">
-              {stat.subtitle}
-              <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Big Booking Calendar Button ── */}
-      <button 
-        onClick={() => navigate('/bookings/calendar')}
-        className="w-full py-5 bg-gradient-to-r from-[#1A1A1A] to-[#4A4A4A] rounded-2xl text-white flex items-center justify-center gap-4 hover:shadow-xl hover:scale-[1.01] transition-all duration-300 group"
-      >
-        <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors">
-          <Calendar className="w-7 h-7 text-[#C89B3C]" />
-        </div>
-        <div className="text-left">
-          <h3 className="text-lg font-bold">Booking Calendar</h3>
-          <p className="text-sm text-white/70">View all events in calendar format — {upcomingEvents.length} upcoming</p>
-        </div>
-        <ArrowUpRight className="w-6 h-6 text-[#C89B3C] ml-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-      </button>
-
-      {/* ── Upcoming Events ── */}
-      <div className="bg-white rounded-2xl border border-[#E0D8CC] p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="font-bold text-[#1A1A1A] text-lg">Upcoming Events</h3>
-            <p className="text-sm text-[#4A4A4A]">Next 7 days schedule</p>
-          </div>
-          <button onClick={() => navigate('/bookings')} className="px-4 py-2 border border-[#E0D8CC] rounded-xl text-sm font-semibold text-[#1A1A1A] hover:border-[#A97A1F] hover:text-[#A97A1F] flex items-center gap-1 transition-all">
-            View All <ArrowUpRight className="w-4 h-4" />
-          </button>
-        </div>
+      {/* ══════════════════════════════════════════════════════════════
+          6. CHARTS & OCCUPANCY GRID
+          ══════════════════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {upcomingEvents.length === 0 ? (
-          <div className="p-8 text-center text-gray-400 border-2 border-dashed border-gray-200 rounded-2xl">
-            <Calendar className="w-10 h-10 mx-auto mb-2 text-gray-300" />
-            <p className="text-sm">No upcoming events in the next 7 days</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-[#E0D8CC]">
-                  <th className="text-left py-3 px-3 text-xs font-semibold text-[#4A4A4A] uppercase">Customer</th>
-                  <th className="text-left py-3 px-3 text-xs font-semibold text-[#4A4A4A] uppercase">Event</th>
-                  <th className="text-left py-3 px-3 text-xs font-semibold text-[#4A4A4A] uppercase">Date</th>
-                  <th className="text-left py-3 px-3 text-xs font-semibold text-[#4A4A4A] uppercase">Hall</th>
-                  <th className="text-left py-3 px-3 text-xs font-semibold text-[#4A4A4A] uppercase">Guests</th>
-                  <th className="text-left py-3 px-3 text-xs font-semibold text-[#4A4A4A] uppercase">Menu</th>
-                  <th className="text-right py-3 px-3 text-xs font-semibold text-[#4A4A4A] uppercase">Amount</th>
-                  <th className="text-center py-3 px-3 text-xs font-semibold text-[#4A4A4A] uppercase">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {upcomingEvents.map((event) => (
-                  <tr key={event.id} className="border-b border-[#F0ECE6] hover:bg-[#F8F5F0] transition-colors cursor-pointer" onClick={() => navigate(`/bookings/${event.id}`)}>
-                    <td className="py-3 px-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] flex items-center justify-center text-white font-bold text-xs">
-                          {event.avatar}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-semibold text-[#1A1A1A] text-sm truncate">{event.customer}</p>
-                          <p className="text-xs text-[#4A4A4A] flex items-center gap-1"><Phone className="w-3 h-3 shrink-0" /> {event.phone}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3 px-3"><span className="text-sm text-[#4A4A4A] whitespace-nowrap">{event.event}</span></td>
-                    <td className="py-3 px-3">
-                      <div className="flex items-center gap-1 text-sm text-[#4A4A4A] whitespace-nowrap">
-                        <Clock className="w-3.5 h-3.5 text-[#A97A1F] shrink-0" />{event.date}
-                      </div>
-                    </td>
-                    <td className="py-3 px-3 text-sm text-[#4A4A4A] whitespace-nowrap">{event.hall}</td>
-                    <td className="py-3 px-3">
-                      <div className="flex items-center gap-1 text-sm text-[#4A4A4A] whitespace-nowrap">
-                        <Users className="w-3.5 h-3.5 text-[#A97A1F] shrink-0" />{formatNumber(event.guests)}
-                      </div>
-                    </td>
-                    <td className="py-3 px-3">
-                      <span className="px-2.5 py-1 bg-[#F4E7C9] text-[#8B6914] rounded-lg text-xs font-bold">{event.menu}</span>
-                    </td>
-                    <td className="py-3 px-3 text-right font-bold text-[#1A1A1A] whitespace-nowrap">{formatCurrency(event.amount)}</td>
-                    <td className="py-3 px-3 text-center">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${event.status === 'confirmed' ? 'bg-[#1B5E20]/10 text-[#1B5E20]' : event.status === 'pending' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'}`}>
-                        {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* ── Recent Activity + Quick Actions ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Recent Activity */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-[#E0D8CC] p-6 shadow-sm">
-          <h3 className="font-bold text-[#1A1A1A] text-lg mb-1">Recent Activity</h3>
-          <p className="text-sm text-[#4A4A4A] mb-6">Latest updates from your venue</p>
-          {recentActivities.length === 0 ? (
-            <div className="p-6 text-center text-gray-400 border border-dashed border-gray-200 rounded-xl">
-              <Clock className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-              <p className="text-xs">No recent activity</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {recentActivities.map((activity, i) => (
-                <div key={i} className="flex items-center gap-4 p-3 rounded-xl hover:bg-[#F8F5F0] transition-all">
-                  <div className={`p-2.5 rounded-xl bg-[#F5F2EB] ${activity.color}`}>
-                    <activity.icon className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-[#1A1A1A] text-sm">{activity.user}</p>
-                    <p className="text-sm text-[#4A4A4A]">{activity.action}</p>
-                  </div>
-                  <span className="text-xs text-[#7A7A7A]">{activity.time}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white rounded-2xl border border-[#E0D8CC] p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="p-2 bg-[#F4E7C9] rounded-xl">
-              <Zap className="w-4 h-4 text-[#A97A1F]" />
-            </div>
-            <h3 className="font-bold text-[#1A1A1A] text-lg">Quick Actions</h3>
-          </div>
-          <div className="space-y-3">
-            {[
-              { icon: Calendar, label: 'New Booking', path: '/bookings/create', color: 'from-[#B8862B] to-[#C89B3C]', bg: 'bg-[#B8862B]/10' },
-              { icon: Users, label: 'Add Customer', path: '/customers', color: 'from-[#C89B3C] to-[#DDB35A]', bg: 'bg-[#C89B3C]/10' },
-              { icon: DollarSign, label: 'Record Payment', path: '/bookings', color: 'from-[#1B5E20] to-[#2E7D32]', bg: 'bg-[#2E7D32]/10' },
-              { icon: Gem, label: 'Menu Builder', path: '/menus', color: 'from-[#A97A1F] to-[#B8862B]', bg: 'bg-[#A97A1F]/10' },
-              { icon: Building2, label: 'Hall Setup', path: '/settings/halls', color: 'from-[#4B5563] to-[#6B7280]', bg: 'bg-[#4B5563]/10' },
-            ].map((action, i) => (
-              <button 
-                key={i} 
-                onClick={() => navigate(action.path)} 
-                className="w-full flex items-center gap-4 p-3 rounded-xl border border-[#E0D8CC] hover:border-[#A97A1F] hover:shadow-md transition-all group text-left"
-              >
-                <div className={`p-2.5 rounded-xl ${action.bg} group-hover:scale-110 transition-transform`}>
-                  <action.icon className="w-4 h-4 text-[#A97A1F]" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-[#1A1A1A] text-sm">{action.label}</p>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-[#7A7A7A] group-hover:text-[#A97A1F] transition-colors" />
-              </button>
-            ))}
-          </div>
-
-          {/* Monthly Target Mini Card */}
-          <div className="mt-6 p-4 bg-gradient-to-br from-[#A97A1F]/10 to-[#C89B3C]/10 rounded-xl border border-[#A97A1F]/20">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-[#A97A1F] rounded-xl">
-                <Target className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-[#1A1A1A]">Monthly Target</p>
-                <p className="text-xs text-[#4A4A4A]">{formatCurrency(revenueData.reduce((s,d) => s + d.revenue, 0))} revenue this year</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Revenue Overview + Hall Occupancy + Today's Progress ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Revenue Chart */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-[#E0D8CC] p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
+        {/* Revenue Trend Area Chart (2 Cols) */}
+        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-300 p-6 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
             <div>
-              <h3 className="font-bold text-[#1A1A1A] text-lg">Revenue Overview</h3>
-              <p className="text-sm text-[#4A4A4A]">Monthly performance with bookings count</p>
+              <div className="flex items-center gap-2">
+                <h3 className="font-extrabold text-slate-900 text-lg">Revenue & Booking Trends</h3>
+                {isFilterActive && (
+                  <span className="text-[10px] font-extrabold bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full border border-blue-200">
+                    Filtered
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-600 mt-0.5">Monthly revenue trajectory vs confirmed event bookings</p>
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#A97A1F]" />
-                <span className="text-xs text-[#4A4A4A]">Revenue</span>
+                <div className="w-3 h-3 rounded-full bg-blue-600" />
+                <span className="text-xs font-bold text-slate-700">Revenue (Rs)</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#C89B3C]" />
-                <span className="text-xs text-[#4A4A4A]">Bookings</span>
+                <div className="w-3 h-3 rounded-full bg-slate-500" />
+                <span className="text-xs font-bold text-slate-700">Bookings</span>
               </div>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={revenueData}>
+
+          <ResponsiveContainer width="100%" height={290}>
+            <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#A97A1F" stopOpacity={0.25}/>
-                  <stop offset="95%" stopColor="#A97A1F" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#2563EB" stopOpacity={0.25}/>
+                  <stop offset="95%" stopColor="#2563EB" stopOpacity={0}/>
                 </linearGradient>
                 <linearGradient id="colorBookings" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#C89B3C" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="#C89B3C" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#64748B" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#64748B" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D8" />
-              <XAxis dataKey="month" stroke="#7A7A7A" fontSize={12} />
-              <YAxis yAxisId="left" stroke="#7A7A7A" fontSize={12} tickFormatter={(v) => `₹${(v/100000).toFixed(1)}L`} />
-              <YAxis yAxisId="right" orientation="right" stroke="#7A7A7A" fontSize={12} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#CBD5E1" opacity={0.6} />
+              <XAxis dataKey="month" stroke="#64748B" fontSize={12} tickLine={false} />
+              <YAxis yAxisId="left" stroke="#64748B" fontSize={11} tickFormatter={(v) => `Rs ${(v/100000).toFixed(0)}L`} />
+              <YAxis yAxisId="right" orientation="right" stroke="#64748B" fontSize={11} />
               <Tooltip 
-                formatter={(value, name) => [name === 'revenue' ? formatCurrency(value) : value, name === 'revenue' ? 'Revenue' : 'Bookings']}
-                contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #E0D8CC', borderRadius: '12px', color: '#1A1A1A' }} 
+                formatter={(value, name) => [
+                  name === 'revenue' ? formatCurrency(value) : value, 
+                  name === 'revenue' ? 'Revenue' : 'Bookings'
+                ]}
+                contentStyle={{ 
+                  backgroundColor: '#0F172A', 
+                  border: '1px solid #334155', 
+                  borderRadius: '16px', 
+                  color: '#F8FAFC',
+                  fontSize: '12px',
+                  fontWeight: '600'
+                }} 
               />
-              <Area yAxisId="left" type="monotone" dataKey="revenue" stroke="#A97A1F" fillOpacity={1} fill="url(#colorRevenue)" strokeWidth={2.5} />
-              <Area yAxisId="right" type="monotone" dataKey="bookings" stroke="#C89B3C" fillOpacity={1} fill="url(#colorBookings)" strokeWidth={2.5} />
+              <Area yAxisId="left" type="monotone" dataKey="revenue" stroke="#2563EB" fillOpacity={1} fill="url(#colorRevenue)" strokeWidth={3} />
+              <Area yAxisId="right" type="monotone" dataKey="bookings" stroke="#64748B" fillOpacity={1} fill="url(#colorBookings)" strokeWidth={2.5} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Right Column: Hall Occupancy + Today's Progress */}
-        <div className="space-y-4">
-          {/* Hall Occupancy */}
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] p-6 shadow-sm">
-            <h4 className="font-semibold text-[#1A1A1A] text-sm mb-4">Hall Occupancy</h4>
+        {/* Right Column: Today's Pulse + Hall Occupancy */}
+        <div className="space-y-6">
+          
+          {/* Today's Live Pulse */}
+          <div className="bg-white rounded-3xl border border-slate-300 p-5 shadow-xs">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                <Zap className="w-4 h-4 text-blue-600" />
+                Today's Live Venue Pulse
+              </h4>
+              <span className="text-[10px] uppercase font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                Live
+              </span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2.5">
+              <div 
+                className="p-3 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-100 transition-colors"
+                onClick={() => navigate('/bookings')}
+              >
+                <p className="text-2xl font-black text-slate-900">{todaysProgress.eventsCount}</p>
+                <p className="text-[11px] font-bold text-slate-600 mt-0.5">Today's Programs</p>
+              </div>
+
+              <div 
+                className="p-3 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-100 transition-colors"
+                onClick={() => navigate('/bookings')}
+              >
+                <p className="text-2xl font-black text-slate-900">{formatNumber(todaysProgress.guests)}</p>
+                <p className="text-[11px] font-bold text-slate-600 mt-0.5">Expected Guests</p>
+              </div>
+
+              <div 
+                className="p-3 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-100 transition-colors"
+                onClick={() => navigate('/reports/finance')}
+              >
+                <p className="text-lg font-black text-slate-900 truncate">{formatCurrency(todaysProgress.revenue)}</p>
+                <p className="text-[11px] font-bold text-slate-600 mt-0.5">Today's Inflow</p>
+              </div>
+
+              <div 
+                className="p-3 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-100 transition-colors"
+                onClick={() => navigate('/settings/halls')}
+              >
+                <p className="text-2xl font-black text-slate-900">{todaysProgress.occupancy}%</p>
+                <p className="text-[11px] font-bold text-slate-600 mt-0.5">Hall Occupancy</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Hall Occupancy Meters */}
+          <div className="bg-white rounded-3xl border border-slate-300 p-5 shadow-xs">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-blue-600" />
+                Hall Capacity & Occupancy
+              </h4>
+              <button 
+                onClick={() => navigate('/settings/halls')}
+                className="text-[11px] font-bold text-blue-600 hover:underline"
+              >
+                Configure
+              </button>
+            </div>
+
             {hallOccupancy.length === 0 ? (
-              <p className="text-xs text-gray-400">No halls configured</p>
+              <p className="text-xs text-slate-500 py-4 text-center">No halls configured</p>
             ) : (
               <div className="space-y-3">
                 {hallOccupancy.map((hall) => (
-                  <div key={hall.id} className="cursor-pointer hover:bg-[#F5F2EB] p-2 rounded-xl transition-all" onClick={() => navigate(`/halls/${hall.id}`)}>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-[#4A4A4A]">{hall.name}</span>
-                      <span className="font-semibold text-[#1A1A1A]">{hall.bookings}/{hall.capacity}</span>
+                  <div key={hall.id} className="p-2.5 rounded-xl hover:bg-slate-50 transition-all border border-slate-100">
+                    <div className="flex justify-between text-xs mb-1.5">
+                      <span className="font-bold text-slate-800">{hall.name}</span>
+                      <span className="font-bold text-blue-600">{hall.bookings} bookings ({hall.guests} guests)</span>
                     </div>
-                    <div className="w-full h-1.5 bg-[#F0ECE6] rounded-full overflow-hidden">
+                    <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
                       <div 
-                        className="h-full rounded-full transition-all duration-500 bg-[#A97A1F]" 
-                        style={{ width: `${Math.min((hall.bookings / hall.capacity) * 100, 100)}%` }} 
+                        className="h-full rounded-full transition-all duration-500 bg-blue-600" 
+                        style={{ width: `${Math.max(10, hall.percent)}%` }} 
                       />
                     </div>
                   </div>
@@ -700,51 +917,17 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Today's Progress */}
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] p-6 shadow-sm">
-            <h4 className="font-semibold text-[#1A1A1A] text-sm mb-3">Today's Progress</h4>
-            <div className="grid grid-cols-2 gap-3">
-              <div 
-                className="text-center p-3 bg-[#F5F2EB] rounded-xl cursor-pointer hover:bg-[#E8E0D8] transition-colors"
-                onClick={() => navigate('/events')}
-              >
-                <p className="text-2xl font-bold text-[#1A1A1A]">{todaysProgress.events}</p>
-                <p className="text-xs text-[#4A4A4A]">Events</p>
-              </div>
-              <div 
-                className="text-center p-3 bg-[#F5F2EB] rounded-xl cursor-pointer hover:bg-[#E8E0D8] transition-colors"
-                onClick={() => navigate('/bookings')}
-              >
-                <p className="text-2xl font-bold text-[#1A1A1A]">{formatNumber(todaysProgress.guests)}</p>
-                <p className="text-xs text-[#4A4A4A]">Guests</p>
-              </div>
-              <div 
-                className="text-center p-3 bg-[#F5F2EB] rounded-xl cursor-pointer hover:bg-[#E8E0D8] transition-colors"
-                onClick={() => navigate('/reports/financial')}
-              >
-                <p className="text-2xl font-bold text-[#A97A1F]">{formatCurrency(todaysProgress.revenue)}</p>
-                <p className="text-xs text-[#4A4A4A]">Revenue</p>
-              </div>
-              <div 
-                className="text-center p-3 bg-[#F5F2EB] rounded-xl cursor-pointer hover:bg-[#E8E0D8] transition-colors"
-                onClick={() => navigate('/halls')}
-              >
-                <p className="text-2xl font-bold text-[#1B5E20]">{todaysProgress.occupancy}%</p>
-                <p className="text-xs text-[#4A4A4A]">Occupancy</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Event Distribution Mini Pie */}
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] p-6 shadow-sm">
-            <h4 className="font-semibold text-[#1A1A1A] text-sm mb-2">Event Distribution</h4>
-            {eventTypeData.length === 0 ? (
-              <p className="text-xs text-gray-400">No data</p>
-            ) : (
+          {/* Event Distribution Donut */}
+          {eventTypeData.length > 0 && (
+            <div className="bg-white rounded-3xl border border-slate-300 p-5 shadow-xs">
+              <h4 className="font-extrabold text-slate-900 text-sm mb-3 flex items-center gap-2">
+                <PieIcon className="w-4 h-4 text-blue-600" />
+                Event Type Distribution
+              </h4>
               <div className="flex items-center gap-4">
-                <ResponsiveContainer width="50%" height={120}>
+                <ResponsiveContainer width="45%" height={120}>
                   <PieChart>
-                    <Pie data={eventTypeData} cx="50%" cy="50%" innerRadius={25} outerRadius={45} paddingAngle={5} dataKey="value">
+                    <Pie data={eventTypeData} cx="50%" cy="50%" innerRadius={28} outerRadius={48} paddingAngle={4} dataKey="value">
                       {eventTypeData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
@@ -752,22 +935,221 @@ export default function Dashboard() {
                     <Tooltip />
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="flex-1 space-y-1">
+                <div className="flex-1 space-y-1 max-h-28 overflow-y-auto">
                   {eventTypeData.map((item) => (
                     <div key={item.name} className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                        <span className="text-[#4A4A4A]">{item.name}</span>
+                        <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                        <span className="text-slate-700 truncate max-w-[90px]">{item.name}</span>
                       </div>
-                      <span className="font-bold text-[#1A1A1A]">{item.value}%</span>
+                      <span className="font-extrabold text-slate-900">{item.raw} ({item.value}%)</span>
                     </div>
                   ))}
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* ══════════════════════════════════════════════════════════════
+          7. EVENT SCHEDULE & BOOKINGS TABLE (Filtered by Date Range)
+          ══════════════════════════════════════════════════════════════ */}
+      <div className="bg-white rounded-3xl border border-slate-300 p-6 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-extrabold text-slate-900 text-lg">
+                Event Schedule & Bookings
+              </h3>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-blue-50 text-blue-700 border border-blue-200">
+                {filteredBookings.length} Total
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 mt-0.5">
+              {startDate && endDate 
+                ? `Events between ${startDate} and ${endDate}` 
+                : 'Live overview of venue bookings & guest arrangements'}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => navigate('/bookings')} 
+              className="px-4 py-2 border border-slate-300 hover:border-blue-600 rounded-xl text-xs font-bold text-slate-800 hover:text-blue-600 flex items-center gap-1.5 transition-all shadow-2xs"
+            >
+              <span>All Bookings Directory</span>
+              <ArrowUpRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {displaySchedule.length === 0 ? (
+          <div className="p-12 text-center text-slate-500 border-2 border-dashed border-slate-300 rounded-3xl bg-slate-50">
+            <Calendar className="w-12 h-12 mx-auto mb-3 text-slate-400" />
+            <h4 className="text-sm font-bold text-slate-800">No events match the selected criteria</h4>
+            <p className="text-xs text-slate-500 mt-1">Try resetting the date range or choosing a different hall.</p>
+            <button
+              onClick={handleResetFilters}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-xs hover:bg-blue-700 transition"
+            >
+              Reset All Filters
+            </button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b-2 border-slate-200 bg-slate-50">
+                  <th className="py-3 px-3 text-xs font-bold text-slate-700 uppercase tracking-wider">Customer</th>
+                  <th className="py-3 px-3 text-xs font-bold text-slate-700 uppercase tracking-wider">Event Type</th>
+                  <th className="py-3 px-3 text-xs font-bold text-slate-700 uppercase tracking-wider">Date & Time</th>
+                  <th className="py-3 px-3 text-xs font-bold text-slate-700 uppercase tracking-wider">Hall</th>
+                  <th className="py-3 px-3 text-xs font-bold text-slate-700 uppercase tracking-wider">Guests</th>
+                  <th className="py-3 px-3 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Total Amount</th>
+                  <th className="py-3 px-3 text-center text-xs font-bold text-slate-700 uppercase tracking-wider">Status</th>
+                  <th className="py-3 px-3 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {displaySchedule.map((b) => {
+                  const customerName = b.customer?.name || b.guestName || b.customerName || 'Guest';
+                  const initials = customerName.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+                  const phone = b.customer?.phone || b.guestPhone || b.phone || 'N/A';
+                  const isEventToday = isToday(b.eventDate);
+
+                  return (
+                    <tr key={b.id || b.bookingNo} className="hover:bg-slate-50/80 transition-colors group">
+                      {/* Customer */}
+                      <td className="py-3.5 px-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                            {initials}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-bold text-slate-900 text-xs truncate max-w-[140px]">{customerName}</p>
+                            <p className="text-[11px] text-slate-500 truncate">{phone}</p>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Event Type */}
+                      <td className="py-3.5 px-3">
+                        <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 whitespace-nowrap">
+                          {b.eventType || 'Event'}
+                        </span>
+                      </td>
+
+                      {/* Date & Time */}
+                      <td className="py-3.5 px-3">
+                        <p className={`text-xs font-bold ${isEventToday ? 'text-blue-600 font-extrabold flex items-center gap-1' : 'text-slate-800'}`}>
+                          {isEventToday && <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />}
+                          {formatDate(b.eventDate)}
+                        </p>
+                        <p className="text-[10px] text-slate-500 font-medium">
+                          {b.startTime ? `${formatTime(b.startTime)} - ${formatTime(b.endTime)}` : (b.shift || 'Full Day')}
+                        </p>
+                      </td>
+
+                      {/* Hall */}
+                      <td className="py-3.5 px-3">
+                        <span className="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                          <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                          {b.hall?.name || b.hallName || 'Assigned Hall'}
+                        </span>
+                      </td>
+
+                      {/* Guests */}
+                      <td className="py-3.5 px-3">
+                        <span className="text-xs font-extrabold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md">
+                          {formatNumber(b.guestCount)}
+                        </span>
+                      </td>
+
+                      {/* Amount */}
+                      <td className="py-3.5 px-3 text-right">
+                        <p className="text-xs font-black text-slate-900">{formatCurrency(b.totalAmount)}</p>
+                        {Number(b.dueAmount) > 0 && (
+                          <p className="text-[10px] font-bold text-rose-600">Due: {formatCurrency(b.dueAmount)}</p>
+                        )}
+                      </td>
+
+                      {/* Status */}
+                      <td className="py-3.5 px-3 text-center">
+                        <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold inline-block capitalize ${
+                          b.status === 'confirmed' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' :
+                          b.status === 'in_progress' ? 'bg-amber-50 text-amber-800 border border-amber-200' :
+                          b.status === 'completed' ? 'bg-blue-50 text-blue-800 border border-blue-200' :
+                          b.status === 'cancelled' ? 'bg-rose-50 text-rose-800 border border-rose-200' :
+                          'bg-slate-100 text-slate-800 border border-slate-300'
+                        }`}>
+                          {b.status || 'Pending'}
+                        </span>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="py-3.5 px-3 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedBookingForWhatsApp(b);
+                              setWhatsAppModalOpen(true);
+                            }}
+                            className="p-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors"
+                            title="Send WhatsApp Reminder / Update"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                          </button>
+                          
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/bookings/${b.id}`)}
+                            className="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 transition-colors"
+                            title="View Booking Details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════
+          8. 1-CLICK REMINDERS DRAWER (48h Upcoming Reminders)
+          ══════════════════════════════════════════════════════════════ */}
+      <UpcomingRemindersDrawer
+        isOpen={remindersDrawerOpen}
+        onClose={() => setRemindersDrawerOpen(false)}
+        branchId={branchId}
+        onReminderSent={fetchReminders}
+      />
+
+      {/* ══════════════════════════════════════════════════════════════
+          9. WHATSAPP SENDER MODAL (For Table Rows)
+          ══════════════════════════════════════════════════════════════ */}
+      {whatsAppModalOpen && selectedBookingForWhatsApp && (
+        <WhatsAppModal
+          isOpen={whatsAppModalOpen}
+          onClose={() => {
+            setWhatsAppModalOpen(false);
+            setSelectedBookingForWhatsApp(null);
+          }}
+          booking={selectedBookingForWhatsApp}
+          defaultType="reminder"
+          onSuccess={() => {
+            fetchDashboardData();
+            fetchReminders();
+          }}
+        />
+      )}
+
     </div>
   );
 }

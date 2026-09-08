@@ -50,7 +50,7 @@
 //   };
 
 //   return (
-//     <div className="min-h-screen p-6" style={{ backgroundColor: '#F5F2EB' }}>
+//     <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
 //       <div className="max-w-2xl mx-auto">
         
 //         {/* Header */}
@@ -67,7 +67,7 @@
 //         </div>
 
 //         {/* Main Box */}
-//         <div className="bg-white p-6 rounded-2xl border border-[#E0D8CC] shadow-sm">
+//         <div className="bg-white p-6 rounded-2xl border border-slate-300 shadow-sm">
 //           <form onSubmit={handleWastage} className="space-y-4">
             
 //             {/* Item Selection */}

@@ -24,19 +24,19 @@
 //   const totalValuation = itemList.reduce((sum, item) => sum + (Number(item.currentStock || 0) * Number(item.avgCostPrice || 0)), 0);
 
 //   return (
-//     <div className="min-h-screen p-6" style={{ backgroundColor: '#F5F2EB' }}>
+//     <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
 //       <div className="max-w-7xl mx-auto">
         
 //         {/* Header */}
 //         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
 //           <div className="flex items-center gap-3">
-//             <div className="p-3 rounded-2xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] text-white shadow-md">
+//             <div className="p-3 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] text-white shadow-md">
 //               <Layers className="w-6 h-6" />
 //             </div>
 //             <div>
 //               <h1 className="text-2xl font-bold text-gray-800">Current Stock Inventory Valuation</h1>
 //               <p className="text-sm text-gray-600">
-//                 Real-time stock valuation and asset summary for <span className="font-semibold text-[#A97A1F]">{currentBranch?.name || 'Selected Branch'}</span>
+//                 Real-time stock valuation and asset summary for <span className="font-semibold text-[#2563EB]">{currentBranch?.name || 'Selected Branch'}</span>
 //               </p>
 //             </div>
 //           </div>
@@ -44,17 +44,17 @@
 
 //         {/* Analytics Summary Cards */}
 //         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-//           <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center justify-between">
+//           <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center justify-between">
 //             <div>
 //               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Unique Items</p>
 //               <h3 className="text-2xl font-bold text-gray-800 mt-1 font-mono">{totalItemsCount}</h3>
 //             </div>
-//             <div className="p-3 bg-amber-50 rounded-xl text-[#A97A1F]">
+//             <div className="p-3 bg-amber-50 rounded-xl text-[#2563EB]">
 //               <Package size={22} />
 //             </div>
 //           </div>
 
-//           <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center justify-between">
+//           <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center justify-between">
 //             <div>
 //               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Stock Units</p>
 //               <h3 className="text-2xl font-bold text-gray-800 mt-1 font-mono">{totalStockUnits.toLocaleString()}</h3>
@@ -64,7 +64,7 @@
 //             </div>
 //           </div>
 
-//           <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center justify-between">
+//           <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center justify-between">
 //             <div>
 //               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Asset Valuation</p>
 //               <h3 className="text-2xl font-bold text-emerald-700 mt-1 font-mono">Rs {totalValuation.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
@@ -76,7 +76,7 @@
 //         </div>
 
 //         {/* Search Filter */}
-//         <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] mb-6 shadow-sm">
+//         <div className="bg-white p-4 rounded-2xl border border-slate-300 mb-6 shadow-sm">
 //           <div className="relative">
 //             <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
 //             <input 
@@ -84,16 +84,16 @@
 //               value={search} 
 //               onChange={e => setSearch(e.target.value)} 
 //               placeholder="Search stock items by name or code..." 
-//               className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/30" 
+//               className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30" 
 //             />
 //           </div>
 //         </div>
 
 //         {/* Valuation Table */}
-//         <div className="bg-white rounded-2xl border border-[#E0D8CC] overflow-hidden shadow-sm">
+//         <div className="bg-white rounded-2xl border border-slate-300 overflow-hidden shadow-sm">
 //           <div className="overflow-x-auto">
 //             <table className="w-full text-sm text-left">
-//               <thead className="bg-[#F5F2EB] border-b border-[#E0D8CC] text-gray-700 font-semibold">
+//               <thead className="bg-[#F1F5F9] border-b border-slate-300 text-gray-700 font-semibold">
 //                 <tr>
 //                   <th className="p-4">Item Details</th>
 //                   <th className="p-4">Category</th>
@@ -116,11 +116,11 @@
 //                           <div className="text-xs text-gray-400 font-mono mt-0.5">{item.code || '—'}</div>
 //                         </td>
 //                         <td className="p-4">
-//                           <span className="px-2.5 py-1 bg-amber-50 text-[#A97A1F] rounded-lg text-xs font-medium border border-amber-200">
+//                           <span className="px-2.5 py-1 bg-amber-50 text-[#2563EB] rounded-lg text-xs font-medium border border-amber-200">
 //                             {item.category}
 //                           </span>
 //                         </td>
-//                         <td className="p-4 text-right font-mono font-bold text-[#A97A1F]">
+//                         <td className="p-4 text-right font-mono font-bold text-[#2563EB]">
 //                           {stock} <span className="text-xs text-gray-500 font-normal">{item.unit}</span>
 //                         </td>
 //                         <td className="p-4 text-right font-mono text-gray-700">

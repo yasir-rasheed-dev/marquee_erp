@@ -161,7 +161,7 @@ const downloadPDF = (data, filename) => {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(18);
   doc.setTextColor(...primaryColor);
-  doc.text('UniSoft ERP', 14, 14);
+  doc.text('Marquee ERP', 14, 14);
   doc.setFontSize(9);
   doc.setTextColor(120, 120, 120);
   doc.text('Marquee Management System', 14, 21);
@@ -191,7 +191,7 @@ const downloadPDF = (data, filename) => {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
-    doc.text(`(c) 2026 UniSoft ERP - Page ${i} of ${totalPages}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
+    doc.text(`(c) 2026 Marquee ERP - Page ${i} of ${totalPages}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
   }
   doc.save(`${filename}_${new Date().toISOString().split('T')[0]}.pdf`);
 };
@@ -222,7 +222,7 @@ const StatusBadge = ({ status, children }) => {
 
 const SummaryCard = ({ icon: Icon, label, value, subtext, color = 'gold' }) => {
   const colors = {
-    gold: 'text-[#C89B3C] bg-[#C89B3C]/10',
+    gold: 'text-[#2563EB] bg-[#2563EB]/10',
     blue: 'text-blue-600 bg-blue-50',
     green: 'text-emerald-600 bg-emerald-50',
     red: 'text-red-600 bg-red-50',
@@ -250,7 +250,7 @@ const FilterCard = ({ title, icon: Icon, children, onReset, onApply, loading }) 
   <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-6">
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-2">
-        <Filter size={16} className="text-[#C89B3C]" />
+        <Filter size={16} className="text-[#2563EB]" />
         <h3 className="text-sm font-semibold text-gray-800">{title}</h3>
       </div>
       <div className="flex items-center gap-2">
@@ -263,7 +263,7 @@ const FilterCard = ({ title, icon: Icon, children, onReset, onApply, loading }) 
         <button
           onClick={onApply}
           disabled={loading}
-          className="px-4 py-1.5 text-xs font-medium text-white bg-[#C89B3C] hover:bg-[#A97A1F] rounded-lg transition-colors disabled:opacity-50 flex items-center gap-1"
+          className="px-4 py-1.5 text-xs font-medium text-white bg-[#2563EB] hover:bg-[#2563EB] rounded-lg transition-colors disabled:opacity-50 flex items-center gap-1"
         >
           {loading ? <RefreshCw size={12} className="animate-spin" /> : <Search size={12} />}
           {loading ? 'Loading...' : 'Apply Filters'}
@@ -308,7 +308,7 @@ const DataTable = ({ columns, data, loading, emptyText = 'No data found', onRowC
   if (loading) {
     return (
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
-        <RefreshCw size={32} className="animate-spin mx-auto text-[#C89B3C] mb-3" />
+        <RefreshCw size={32} className="animate-spin mx-auto text-[#2563EB] mb-3" />
         <p className="text-gray-500 text-sm">Loading data...</p>
       </div>
     );
@@ -334,7 +334,7 @@ const DataTable = ({ columns, data, loading, emptyText = 'No data found', onRowC
                   key={col.key}
                   onClick={() => col.sortable !== false && handleSort(col.key)}
                   className={`px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider ${
-                    col.sortable !== false && sortable ? 'cursor-pointer hover:text-[#C89B3C]' : ''
+                    col.sortable !== false && sortable ? 'cursor-pointer hover:text-[#2563EB]' : ''
                   } ${col.className || ''}`}
                 >
                   <div className="flex items-center gap-1">
@@ -409,7 +409,7 @@ const InputField = ({ label, type = 'text', value, onChange, placeholder, icon: 
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C] transition-all ${Icon ? 'pl-9' : ''}`}
+        className={`w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all ${Icon ? 'pl-9' : ''}`}
       />
     </div>
   </div>
@@ -423,7 +423,7 @@ const SelectField = ({ label, value, onChange, options, icon: Icon }) => (
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C] transition-all bg-white ${Icon ? 'pl-9' : ''}`}
+        className={`w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all bg-white ${Icon ? 'pl-9' : ''}`}
       >
         {options.map(opt => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -521,7 +521,7 @@ const KitchenOrderReport = () => {
     }},
     { key: 'totalAmount', label: 'Amount', sortable: true, render: (row) => formatMoney(row.totalAmount || 0) },
     { key: 'createdAt', label: 'Date', sortable: true, render: (row) => formatDateTime(row.createdAt) },
-    { key: 'actions', label: '', sortable: false, className: 'w-10', render: () => <Eye size={16} className="text-gray-400 hover:text-[#C89B3C] cursor-pointer" /> }
+    { key: 'actions', label: '', sortable: false, className: 'w-10', render: () => <Eye size={16} className="text-gray-400 hover:text-[#2563EB] cursor-pointer" /> }
   ];
 
   return (
@@ -626,7 +626,7 @@ const ProductionPlanReport = () => {
       return <span className={count > 0 ? 'font-semibold text-gray-900' : 'text-gray-400'}>{count}</span>;
     }},
     { key: 'notes', label: 'Notes', sortable: false, render: (row) => <span className="truncate max-w-[200px] block">{row.notes || '-'}</span> },
-    { key: 'actions', label: '', sortable: false, className: 'w-10', render: () => <Eye size={16} className="text-gray-400 hover:text-[#C89B3C] cursor-pointer" /> }
+    { key: 'actions', label: '', sortable: false, className: 'w-10', render: () => <Eye size={16} className="text-gray-400 hover:text-[#2563EB] cursor-pointer" /> }
   ];
 
   return (
@@ -791,14 +791,14 @@ const RecipeCostingReport = () => {
           <span key={i} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-md">{ing.name} ({ing.quantity} {ing.unit})</span>
         ))}
         {row.ingredients.length > 3 && (
-          <span className="px-2 py-0.5 bg-[#C89B3C]/10 text-[#C89B3C] text-xs rounded-md">+{row.ingredients.length - 3} more</span>
+          <span className="px-2 py-0.5 bg-[#2563EB]/10 text-[#2563EB] text-xs rounded-md">+{row.ingredients.length - 3} more</span>
         )}
       </div>
     )},
     { key: 'portionSize', label: 'Portions', sortable: true, render: (row) => row.portionSize || 1 },
     { key: 'totalCost', label: 'Recipe Cost', sortable: true, render: (row) => <span className="font-semibold text-gray-900">{formatMoney(row.totalCost)}</span> },
     { key: 'costPerPortion', label: 'Cost / Portion', sortable: true, render: (row) => formatMoney(row.totalCost / (row.portionSize || 1)) },
-    { key: 'actions', label: '', sortable: false, className: 'w-10', render: () => <Eye size={16} className="text-gray-400 hover:text-[#C89B3C] cursor-pointer" /> }
+    { key: 'actions', label: '', sortable: false, className: 'w-10', render: () => <Eye size={16} className="text-gray-400 hover:text-[#2563EB] cursor-pointer" /> }
   ];
 
   return (
@@ -821,7 +821,7 @@ const RecipeCostingReport = () => {
         ]} />
         <InputField label="Search" icon={Search} value={filters.search} onChange={(v) => updateFilter('search', v)} placeholder="Search menu item or ingredient..." />
         <div className="flex items-end">
-          <button onClick={fetchData} disabled={loading} className="w-full px-4 py-2 text-sm font-medium text-white bg-[#C89B3C] hover:bg-[#A97A1F] rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+          <button onClick={fetchData} disabled={loading} className="w-full px-4 py-2 text-sm font-medium text-white bg-[#2563EB] hover:bg-[#2563EB] rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
             {loading ? <RefreshCw size={14} className="animate-spin" /> : <Search size={14} />} Search Recipes
           </button>
         </div>
@@ -960,12 +960,12 @@ const ProfitabilityReport = () => {
     { key: 'margin', label: 'Margin %', sortable: true, render: (row) => (
       <div className="flex items-center gap-2">
         <div className="w-16 h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div className={`h-full rounded-full ${row.margin >= 50 ? 'bg-emerald-500' : row.margin >= 30 ? 'bg-[#C89B3C]' : row.margin >= 0 ? 'bg-orange-400' : 'bg-red-500'}`} style={{ width: `${Math.min(Math.max(row.margin, 0), 100)}%` }} />
+          <div className={`h-full rounded-full ${row.margin >= 50 ? 'bg-emerald-500' : row.margin >= 30 ? 'bg-[#2563EB]' : row.margin >= 0 ? 'bg-orange-400' : 'bg-red-500'}`} style={{ width: `${Math.min(Math.max(row.margin, 0), 100)}%` }} />
         </div>
         <span className={`text-xs font-semibold ${row.margin >= 0 ? 'text-gray-700' : 'text-red-600'}`}>{row.margin}%</span>
       </div>
     )},
-    { key: 'actions', label: '', sortable: false, className: 'w-10', render: () => <Eye size={16} className="text-gray-400 hover:text-[#C89B3C] cursor-pointer" /> }
+    { key: 'actions', label: '', sortable: false, className: 'w-10', render: () => <Eye size={16} className="text-gray-400 hover:text-[#2563EB] cursor-pointer" /> }
   ];
 
   return (
@@ -1074,7 +1074,7 @@ const DishUsageReport = () => {
     { key: 'quantity', label: 'Qty Used', sortable: true, render: (row) => row.quantity || 0 },
     { key: 'unit', label: 'Unit', sortable: true, render: (row) => row.unit || 'pcs' },
     { key: 'usedAt', label: 'Used At', sortable: true, render: (row) => formatDateTime(row.usedAt) },
-    { key: 'actions', label: '', sortable: false, className: 'w-10', render: () => <Eye size={16} className="text-gray-400 hover:text-[#C89B3C] cursor-pointer" /> }
+    { key: 'actions', label: '', sortable: false, className: 'w-10', render: () => <Eye size={16} className="text-gray-400 hover:text-[#2563EB] cursor-pointer" /> }
   ];
 
   return (
@@ -1186,7 +1186,7 @@ const InventoryConsumptionReport = () => {
       return formatMoney(qty * cost);
     }},
     { key: 'consumedAt', label: 'Consumed At', sortable: true, render: (row) => formatDateTime(row.consumedAt) },
-    { key: 'actions', label: '', sortable: false, className: 'w-10', render: () => <Eye size={16} className="text-gray-400 hover:text-[#C89B3C] cursor-pointer" /> }
+    { key: 'actions', label: '', sortable: false, className: 'w-10', render: () => <Eye size={16} className="text-gray-400 hover:text-[#2563EB] cursor-pointer" /> }
   ];
 
   return (
@@ -1228,7 +1228,7 @@ export default function KitchenProductionReports() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <ChefHat size={28} className="text-[#C89B3C]" />
+              <ChefHat size={28} className="text-[#2563EB]" />
               Kitchen & Production Reports
             </h1>
             <p className="text-sm text-gray-500 mt-1">
@@ -1259,7 +1259,7 @@ export default function KitchenProductionReports() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                   isActive
-                    ? 'bg-[#C89B3C] text-white shadow-sm'
+                    ? 'bg-[#2563EB] text-white shadow-sm'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >

@@ -116,28 +116,28 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E2E8F0]">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-3">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-[0_4px_16px_rgba(169,122,31,0.3)]">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 shadow-[0_4px_16px_rgba(37,99,235,0.3)]">
               <Crown className="w-8 h-8 text-white" />
             </div>
             <div className="text-left">
-              <h1 className="text-2xl font-bold" style={{ color: '#1A1A1A' }}>
-                Raath <span style={{ color: '#A97A1F' }}>ERP</span>
+              <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>
+                Marquee<span className="text-blue-600">ERP</span>
               </h1>
-              <p className="text-xs font-medium" style={{ color: '#7A7A7A' }}>Marquee Management System</p>
+              <p className="text-xs font-medium" style={{ color: '#475569' }}>Marquee Management System</p>
             </div>
           </div>
         </div>
 
         {/* Register Card */}
-        <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] border border-[#E0D8CC] p-6">
+        <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] border border-slate-300 p-6">
           <div className="text-center mb-6">
-            <h2 className="text-xl font-bold" style={{ color: '#1A1A1A' }}>Register Your Company</h2>
-            <p className="text-sm font-medium" style={{ color: '#7A7A7A' }}>
+            <h2 className="text-xl font-bold" style={{ color: '#0F172A' }}>Register Your Company</h2>
+            <p className="text-sm font-medium" style={{ color: '#475569' }}>
               Create your company account and get started
             </p>
           </div>
@@ -164,32 +164,32 @@ const Register = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* ── COMPANY SECTION ── */}
-            <div className="pt-2 border-t border-[#F0ECE6]">
-              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#A97A1F' }}>
+            <div className="pt-2 border-t border-slate-200">
+              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#2563EB' }}>
                 Company Details
               </p>
             </div>
 
             {/* Company Name */}
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                 Company Name <span style={{ color: '#B71C1C' }}>*</span>
               </label>
               <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7A7A7A' }} />
+                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
                 <input
                   type="text"
                   name="companyName"
                   value={formData.companyName}
                   onChange={handleChange}
-                  placeholder="e.g., Raath Marquee Hasilpur"
+                  placeholder="e.g., Grand Palace Marquee"
                   required
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
                   style={{
                     backgroundColor: '#FFFFFF',
-                    borderColor: '#E0D8CC',
-                    color: '#1A1A1A',
-                    focusRingColor: 'rgba(169,122,31,0.2)'
+                    borderColor: '#CBD5E1',
+                    color: '#0F172A',
+                    focusRingColor: 'rgba(37,99,235,0.2)'
                   }}
                 />
               </div>
@@ -197,11 +197,11 @@ const Register = () => {
 
             {/* Company Address */}
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                 Company Address
               </label>
               <div className="relative">
-                <MapPin className="absolute left-3 top-3 w-4 h-4" style={{ color: '#7A7A7A' }} />
+                <MapPin className="absolute left-3 top-3 w-4 h-4" style={{ color: '#475569' }} />
                 <textarea
                   name="companyAddress"
                   value={formData.companyAddress}
@@ -211,9 +211,9 @@ const Register = () => {
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm resize-none"
                   style={{
                     backgroundColor: '#FFFFFF',
-                    borderColor: '#E0D8CC',
-                    color: '#1A1A1A',
-                    focusRingColor: 'rgba(169,122,31,0.2)'
+                    borderColor: '#CBD5E1',
+                    color: '#0F172A',
+                    focusRingColor: 'rgba(37,99,235,0.2)'
                   }}
                 />
               </div>
@@ -221,11 +221,11 @@ const Register = () => {
 
             {/* Company Phone */}
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                 Company Phone
               </label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7A7A7A' }} />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
                 <input
                   type="tel"
                   name="companyPhone"
@@ -235,28 +235,28 @@ const Register = () => {
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
                   style={{
                     backgroundColor: '#FFFFFF',
-                    borderColor: '#E0D8CC',
-                    color: '#1A1A1A',
-                    focusRingColor: 'rgba(169,122,31,0.2)'
+                    borderColor: '#CBD5E1',
+                    color: '#0F172A',
+                    focusRingColor: 'rgba(37,99,235,0.2)'
                   }}
                 />
               </div>
             </div>
 
             {/* ── ADMIN SECTION ── */}
-            <div className="pt-2 border-t border-[#F0ECE6]">
-              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#A97A1F' }}>
+            <div className="pt-2 border-t border-slate-200">
+              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#2563EB' }}>
                 Admin Account
               </p>
             </div>
 
             {/* Admin Full Name */}
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                 Admin Name <span style={{ color: '#B71C1C' }}>*</span>
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7A7A7A' }} />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
                 <input
                   type="text"
                   name="name"
@@ -267,9 +267,9 @@ const Register = () => {
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
                   style={{
                     backgroundColor: '#FFFFFF',
-                    borderColor: '#E0D8CC',
-                    color: '#1A1A1A',
-                    focusRingColor: 'rgba(169,122,31,0.2)'
+                    borderColor: '#CBD5E1',
+                    color: '#0F172A',
+                    focusRingColor: 'rgba(37,99,235,0.2)'
                   }}
                 />
               </div>
@@ -277,11 +277,11 @@ const Register = () => {
 
             {/* Admin Email */}
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                 Admin Email <span style={{ color: '#B71C1C' }}>*</span>
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7A7A7A' }} />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
                 <input
                   type="email"
                   name="email"
@@ -292,9 +292,9 @@ const Register = () => {
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
                   style={{
                     backgroundColor: '#FFFFFF',
-                    borderColor: '#E0D8CC',
-                    color: '#1A1A1A',
-                    focusRingColor: 'rgba(169,122,31,0.2)'
+                    borderColor: '#CBD5E1',
+                    color: '#0F172A',
+                    focusRingColor: 'rgba(37,99,235,0.2)'
                   }}
                 />
               </div>
@@ -302,11 +302,11 @@ const Register = () => {
 
             {/* Password */}
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                 Password <span style={{ color: '#B71C1C' }}>*</span>
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7A7A7A' }} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
@@ -317,9 +317,9 @@ const Register = () => {
                   className="w-full pl-10 pr-12 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
                   style={{
                     backgroundColor: '#FFFFFF',
-                    borderColor: '#E0D8CC',
-                    color: '#1A1A1A',
-                    focusRingColor: 'rgba(169,122,31,0.2)'
+                    borderColor: '#CBD5E1',
+                    color: '#0F172A',
+                    focusRingColor: 'rgba(37,99,235,0.2)'
                   }}
                 />
                 <button
@@ -328,9 +328,9 @@ const Register = () => {
                   className="absolute right-3 top-1/2 -translate-y-1/2"
                 >
                   {showPassword ? (
-                    <EyeOff className="w-4 h-4" style={{ color: '#7A7A7A' }} />
+                    <EyeOff className="w-4 h-4" style={{ color: '#475569' }} />
                   ) : (
-                    <Eye className="w-4 h-4" style={{ color: '#7A7A7A' }} />
+                    <Eye className="w-4 h-4" style={{ color: '#475569' }} />
                   )}
                 </button>
               </div>
@@ -338,11 +338,11 @@ const Register = () => {
 
             {/* Confirm Password */}
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                 Confirm Password <span style={{ color: '#B71C1C' }}>*</span>
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7A7A7A' }} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
                 <input
                   type={showConfirm ? 'text' : 'password'}
                   name="confirmPassword"
@@ -353,9 +353,9 @@ const Register = () => {
                   className="w-full pl-10 pr-12 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
                   style={{
                     backgroundColor: '#FFFFFF',
-                    borderColor: '#E0D8CC',
-                    color: '#1A1A1A',
-                    focusRingColor: 'rgba(169,122,31,0.2)'
+                    borderColor: '#CBD5E1',
+                    color: '#0F172A',
+                    focusRingColor: 'rgba(37,99,235,0.2)'
                   }}
                 />
                 <button
@@ -364,9 +364,9 @@ const Register = () => {
                   className="absolute right-3 top-1/2 -translate-y-1/2"
                 >
                   {showConfirm ? (
-                    <EyeOff className="w-4 h-4" style={{ color: '#7A7A7A' }} />
+                    <EyeOff className="w-4 h-4" style={{ color: '#475569' }} />
                   ) : (
-                    <Eye className="w-4 h-4" style={{ color: '#7A7A7A' }} />
+                    <Eye className="w-4 h-4" style={{ color: '#475569' }} />
                   )}
                 </button>
               </div>
@@ -374,11 +374,11 @@ const Register = () => {
 
             {/* Admin Phone */}
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                 Admin Phone
               </label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7A7A7A' }} />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
                 <input
                   type="tel"
                   name="phone"
@@ -388,9 +388,9 @@ const Register = () => {
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
                   style={{
                     backgroundColor: '#FFFFFF',
-                    borderColor: '#E0D8CC',
-                    color: '#1A1A1A',
-                    focusRingColor: 'rgba(169,122,31,0.2)'
+                    borderColor: '#CBD5E1',
+                    color: '#0F172A',
+                    focusRingColor: 'rgba(37,99,235,0.2)'
                   }}
                 />
               </div>
@@ -400,7 +400,7 @@ const Register = () => {
             <button
               type="submit"
               disabled={loading || success}
-              className="w-full py-3 rounded-xl font-bold text-white transition-all bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] shadow-[0_4px_12px_rgba(169,122,31,0.3)] hover:shadow-[0_4px_20px_rgba(169,122,31,0.4)] hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-xl font-bold text-white transition-all bg-blue-600 hover:bg-blue-700 shadow-[0_4px_12px_rgba(37,99,235,0.3)] hover:shadow-[0_4px_20px_rgba(37,99,235,0.4)] hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -417,9 +417,9 @@ const Register = () => {
 
           {/* Login Link */}
           <div className="mt-6 text-center">
-            <p className="text-sm font-medium" style={{ color: '#7A7A7A' }}>
+            <p className="text-sm font-medium" style={{ color: '#475569' }}>
               Already have an account?{' '}
-              <Link to="/login" className="font-bold transition-colors hover:underline" style={{ color: '#A97A1F' }}>
+              <Link to="/login" className="font-bold transition-colors hover:underline text-blue-600">
                 Sign In
               </Link>
             </p>
@@ -427,8 +427,8 @@ const Register = () => {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs font-medium mt-4" style={{ color: '#7A7A7A' }}>
-          © 2026 Raath ERP — All rights reserved
+        <p className="text-center text-xs font-medium mt-4" style={{ color: '#475569' }}>
+          © 2026 Marquee Management System — All rights reserved
         </p>
       </div>
     </div>

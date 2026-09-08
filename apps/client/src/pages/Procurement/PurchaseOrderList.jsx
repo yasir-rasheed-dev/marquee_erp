@@ -1,6 +1,5 @@
-﻿// ═══════════════════════════════════════════════════════════
-// pages/Purchases/PurchaseOrderList.jsx (UPDATED with Return Modal + Payment)
-// ═══════════════════════════════════════════════════════════
+﻿// pages/Purchases/PurchaseOrderList.jsx
+// COMPLETE - With Pagination + Cards/Table View + Return Modal + Payment
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +8,8 @@ import {
   Check, AlertCircle, Building2, Loader2, Eye, Trash2, Edit2,
   Filter, TrendingUp, Clock, CheckCircle2, XCircle, Hash,
   Phone, DollarSign, MapPin, ChevronDown, Receipt, FileClock,
-  Truck, RotateCcw, Weight, CreditCard, Banknote, Wallet
+  Truck, RotateCcw, Weight, CreditCard, Banknote, Wallet,
+  LayoutGrid, List, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import purchaseApi from '../../services/purchaseApi';
 import accountApi from '../../services/accountApi';
@@ -42,7 +42,7 @@ const useToast = () => {
   return { addToast, ToastContainer };
 };
 
-// ✅ POStatus enum values
+// ── Status Options ──
 const STATUS_OPTIONS = [
   { value: '', label: 'All Statuses' },
   { value: 'DRAFT', label: 'Draft' },
@@ -61,6 +61,7 @@ const STATUS_STYLES = {
 };
 
 const PAYMENT_MODES = ['CASH', 'BANK_TRANSFER', 'CHEQUE', 'JAZZCASH', 'EASYPAISA', 'CREDIT_CARD'];
+const PAGE_SIZE = 6;
 
 export default function PurchaseOrderList() {
   const navigate = useNavigate();
@@ -70,12 +71,17 @@ export default function PurchaseOrderList() {
 
   // ── Data States ──
   const [orders, setOrders] = useState([]);
+  const [totalOrdersCount, setTotalOrdersCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState([]);
 
-  // ── Filter States ──
+  // ── Filter & Pagination States ──
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // ── View Mode: 'cards' or 'table' ──
+  const [viewMode, setViewMode] = useState('cards');
 
   // ── View Modal States ──
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -105,9 +111,21 @@ export default function PurchaseOrderList() {
         search: search || undefined,
         status: statusFilter || undefined,
         branchId,
+        page: currentPage,
+        limit: PAGE_SIZE
       });
-      const data = res?.data?.data || res?.data || [];
-      setOrders(data);
+      
+      const data = res?.data?.data || res?.data || res || [];
+      if (Array.isArray(data)) {
+        setOrders(data);
+        setTotalOrdersCount(data.length);
+      } else if (data.items) {
+        setOrders(data.items);
+        setTotalOrdersCount(data.total || data.items.length);
+      } else {
+        setOrders(data);
+        setTotalOrdersCount(data.length);
+      }
     } catch (err) {
       console.error('Failed to fetch orders:', err);
       if (err?.response?.status !== 429) {
@@ -116,7 +134,7 @@ export default function PurchaseOrderList() {
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, currentBranch?.id, addToast]);
+  }, [search, statusFilter, currentBranch?.id, currentPage, addToast]);
 
   // ── Fetch Accounts ──
   const fetchAccounts = useCallback(async () => {
@@ -130,6 +148,11 @@ export default function PurchaseOrderList() {
     }
   }, [currentBranch?.id, user?.branchId]);
 
+  // ── Reset page when search/filter changes ──
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter]);
+
   // Debounced fetch
   useEffect(() => {
     const timer = setTimeout(() => fetchOrders(), 300);
@@ -142,6 +165,8 @@ export default function PurchaseOrderList() {
       fetchAccounts();
     }
   }, [isReturnModalOpen, fetchAccounts]);
+
+  const totalPages = Math.ceil(totalOrdersCount / PAGE_SIZE);
 
   // ── Formatters ──
   const formatCurrency = (val) =>
@@ -237,13 +262,11 @@ export default function PurchaseOrderList() {
     return returnItems.reduce((acc, it) => acc + (it.returnQty * it.unitPrice), 0);
   }, [returnItems]);
 
-  // ── Selected Account for Return ──
   const selectedReturnAccount = useMemo(() => {
     if (!returnPaymentAccountId) return null;
     return accounts.find(a => a.id === parseInt(returnPaymentAccountId)) || null;
   }, [returnPaymentAccountId, accounts]);
 
-  // ── Return Payment Due ──
   const returnPaymentDue = useMemo(() => {
     return Math.max(0, returnTotal - returnPaymentAmount);
   }, [returnTotal, returnPaymentAmount]);
@@ -260,7 +283,6 @@ export default function PurchaseOrderList() {
       return;
     }
 
-    // Validate return payment
     if (returnPaymentAmount > 0 && !returnPaymentAccountId) {
       addToast('Please select an account to receive the refund', 'error');
       return;
@@ -283,7 +305,6 @@ export default function PurchaseOrderList() {
           unitPrice: it.unitPrice,
           reason: it.reason || returnReason || 'Defective/Damaged item',
         })),
-        // ── Return Payment Data (Credit / Add to Account) ──
         payment: {
           amount: returnPaymentAmount,
           mode: returnPaymentMode,
@@ -291,7 +312,7 @@ export default function PurchaseOrderList() {
           paymentDate: returnPaymentDate ? new Date(returnPaymentDate).toISOString() : null,
           isPartial: isPartialReturnPayment && returnPaymentAmount < returnTotal,
           dueAmount: returnPaymentDue,
-          type: 'CREDIT' // ← IMPORTANT: This adds money back to account
+          type: 'CREDIT'
         }
       };
 
@@ -316,7 +337,7 @@ export default function PurchaseOrderList() {
 
   // ── Delete ──
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this purchase order?')) return;
+    if (!window.confirm('Are you sure you want to cancel this purchase order?')) return;
     try {
       await purchaseApi.orders.update(id, { status: 'CANCELLED' });
       addToast('Purchase order cancelled successfully');
@@ -337,14 +358,175 @@ export default function PurchaseOrderList() {
     );
   };
 
+  // ── Render Order Card ──
+  const renderOrderCard = (order) => (
+    <div key={order.id} className="bg-white rounded-2xl border border-slate-300 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+      <div>
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <Hash size={14} className="text-[#2563EB]" />
+              <span className="font-bold font-mono text-gray-800 text-sm">{order.poNo}</span>
+            </div>
+            <p className="text-xs text-gray-500 mt-0.5 truncate max-w-[180px]">
+              {order.supplier?.name || '—'}
+            </p>
+          </div>
+          <StatusBadge status={order.status} />
+        </div>
+        
+        <div className="space-y-1.5 text-xs text-gray-600 mb-4 border-t border-b border-gray-50 py-3">
+          <p className="flex items-center gap-2">
+            <Calendar size={13} className="text-gray-400" /> 
+            <span>{formatDate(order.createdAt)}</span>
+            {order.expectedDate && (
+              <span className="text-amber-600 text-[10px]">(Due: {formatDate(order.expectedDate)})</span>
+            )}
+          </p>
+          <p className="flex items-center gap-2">
+            <Package size={13} className="text-gray-400" /> 
+            <span>{order.items?.length || 0} items</span>
+          </p>
+          {order.purchaseBills && order.purchaseBills.length > 0 && (
+            <p className="flex items-center gap-2">
+              <Receipt size={13} className="text-emerald-500" /> 
+              <span className="text-emerald-700 font-bold">{order.purchaseBills.length} Bill(s) linked</span>
+            </p>
+          )}
+        </div>
+
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-gray-500 font-medium">Total</span>
+          <span className="text-lg font-bold font-mono text-[#2563EB]">{formatCurrency(order.totalAmount)}</span>
+        </div>
+      </div>
+
+      <div className="pt-3 flex items-center justify-between border-t border-gray-100 mt-3">
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => handleView(order)}
+            title="View Details"
+            className="p-2 rounded-xl hover:bg-amber-100 text-[#2563EB] transition-all"
+          >
+            <Eye size={16} />
+          </button>
+          <button
+            onClick={() => handleOpenReturnModal(order)}
+            title="Process Return"
+            className="p-2 rounded-xl hover:bg-red-100 text-red-600 transition-all"
+          >
+            <RotateCcw size={16} />
+          </button>
+          <button
+            onClick={() => handleDelete(order.id)}
+            title="Cancel Order"
+            className="p-2 rounded-xl hover:bg-red-50 text-red-600 transition-all"
+          >
+            <XCircle size={16} />
+          </button>
+        </div>
+        <button
+          onClick={() => navigate(`/procurement/purchase-orders/${order.id}`)}
+          className="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+        >
+          View Details
+        </button>
+      </div>
+    </div>
+  );
+
+  // ── Render Order Table Row ──
+  const renderOrderTableRow = (order) => (
+    <tr key={order.id} className="hover:bg-slate-50/60 transition-colors">
+      <td className="px-4 py-3.5">
+        <div className="flex items-center gap-2">
+          <Hash size={14} className="text-[#2563EB]" />
+          <span className="font-bold font-mono text-gray-800 text-xs">{order.poNo}</span>
+        </div>
+        {order.notes && (
+          <p className="text-[10px] text-gray-400 mt-0.5 truncate max-w-[180px]">{order.notes}</p>
+        )}
+      </td>
+      <td className="px-4 py-3.5">
+        <span className="text-sm font-bold text-gray-800 block">{order.supplier?.name || '—'}</span>
+        <span className="text-[10px] text-gray-400 font-mono">{order.supplier?.phone || ''}</span>
+      </td>
+      <td className="px-4 py-3.5">
+        <div className="flex items-center gap-1.5 text-gray-600">
+          <Calendar size={12} className="text-gray-400" />
+          <span className="text-xs font-medium">{formatDate(order.createdAt)}</span>
+        </div>
+        {order.expectedDate && (
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <Clock size={10} className="text-amber-500" />
+            <span className="text-[10px] text-amber-600 font-medium">Exp: {formatDate(order.expectedDate)}</span>
+          </div>
+        )}
+      </td>
+      <td className="px-4 py-3.5 text-center">
+        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-50 text-blue-700 text-[10px] font-bold">
+          <Package size={10} /> {order.items?.length || 0}
+        </span>
+      </td>
+      <td className="px-4 py-3.5 text-right">
+        <span className="text-sm font-bold font-mono text-gray-800">{formatCurrency(order.totalAmount)}</span>
+        {parseFloat(order.discount || 0) > 0 && (
+          <span className="text-[10px] text-emerald-600 block">- {formatCurrency(order.discount)} disc</span>
+        )}
+      </td>
+      <td className="px-4 py-3.5 text-center">
+        <StatusBadge status={order.status} />
+      </td>
+      <td className="px-4 py-3.5">
+        {order.purchaseBills && order.purchaseBills.length > 0 ? (
+          <div className="flex flex-col gap-1">
+            {order.purchaseBills.map(bill => (
+              <div key={bill.id} className="flex items-center gap-1.5">
+                <Receipt size={12} className="text-emerald-500" />
+                <span className="text-[10px] font-bold text-emerald-700">{bill.billNo}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <span className="text-[10px] text-gray-400 font-medium">No Bill</span>
+        )}
+      </td>
+      <td className="px-4 py-3.5 text-right">
+        <div className="flex items-center justify-end gap-1">
+          <button
+            onClick={() => handleView(order)}
+            title="View Details"
+            className="p-2 rounded-xl hover:bg-amber-100 text-[#2563EB] transition-all"
+          >
+            <Eye size={16} />
+          </button>
+          <button
+            onClick={() => handleOpenReturnModal(order)}
+            title="Process Return"
+            className="p-2 rounded-xl hover:bg-red-100 text-red-600 transition-all"
+          >
+            <RotateCcw size={16} />
+          </button>
+          <button
+            onClick={() => handleDelete(order.id)}
+            title="Cancel Order"
+            className="p-2 rounded-xl hover:bg-red-50 text-red-600 transition-all"
+          >
+            <XCircle size={16} />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+
   return (
-    <div className="min-h-screen pb-12" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen pb-12" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <ToastContainer />
 
       {/* ═══════════════════════════════════════════════════════════
           STICKY HEADER
           ═══════════════════════════════════════════════════════════ */}
-      <div className="border-b backdrop-blur-xl bg-white/90 sticky top-0 z-30 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+      <div className="border-b backdrop-blur-xl bg-white/90 sticky top-0 z-30 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -354,7 +536,7 @@ export default function PurchaseOrderList() {
             >
               <ArrowLeft size={20} />
             </button>
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-[0_4px_12px_rgba(169,122,31,0.3)] text-white">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.3)] text-white">
               <FileText className="w-6 h-6" />
             </div>
             <div>
@@ -362,7 +544,7 @@ export default function PurchaseOrderList() {
               <p className="text-xs font-medium text-gray-500">
                 Manage POs, track supplier orders and monitor receiving status
                 {currentBranch && (
-                  <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-[#F4E7C9] text-[#8B6914] font-bold">
+                  <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-amber-100/80 text-[#8B6914] font-bold">
                     📍 {currentBranch.name}
                   </span>
                 )}
@@ -372,7 +554,7 @@ export default function PurchaseOrderList() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/procurement/purchase-orders/create')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white shadow-md hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white shadow-md hover:scale-[1.02]"
             >
               <Plus size={18} /> New Order
             </button>
@@ -386,16 +568,16 @@ export default function PurchaseOrderList() {
             STATS CARDS
             ═══════════════════════════════════════════════════════════ */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-50 text-[#A97A1F]">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-amber-50 text-[#2563EB]">
               <FileText size={20} />
             </div>
             <div>
               <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider block">Total POs</span>
-              <span className="text-2xl font-bold font-mono text-gray-800">{stats.totalOrders}</span>
+              <span className="text-2xl font-bold font-mono text-gray-800">{totalOrdersCount}</span>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600">
               <DollarSign size={20} />
             </div>
@@ -404,7 +586,7 @@ export default function PurchaseOrderList() {
               <span className="text-lg font-bold font-mono text-gray-800">{formatCurrency(stats.totalValue)}</span>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-orange-50 text-orange-600">
               <FileClock size={20} />
             </div>
@@ -413,7 +595,7 @@ export default function PurchaseOrderList() {
               <span className="text-2xl font-bold font-mono text-orange-700">{stats.issued}</span>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600">
               <CheckCircle2 size={20} />
             </div>
@@ -425,9 +607,9 @@ export default function PurchaseOrderList() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════
-            FILTERS BAR
+            FILTERS BAR + VIEW TOGGLE
             ═══════════════════════════════════════════════════════════ */}
-        <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="relative md:col-span-2">
             <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -435,51 +617,73 @@ export default function PurchaseOrderList() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by PO number, notes or supplier name..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#A97A1F] text-sm"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2563EB] text-sm"
             />
           </div>
-          <div className="relative">
-            <Filter size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-            <div className="pl-10">
-              <ReactSelect
-                value={statusFilter}
-                onChange={(val) => setStatusFilter(val || '')}
-                options={STATUS_OPTIONS.map(opt => ({
-                  value: opt.value,
-                  label: opt.label
-                }))}
-                placeholder="Filter by Status"
-                isSearchable={true}
-                isClearable={false}
-              />
+          <div className="flex items-center gap-2">
+            <div className="flex-1 relative">
+              <Filter size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <div className="pl-10">
+                <ReactSelect
+                  value={statusFilter}
+                  onChange={(val) => setStatusFilter(val || '')}
+                  options={STATUS_OPTIONS.map(opt => ({
+                    value: opt.value,
+                    label: opt.label
+                  }))}
+                  placeholder="Filter by Status"
+                  isSearchable={true}
+                  isClearable={false}
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={() => setViewMode('cards')}
+                className={`p-2 rounded-xl transition-all ${viewMode === 'cards' ? 'bg-[#2563EB] text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                title="Card View"
+              >
+                <LayoutGrid size={18} />
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`p-2 rounded-xl transition-all ${viewMode === 'table' ? 'bg-[#2563EB] text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                title="Table View"
+              >
+                <List size={18} />
+              </button>
             </div>
           </div>
         </div>
 
         {/* ═══════════════════════════════════════════════════════════
-            CONTENT: LOADING / EMPTY / TABLE
+            CONTENT: LOADING / EMPTY / CARDS / TABLE
             ═══════════════════════════════════════════════════════════ */}
         {loading ? (
           <div className="text-center py-20">
-            <div className="w-12 h-12 rounded-full border-4 border-t-[#A97A1F] animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
+            <div className="w-12 h-12 rounded-full border-4 border-t-[#2563EB] animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
             <p className="mt-4 text-sm font-bold text-gray-600">Loading purchase orders...</p>
           </div>
         ) : orders.length === 0 ? (
-          <div className="bg-white rounded-2xl p-12 text-center border border-[#E0D8CC] shadow-sm">
+          <div className="bg-white rounded-2xl p-12 text-center border border-slate-300 shadow-sm">
             <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
             <h3 className="text-lg font-bold text-gray-800 mb-1">No Purchase Orders Found</h3>
             <p className="text-sm text-gray-500">Get started by creating your first purchase order.</p>
             <div className="mt-4 flex items-center justify-center gap-3">
               <button
                 onClick={() => navigate('/procurement/purchase-orders/create')}
-                className="px-5 py-2.5 bg-[#A97A1F] text-white rounded-xl text-xs font-bold shadow-sm inline-flex items-center gap-2"
+                className="px-5 py-2.5 bg-[#2563EB] text-white rounded-xl text-xs font-bold shadow-sm inline-flex items-center gap-2"
               >
                 <Plus size={14} /> Create Order
               </button>
             </div>
           </div>
+        ) : viewMode === 'cards' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {orders.map(renderOrderCard)}
+          </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -495,90 +699,79 @@ export default function PurchaseOrderList() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {orders.map(order => (
-                    <tr key={order.id} className="hover:bg-[#FAF8F4]/60 transition-colors">
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-2">
-                          <Hash size={14} className="text-[#A97A1F]" />
-                          <span className="font-bold font-mono text-gray-800 text-xs">{order.poNo}</span>
-                        </div>
-                        {order.notes && (
-                          <p className="text-[10px] text-gray-400 mt-0.5 truncate max-w-[180px]">{order.notes}</p>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="text-sm font-bold text-gray-800 block">{order.supplier?.name || '—'}</span>
-                        <span className="text-[10px] text-gray-400 font-mono">{order.supplier?.phone || ''}</span>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-1.5 text-gray-600">
-                          <Calendar size={12} className="text-gray-400" />
-                          <span className="text-xs font-medium">{formatDate(order.createdAt)}</span>
-                        </div>
-                        {order.expectedDate && (
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <Clock size={10} className="text-amber-500" />
-                            <span className="text-[10px] text-amber-600 font-medium">Exp: {formatDate(order.expectedDate)}</span>
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5 text-center">
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-50 text-blue-700 text-[10px] font-bold">
-                          <Package size={10} /> {order.items?.length || 0}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 text-right">
-                        <span className="text-sm font-bold font-mono text-gray-800">{formatCurrency(order.totalAmount)}</span>
-                        {parseFloat(order.discount || 0) > 0 && (
-                          <span className="text-[10px] text-emerald-600 block">- {formatCurrency(order.discount)} disc</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5 text-center">
-                        <StatusBadge status={order.status} />
-                      </td>
-                      <td className="px-4 py-3.5">
-                        {order.purchaseBills && order.purchaseBills.length > 0 ? (
-                          <div className="flex flex-col gap-1">
-                            {order.purchaseBills.map(bill => (
-                              <div key={bill.id} className="flex items-center gap-1.5">
-                                <Receipt size={12} className="text-emerald-500" />
-                                <span className="text-[10px] font-bold text-emerald-700">{bill.billNo}</span>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="text-[10px] text-gray-400 font-medium">No Bill</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={() => handleView(order)}
-                            title="View Details"
-                            className="p-2 rounded-xl hover:bg-amber-100 text-[#A97A1F] transition-all"
-                          >
-                            <Eye size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleOpenReturnModal(order)}
-                            title="Process Return"
-                            className="p-2 rounded-xl hover:bg-red-100 text-red-600 transition-all"
-                          >
-                            <RotateCcw size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(order.id)}
-                            title="Cancel Order"
-                            className="p-2 rounded-xl hover:bg-red-50 text-red-600 transition-all"
-                          >
-                            <XCircle size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {orders.map(renderOrderTableRow)}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════════════
+            PAGINATION
+            ═══════════════════════════════════════════════════════════ */}
+        {!loading && orders.length > 0 && totalPages > 1 && (
+          <div className="flex items-center justify-between gap-4 bg-white px-4 py-3 rounded-2xl border border-slate-300 shadow-sm">
+            <div className="text-sm text-gray-500">
+              Showing <span className="font-semibold text-gray-700">{((currentPage - 1) * PAGE_SIZE) + 1}</span> to{' '}
+              <span className="font-semibold text-gray-700">
+                {Math.min(currentPage * PAGE_SIZE, totalOrdersCount)}
+              </span> of{' '}
+              <span className="font-semibold text-gray-700">{totalOrdersCount}</span> orders
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="p-2 rounded-xl border border-slate-300 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 10) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 4) {
+                    pageNum = totalPages - 9 + i;
+                  } else {
+                    pageNum = currentPage - 5 + i;
+                  }
+                  if (pageNum < 1 || pageNum > totalPages) return null;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-9 h-9 rounded-xl text-sm font-bold transition-all ${
+                        currentPage === pageNum
+                          ? 'bg-[#2563EB] text-white shadow-md'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+                {totalPages > 10 && currentPage < totalPages - 4 && (
+                  <span className="text-gray-400 px-1">…</span>
+                )}
+                {totalPages > 10 && currentPage < totalPages - 4 && (
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    className={`w-9 h-9 rounded-xl text-sm font-bold transition-all text-gray-600 hover:bg-gray-100`}
+                  >
+                    {totalPages}
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-xl border border-slate-300 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronRight size={18} />
+              </button>
             </div>
           </div>
         )}
@@ -589,19 +782,15 @@ export default function PurchaseOrderList() {
           ═══════════════════════════════════════════════════════════ */}
       {isModalOpen && (
         <div className="fixed inset-y-0 right-0 left-0 lg:left-64 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl border border-[#E0D8CC] overflow-hidden my-auto">
-
-            {/* Modal Header */}
-            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b bg-[#FAF8F4] flex items-center justify-between border-[#E0D8CC] sticky top-0 z-20">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl border border-slate-300 overflow-hidden my-auto">
+            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b bg-slate-50 flex items-center justify-between border-slate-300 sticky top-0 z-20">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-amber-100 text-[#A97A1F]">
+                <div className="p-2 rounded-xl bg-amber-100 text-[#2563EB]">
                   <FileText size={20} />
                 </div>
                 <div>
-                  <h2 className="font-bold text-base sm:text-lg text-gray-800">
-                    Purchase Order Details
-                  </h2>
-                  <p className="text-xs text-[#A97A1F] mt-0.5 font-medium">
+                  <h2 className="font-bold text-base sm:text-lg text-gray-800">Purchase Order Details</h2>
+                  <p className="text-xs text-[#2563EB] mt-0.5 font-medium">
                     📍 Branch: <strong>{currentBranch?.name}</strong>
                   </p>
                 </div>
@@ -611,11 +800,10 @@ export default function PurchaseOrderList() {
               </button>
             </div>
 
-            {/* Modal Body */}
             <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-6">
               {modalLoading ? (
                 <div className="text-center py-12">
-                  <div className="w-10 h-10 rounded-full border-4 border-t-[#A97A1F] animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
+                  <div className="w-10 h-10 rounded-full border-4 border-t-[#2563EB] animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
                   <p className="mt-3 text-sm font-bold text-gray-600">Loading details...</p>
                 </div>
               ) : selectedOrder ? (
@@ -731,7 +919,7 @@ export default function PurchaseOrderList() {
               )}
             </div>
 
-            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t bg-[#FAF8F4] flex items-center justify-end gap-3 border-[#E0D8CC] sticky bottom-0 z-20">
+            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t bg-slate-50 flex items-center justify-end gap-3 border-slate-300 sticky bottom-0 z-20">
               <button
                 type="button"
                 onClick={handleCloseModal}
@@ -750,17 +938,13 @@ export default function PurchaseOrderList() {
       {isReturnModalOpen && returnOrder && (
         <div className="fixed inset-y-0 right-0 left-0 lg:left-64 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl border border-red-200 overflow-hidden my-auto">
-
-            {/* Modal Header */}
             <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b bg-red-50 flex items-center justify-between border-red-100 sticky top-0 z-20">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-xl bg-red-600 text-white">
                   <RotateCcw size={20} />
                 </div>
                 <div>
-                  <h2 className="font-bold text-base sm:text-lg text-gray-800">
-                    Process Purchase Return
-                  </h2>
+                  <h2 className="font-bold text-base sm:text-lg text-gray-800">Process Purchase Return</h2>
                   <p className="text-xs text-red-600 mt-0.5 font-medium">
                     PO: <strong>{returnOrder.poNo}</strong> · {returnOrder.supplier?.name}
                   </p>
@@ -771,9 +955,7 @@ export default function PurchaseOrderList() {
               </button>
             </div>
 
-            {/* Modal Body */}
             <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-5">
-              {/* General Reason */}
               <div>
                 <label className="text-xs font-bold text-gray-700 mb-1.5 block">
                   General Return Reason <span className="text-red-500">*</span>
@@ -787,7 +969,6 @@ export default function PurchaseOrderList() {
                 />
               </div>
 
-              {/* Items Table */}
               <div>
                 <h4 className="text-xs font-bold uppercase text-gray-500 mb-2 flex items-center gap-2">
                   <Package size={14} /> Select Items to Return
@@ -844,9 +1025,7 @@ export default function PurchaseOrderList() {
                 </div>
               </div>
 
-              {/* ═══════════════════════════════════════════
-                  RETURN PAYMENT SECTION (CREDIT / ADD TO ACCOUNT)
-                  ═══════════════════════════════════════════ */}
+              {/* ── RETURN PAYMENT SECTION ── */}
               <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-200 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -877,7 +1056,6 @@ export default function PurchaseOrderList() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Refund Amount */}
                   <div>
                     <label className="text-xs font-bold text-gray-700 mb-1.5 block">
                       Refund Amount
@@ -915,11 +1093,8 @@ export default function PurchaseOrderList() {
                     )}
                   </div>
 
-                  {/* Payment Mode */}
                   <div>
-                    <label className="text-xs font-bold text-gray-700 mb-1.5 block">
-                      Refund Mode
-                    </label>
+                    <label className="text-xs font-bold text-gray-700 mb-1.5 block">Refund Mode</label>
                     <ReactSelect
                       value={returnPaymentMode}
                       onChange={(val) => setReturnPaymentMode(val || 'CASH')}
@@ -930,7 +1105,6 @@ export default function PurchaseOrderList() {
                     />
                   </div>
 
-                  {/* Credit Account */}
                   <div>
                     <label className="text-xs font-bold text-gray-700 mb-1.5 block">
                       Credit To Account {returnPaymentAmount > 0 && <span className="text-red-500">*</span>}
@@ -943,7 +1117,7 @@ export default function PurchaseOrderList() {
                         { value: '', label: '-- Select Account --' },
                         ...accounts.map(acc => ({
                           value: String(acc.id),
-                          label: `${acc.bankName} — ${acc.accountNumber} (Bal: ${formatCurrency(acc.currentBalance ?? acc.initialBalance)})`
+                          label: `${acc.bankName || acc.accountName || 'Account'} — ${acc.accountNumber || 'N/A'} (Bal: ${formatCurrency(acc.currentBalance ?? acc.initialBalance ?? 0)})`
                         }))
                       ]}
                       placeholder="Select Account"
@@ -963,11 +1137,8 @@ export default function PurchaseOrderList() {
                     )}
                   </div>
 
-                  {/* Payment Date */}
                   <div>
-                    <label className="text-xs font-bold text-gray-700 mb-1.5 block">
-                      Refund Date
-                    </label>
+                    <label className="text-xs font-bold text-gray-700 mb-1.5 block">Refund Date</label>
                     <div className="relative">
                       <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       <input
@@ -980,7 +1151,6 @@ export default function PurchaseOrderList() {
                   </div>
                 </div>
 
-                {/* Refund Summary */}
                 {returnPaymentAmount > 0 && selectedReturnAccount && (
                   <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
                     <div className="flex items-center gap-2 mb-2">
@@ -990,13 +1160,11 @@ export default function PurchaseOrderList() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                       <div>
                         <span className="text-gray-500">To Account:</span>
-                        <span className="font-bold text-gray-800 block">{selectedReturnAccount.bankName}</span>
+                        <span className="font-bold text-gray-800 block">{selectedReturnAccount.bankName || selectedReturnAccount.accountName}</span>
                       </div>
                       <div>
                         <span className="text-gray-500">Refund:</span>
-                        <span className="font-bold font-mono text-emerald-600 block">
-                          +{formatCurrency(returnPaymentAmount)}
-                        </span>
+                        <span className="font-bold font-mono text-emerald-600 block">+{formatCurrency(returnPaymentAmount)}</span>
                       </div>
                       <div>
                         <span className="text-gray-500">Mode:</span>
@@ -1012,7 +1180,6 @@ export default function PurchaseOrderList() {
                   </div>
                 )}
 
-                {/* Quick Action Buttons */}
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
@@ -1050,13 +1217,11 @@ export default function PurchaseOrderList() {
                 </div>
               </div>
 
-              {/* Return Total */}
               <div className="flex justify-between items-center py-3 bg-red-50 rounded-xl px-4 border border-red-100">
                 <span className="text-sm font-bold text-red-800">Total Return Amount</span>
                 <span className="text-2xl font-bold font-mono text-red-600">{formatCurrency(returnTotal)}</span>
               </div>
 
-              {/* Impact Warnings */}
               <div className="space-y-2">
                 <div className="flex items-start gap-2 text-[11px] text-gray-500">
                   <AlertCircle size={12} className="text-red-500 mt-0.5 shrink-0" />
@@ -1069,7 +1234,6 @@ export default function PurchaseOrderList() {
               </div>
             </div>
 
-            {/* Modal Footer */}
             <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t bg-gray-50 flex items-center justify-end gap-3 border-gray-200 sticky bottom-0 z-20">
               <button
                 type="button"

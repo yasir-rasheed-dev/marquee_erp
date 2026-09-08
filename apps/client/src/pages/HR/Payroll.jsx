@@ -1,18 +1,19 @@
 ﻿// src/pages/HR/Payroll.jsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   DollarSign, Calendar, Users, FileText, Clock, CheckCircle,
   XCircle, AlertCircle, Search, ChevronLeft, ChevronRight,
   RefreshCw, Eye, Edit, Trash2, Plus, Printer, Download,
   Filter, Wallet, Banknote, ArrowUpRight, ArrowDownRight,
   X, Check, AlertTriangle, Briefcase, User, Building2,
-  Calendar as CalendarIcon, List, Grid, Layers
+  Calendar as CalendarIcon, List, Grid, Layers, CreditCard
 } from 'lucide-react';
 import payrollApi from '../../services/payrollApi';
 import ReactSelect from '../../components/ui/ReactSelect';
 import employeeApi from '../../services/employeeApi';
 import eventApi from '../../services/eventApi';
+import accountApi from '../../services/accountApi'; // 🔥 ADDED
 
 // ── Helpers ──
 const formatDate = (dateStr) => {
@@ -81,6 +82,16 @@ const statusOptions = [
   { value: 'cancelled', label: 'Cancelled' }
 ];
 
+// ── Account Type Mapping ──
+const PAYMENT_MODE_TO_ACCOUNT_TYPE = {
+  'CASH': 'CASH',
+  'BANK_TRANSFER': 'BANK',
+  'CHEQUE': 'BANK',
+  'JAZZCASH': 'JAZZCASH',
+  'EASYPAISA': 'EASYPAISA',
+  'CREDIT_CARD': 'CREDIT'
+};
+
 // ═══════════════════════════════════════════════════════════
 // ── MAIN COMPONENT ──
 // ═══════════════════════════════════════════════════════════
@@ -90,6 +101,7 @@ const Payroll = () => {
   const [payrolls, setPayrolls] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [events, setEvents] = useState([]);
+  const [bankAccounts, setBankAccounts] = useState([]); // 🔥 ADDED
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [totalCount, setTotalCount] = useState(0);
@@ -111,7 +123,7 @@ const Payroll = () => {
 
   // ── Generate Payroll Modal ──
   const [generateModalOpen, setGenerateModalOpen] = useState(false);
-  const [generateType, setGenerateType] = useState('monthly'); // 'monthly' or 'event'
+  const [generateType, setGenerateType] = useState('monthly');
   const [generateForm, setGenerateForm] = useState({
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
@@ -128,7 +140,8 @@ const Payroll = () => {
   const [paymentForm, setPaymentForm] = useState({
     bankAccountId: '',
     paymentDate: new Date().toISOString().split('T')[0],
-    notes: ''
+    notes: '',
+    paymentMode: 'CASH' // 🔥 ADDED
   });
   const [paymentLoading, setPaymentLoading] = useState(false);
 
@@ -146,7 +159,7 @@ const Payroll = () => {
     employees: 0
   });
 
-  // ── Fetch Data ──
+  // ── Fetch Payrolls ──
   const fetchPayrolls = async () => {
     try {
       setLoading(true);
@@ -160,7 +173,6 @@ const Payroll = () => {
         limit: pageSize
       });
 
-      // ✅ FIXED: Handle response properly
       let payrollData = [];
       if (response && response.data) {
         if (Array.isArray(response.data)) {
@@ -176,7 +188,6 @@ const Payroll = () => {
       setTotalCount(response.data?.meta?.total || payrollData.length || 0);
       setMeta(response.data?.meta || {});
 
-      // Calculate stats
       const totalAmount = payrollData.reduce((sum, p) => sum + parseFloat(p.totalNetSalary || 0), 0);
       const paid = payrollData.filter(p => p.status === 'paid').length;
       const pending = payrollData.filter(p => p.status === 'generated' || p.status === 'processed').length;
@@ -235,6 +246,26 @@ const Payroll = () => {
     }
   };
 
+  // ── Fetch Bank Accounts ──
+  const fetchBankAccounts = async () => {
+    try {
+      const response = await accountApi.getAll({ status: 'ACTIVE' });
+      let accountData = [];
+      if (response && response.data) {
+        if (Array.isArray(response.data)) {
+          accountData = response.data;
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          accountData = response.data.data;
+        } else {
+          accountData = response.data.data || [];
+        }
+      }
+      setBankAccounts(accountData);
+    } catch (err) {
+      console.error('Bank accounts fetch error:', err);
+    }
+  };
+
   useEffect(() => {
     fetchPayrolls();
   }, [filters, page]);
@@ -242,6 +273,7 @@ const Payroll = () => {
   useEffect(() => {
     fetchEmployees();
     fetchEvents();
+    fetchBankAccounts(); // 🔥 ADDED
   }, []);
 
   // ── Handlers ──
@@ -294,17 +326,6 @@ const Payroll = () => {
     setGenerateForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleEmployeeSelect = (e) => {
-    const options = e.target.options;
-    const selected = [];
-    for (let i = 0; i < options.length; i++) {
-      if (options[i].selected) {
-        selected.push(parseInt(options[i].value));
-      }
-    }
-    setGenerateForm(prev => ({ ...prev, employeeIds: selected }));
-  };
-
   const handleGenerateSubmit = async (e) => {
     e.preventDefault();
 
@@ -315,7 +336,6 @@ const Payroll = () => {
       let endpoint = '';
 
       if (generateType === 'monthly') {
-        // ✅ Monthly Payroll - For fixed salary employees
         endpoint = 'payrolls/generate/monthly';
         payload = {
           month: parseInt(generateForm.month),
@@ -325,7 +345,6 @@ const Payroll = () => {
           employeeIds: generateForm.employeeIds.length > 0 ? generateForm.employeeIds : undefined
         };
       } else {
-        // ✅ Event-Based Payroll - For per-event employees
         endpoint = 'payrolls/generate/event';
         payload = {
           eventId: parseInt(generateForm.eventId),
@@ -383,19 +402,46 @@ const Payroll = () => {
     setPaymentForm({
       bankAccountId: '',
       paymentDate: new Date().toISOString().split('T')[0],
-      notes: ''
+      notes: '',
+      paymentMode: 'CASH'
     });
     setPaymentModalOpen(true);
   };
 
+  // ── Selected Account ──
+  const selectedAccount = bankAccounts.find(acc => String(acc.id) === String(paymentForm.bankAccountId));
+
+  // ── Account Balance Check ──
+  const hasSufficientBalance = useMemo(() => {
+    if (!selectedAccount) return true;
+    const balance = selectedAccount.currentBalance ?? selectedAccount.initialBalance ?? 0;
+    return parseFloat(balance) >= parseFloat(paymentItem?.netSalary || 0);
+  }, [selectedAccount, paymentItem]);
+
+  // ── Payment Submit ──
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
+
+    if (!paymentForm.bankAccountId) {
+      alert('Please select a bank account');
+      return;
+    }
+
+    if (!hasSufficientBalance) {
+      alert('Insufficient balance in selected account!');
+      return;
+    }
 
     if (!window.confirm(`Pay ${formatCurrency(paymentItem.netSalary)} to ${paymentItem.employee?.name}?`)) return;
 
     try {
       setPaymentLoading(true);
-      const result = await payrollApi.payPayrollItem(paymentItem.id, paymentForm);
+      const result = await payrollApi.payPayrollItem(paymentItem.id, {
+        bankAccountId: parseInt(paymentForm.bankAccountId),
+        paymentDate: paymentForm.paymentDate,
+        notes: paymentForm.notes,
+        paymentMode: paymentForm.paymentMode
+      });
       if (result.data.success) {
         alert('Salary paid successfully!');
         setPaymentModalOpen(false);
@@ -1078,7 +1124,7 @@ const Payroll = () => {
       )}
 
       {/* ═══════════════════════════════════════════════════════════ */}
-      {/* ── PAYMENT MODAL ── */}
+      {/* ── PAYMENT MODAL (WITH ACCOUNT FILTER) ── */}
       {/* ═══════════════════════════════════════════════════════════ */}
       {paymentModalOpen && paymentItem && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -1121,6 +1167,163 @@ const Payroll = () => {
                   </div>
                 </div>
 
+                {/* ── PAYMENT MODE ── */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Payment Mode <span className="text-red-500">*</span>
+                  </label>
+                  <ReactSelect
+                    value={paymentForm.paymentMode || 'CASH'}
+                    onChange={(val) => {
+                      setPaymentForm(prev => ({ 
+                        ...prev, 
+                        paymentMode: val || 'CASH',
+                        bankAccountId: '' // Reset account when mode changes
+                      }));
+                    }}
+                    options={[
+                      { value: 'CASH', label: '💵 Cash' },
+                      { value: 'BANK_TRANSFER', label: '🏦 Bank Transfer' },
+                      { value: 'CHEQUE', label: '📄 Cheque' },
+                      { value: 'JAZZCASH', label: '📱 JazzCash' },
+                      { value: 'EASYPAISA', label: '📱 EasyPaisa' },
+                      { value: 'CREDIT_CARD', label: '💳 Credit Card' }
+                    ]}
+                    placeholder="Select Payment Mode"
+                    isSearchable={false}
+                    isClearable={false}
+                  />
+                </div>
+
+                {/* ── BANK ACCOUNT (Filtered by Payment Mode) ── */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Bank Account <span className="text-red-500">*</span>
+                    {paymentForm.paymentMode && (
+                      <span className="ml-2 text-[10px] font-normal text-gray-500">
+                        ({paymentForm.paymentMode.replace(/_/g, ' ')} accounts only)
+                      </span>
+                    )}
+                  </label>
+
+                  {(() => {
+                    const requiredType = paymentForm.paymentMode ? PAYMENT_MODE_TO_ACCOUNT_TYPE[paymentForm.paymentMode] : null;
+                    const filteredAccounts = requiredType 
+                      ? bankAccounts.filter(acc => acc.accountType === requiredType) 
+                      : bankAccounts;
+                    const hasAccounts = filteredAccounts.length > 0;
+
+                    return (
+                      <>
+                        <ReactSelect
+                          value={paymentForm.bankAccountId}
+                          onChange={(val) => {
+                            setPaymentForm(prev => ({ ...prev, bankAccountId: val || '' }));
+                          }}
+                          options={[
+                            { value: '', label: !paymentForm.paymentMode 
+                              ? '⚠️ First select Payment Mode' 
+                              : !hasAccounts 
+                                ? `❌ No ${paymentForm.paymentMode.replace(/_/g, ' ')} account found!` 
+                                : '-- Select Account --'
+                            },
+                            ...filteredAccounts.map(acc => ({
+                              value: String(acc.id),
+                              label: `${acc.bankName || acc.accountName || 'Account'} — ${acc.accountNumber || 'N/A'} (Bal: ${formatCurrency(acc.currentBalance ?? acc.initialBalance ?? 0)})`
+                            }))
+                          ]}
+                          placeholder={!paymentForm.paymentMode ? 'Select Payment Mode first' : 'Select Account'}
+                          isSearchable={true}
+                          isClearable={false}
+                          isDisabled={!paymentForm.paymentMode || !hasAccounts}
+                        />
+
+                        {!paymentForm.paymentMode && (
+                          <div className="mt-2 p-2.5 rounded-lg border border-amber-200 bg-amber-50">
+                            <p className="text-xs text-amber-700 flex items-center gap-1.5">
+                              <AlertCircle size={14} />
+                              <span>Please select a <strong>Payment Mode</strong> first to see available accounts</span>
+                            </p>
+                          </div>
+                        )}
+
+                        {paymentForm.paymentMode && !hasAccounts && (
+                          <div className="mt-2 p-2.5 rounded-lg border border-red-200 bg-red-50">
+                            <p className="text-xs text-red-600 flex items-center gap-1.5">
+                              <AlertCircle size={14} />
+                              <span>No <strong>{paymentForm.paymentMode.replace(/_/g, ' ')}</strong> account found! Please create one in <strong>Settings → Chart of Accounts</strong></span>
+                            </p>
+                          </div>
+                        )}
+
+                        {/* ── Selected Account Badge ── */}
+                        {selectedAccount && paymentForm.paymentMode && (
+                          <div className="mt-2.5 p-3 rounded-xl border border-green-200" style={{ backgroundColor: '#F0FDF4' }}>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="text-green-600 text-lg">✓</span>
+                                <div>
+                                  <p className="text-sm font-bold text-gray-800">{selectedAccount.bankName || selectedAccount.accountName}</p>
+                                  <p className="text-xs text-gray-500 font-mono">{selectedAccount.accountNumber}</p>
+                                </div>
+                              </div>
+                              <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase" style={{
+                                backgroundColor: (() => {
+                                  const colors = {
+                                    'CASH': '#FEF3C7',
+                                    'BANK': '#DBEAFE',
+                                    'JAZZCASH': '#FCE7F3',
+                                    'EASYPAISA': '#D1FAE5',
+                                    'CREDIT': '#EDE9FE'
+                                  };
+                                  return colors[selectedAccount.accountType] || '#F3F4F6';
+                                })(),
+                                color: (() => {
+                                  const colors = {
+                                    'CASH': '#1E3A8A',
+                                    'BANK': '#1E40AF',
+                                    'JAZZCASH': '#9D174D',
+                                    'EASYPAISA': '#065F46',
+                                    'CREDIT': '#5B21B6'
+                                  };
+                                  return colors[selectedAccount.accountType] || '#374151';
+                                })()
+                              }}>
+                                {(() => {
+                                  const labels = {
+                                    'CASH': '💰 Cash',
+                                    'BANK': '🏦 Bank',
+                                    'JAZZCASH': '📱 JazzCash',
+                                    'EASYPAISA': '📱 EasyPaisa',
+                                    'CREDIT': '💳 Credit'
+                                  };
+                                  return labels[selectedAccount.accountType] || '📌 Other';
+                                })()}
+                              </span>
+                            </div>
+                            {selectedAccount.currentBalance !== undefined && (
+                              <div className="mt-1.5 pt-1.5 border-t border-green-100 flex justify-between">
+                                <span className="text-[10px] text-gray-500">Current Balance</span>
+                                <span className="text-xs font-bold font-mono" style={{ color: '#2563EB' }}>
+                                  {formatCurrency(selectedAccount.currentBalance ?? selectedAccount.initialBalance ?? 0)}
+                                </span>
+                              </div>
+                            )}
+                            {!hasSufficientBalance && (
+                              <div className="mt-2 p-2 rounded-lg border border-red-200 bg-red-50">
+                                <p className="text-xs text-red-600 flex items-center gap-1.5">
+                                  <AlertCircle size={14} />
+                                  <span>⚠️ Insufficient balance! Available: {formatCurrency(selectedAccount.currentBalance ?? selectedAccount.initialBalance ?? 0)}, Required: {formatCurrency(paymentItem.netSalary)}</span>
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Payment Date <span className="text-red-500">*</span>
@@ -1157,8 +1360,8 @@ const Payroll = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={paymentLoading}
-                    className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 disabled:opacity-50 text-sm font-medium"
+                    disabled={paymentLoading || !paymentForm.bankAccountId || !hasSufficientBalance}
+                    className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
                   >
                     {paymentLoading ? (
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -1168,6 +1371,14 @@ const Payroll = () => {
                     {paymentLoading ? 'Processing...' : 'Pay Now'}
                   </button>
                 </div>
+
+                {/* ── Validation Message ── */}
+                {paymentForm.paymentMode && !paymentForm.bankAccountId && (
+                  <p className="text-xs text-red-500 text-center mt-2 font-medium flex items-center justify-center gap-1.5">
+                    <AlertCircle size={14} /> 
+                    Please select a {paymentForm.paymentMode.replace(/_/g, ' ')} account to make payment
+                  </p>
+                )}
               </form>
             </div>
           </div>

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   RefreshCw,
   Search,
@@ -43,7 +43,8 @@ import {
   ClipboardCheck,
   FileCheck,
   ChefHat,
-  Truck
+  Truck,
+  ShoppingCart
 } from 'lucide-react';
 
 // ── Service Imports ──
@@ -53,6 +54,7 @@ import inventoryApi from '../../services/inventoryApi';
 import menuApi from '../../services/menuApi';
 import itemApi from '../../services/itemApi';
 import kitchenOrderApi from '../../services/kitchenOrderApi';
+import { useBranch } from '../../context/BranchContext';
 import ReactSelect from '../../components/ui/ReactSelect';
 
 // ── Constants ──
@@ -71,6 +73,8 @@ const VIEW_MODES = {
 
 // ── Main Component ──
 const KitchenSheet = () => {
+  const { currentBranch } = useBranch();
+
   // ── State ──
   const [plans, setPlans] = useState([]);
   const [filteredPlans, setFilteredPlans] = useState([]);
@@ -104,13 +108,19 @@ const KitchenSheet = () => {
     autoGenerateItems: true
   });
 
+  const [itemSourceType, setItemSourceType] = useState('inventory'); // 'inventory' | 'external'
+
   // New Item Form
   const [newItem, setNewItem] = useState({
     menuItemId: '',
+    dishName: '',
     inventoryItemId: '',
+    externalItemName: '',
     itemId: '',
     quantity: 1,
-    unit: '',
+    unit: 'kg',
+    costPrice: '',
+    salePrice: '',
     notes: ''
   });
 
@@ -150,7 +160,7 @@ const KitchenSheet = () => {
   const inventoryItemOptions = useMemo(() =>
     inventoryItems.map(item => ({
       value: String(item.id),
-      label: `${item.name} (${item.currentStock || 0} ${item.unit || 'units'})`
+      label: `${item.name} (${item.currentStock || 0} ${item.unit || 'units'}) — Cost: Rs ${Number(item.avgCostPrice || 0).toFixed(0)}`
     })),
     [inventoryItems]);
 
@@ -161,12 +171,107 @@ const KitchenSheet = () => {
     })),
     [items]);
 
+  // ── Dish-wise Grouping for Kitchen Sheet Plan Items ──
+  const groupPlanItemsByDish = useCallback((planItemsList) => {
+    const dishMap = {};
+    const unassignedItems = [];
+
+    (planItemsList || []).forEach(item => {
+      let dishId = item.menuItemId || item.menuItem?.id || null;
+      let dishName = item.menuItem?.name || null;
+
+      if (!dishName && item.notes) {
+        const match = item.notes.match(/\(([^×\)]+)\s*×/);
+        if (match && match[1]) {
+          dishName = match[1].trim();
+          dishId = `dish_${dishName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+        }
+      }
+
+      if (dishName || dishId) {
+        const key = String(dishId || dishName);
+        if (!dishMap[key]) {
+          dishMap[key] = {
+            id: dishId,
+            name: dishName || `Dish #${dishId}`,
+            items: []
+          };
+        }
+        dishMap[key].items.push(item);
+      } else {
+        unassignedItems.push(item);
+      }
+    });
+
+    return {
+      dishGroups: Object.values(dishMap),
+      unassignedItems
+    };
+  }, []);
+
+  const availableDishOptions = useMemo(() => {
+    const list = [{ value: '', label: 'General / No Specific Dish' }];
+    const seen = new Set();
+
+    if (selectedPlan?.items && selectedPlan.items.length > 0) {
+      selectedPlan.items.forEach(item => {
+        const id = item.menuItemId || item.menuItem?.id;
+        let name = item.menuItem?.name;
+        if (!name && item.notes) {
+          const match = item.notes.match(/\(([^×\)]+)\s*×/);
+          if (match && match[1]) name = match[1].trim();
+        }
+        if (id && name && !seen.has(String(id))) {
+          seen.add(String(id));
+          list.push({ value: String(id), label: `🍛 ${name}` });
+        } else if (!id && name && !seen.has(name)) {
+          seen.add(name);
+          list.push({ value: `name:${name}`, label: `🍛 ${name}` });
+        }
+      });
+    }
+    return list;
+  }, [selectedPlan]);
+
+  const openAddItemModal = (dish = null) => {
+    setItemSourceType('inventory');
+    setNewItem({
+      menuItemId: dish ? (dish.id ? String(dish.id) : `name:${dish.name}`) : '',
+      dishName: dish ? dish.name : '',
+      inventoryItemId: '',
+      externalItemName: '',
+      itemId: '',
+      quantity: 1,
+      unit: 'kg',
+      costPrice: '',
+      salePrice: '',
+      notes: dish ? `Added for ${dish.name}` : ''
+    });
+    setShowAddItemModal(true);
+  };
+
+  const handleInventoryItemSelect = (invId) => {
+    const inv = inventoryItems.find(i => String(i.id) === String(invId));
+    if (inv) {
+      setNewItem(prev => ({
+        ...prev,
+        inventoryItemId: invId,
+        unit: inv.unit || prev.unit || 'kg',
+        costPrice: inv.avgCostPrice !== undefined && inv.avgCostPrice !== null ? String(inv.avgCostPrice) : '',
+        salePrice: inv.salePrice !== undefined && inv.salePrice !== null ? String(inv.salePrice) : ''
+      }));
+    } else {
+      setNewItem(prev => ({ ...prev, inventoryItemId: invId }));
+    }
+  };
+
   // ── Fetch Plans ──
   const fetchPlans = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const params = {};
+      if (currentBranch?.id) params.branchId = currentBranch.id;
       if (statusFilter !== 'all') params.status = statusFilter;
       if (dateFilter) params.planDate = dateFilter;
       if (searchTerm) params.search = searchTerm;
@@ -213,7 +318,7 @@ const KitchenSheet = () => {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, dateFilter, searchTerm]);
+  }, [statusFilter, dateFilter, searchTerm, currentBranch?.id]);
 
   // ── Fetch Bookings ──
   const fetchBookings = useCallback(async () => {
@@ -221,6 +326,7 @@ const KitchenSheet = () => {
     try {
       const response = await bookingApi.getAll({
         limit: 500,
+        branchId: currentBranch?.id,
         isActive: true
       });
 
@@ -450,25 +556,51 @@ const KitchenSheet = () => {
     }
   };
 
-  // ── 🔥 FIXED: Add Item Handler ──
+  // ── Add Item Handler ──
   const handleAddItem = async (e) => {
     e.preventDefault();
     if (!selectedPlan) return;
 
+    if (!newItem.quantity || Number(newItem.quantity) <= 0) {
+      setError('Valid quantity is required');
+      return;
+    }
+    const isExt = itemSourceType === 'external';
+    if (!isExt && !newItem.inventoryItemId && !newItem.menuItemId && !newItem.itemId) {
+      setError('Please select an item');
+      return;
+    }
+    if (isExt && !newItem.externalItemName?.trim()) {
+      setError('Please enter external item name');
+      return;
+    }
+
     setIsAddingItem(true);
 
     try {
-      // Use either menuItemId, inventoryItemId, or itemId
-      const itemData = {
-        menuItemId: newItem.menuItemId || null,
-        inventoryItemId: newItem.inventoryItemId || null,
-        itemId: newItem.itemId || null,
-        quantity: parseFloat(newItem.quantity) || 1,
-        unit: newItem.unit || '',
-        notes: newItem.notes || ''
-      };
+      let targetMenuItemId = null;
+      let targetDishName = newItem.dishName || '';
 
-      console.log('📝 Adding item with data:', itemData);
+      if (newItem.menuItemId) {
+        if (String(newItem.menuItemId).startsWith('name:')) {
+          targetDishName = newItem.menuItemId.replace('name:', '');
+        } else {
+          targetMenuItemId = parseInt(newItem.menuItemId);
+        }
+      }
+
+      const itemData = {
+        isExternal: isExt,
+        externalItemName: isExt ? newItem.externalItemName.trim() : undefined,
+        menuItemId: targetMenuItemId,
+        inventoryItemId: !isExt && newItem.inventoryItemId ? parseInt(newItem.inventoryItemId) : null,
+        itemId: !isExt && newItem.itemId ? parseInt(newItem.itemId) : null,
+        quantity: parseFloat(newItem.quantity) || 1,
+        unit: newItem.unit || 'kg',
+        costPrice: newItem.costPrice ? parseFloat(newItem.costPrice) : undefined,
+        salePrice: newItem.salePrice ? parseFloat(newItem.salePrice) : undefined,
+        notes: newItem.notes || (targetDishName ? `Added for ${targetDishName}` : '')
+      };
 
       const response = await productionPlanApi.addItem(selectedPlan.id, itemData);
 
@@ -476,12 +608,17 @@ const KitchenSheet = () => {
         setShowAddItemModal(false);
         setNewItem({
           menuItemId: '',
+          dishName: '',
           inventoryItemId: '',
+          externalItemName: '',
           itemId: '',
           quantity: 1,
-          unit: '',
+          unit: 'kg',
+          costPrice: '',
+          salePrice: '',
           notes: ''
         });
+        setItemSourceType('inventory');
 
         // Refresh plan details
         const updated = await productionPlanApi.getById(selectedPlan.id);
@@ -1231,65 +1368,198 @@ const KitchenSheet = () => {
                 </div>
               )}
 
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-semibold text-gray-900">Plan Items</h3>
-                {selectedPlan.status !== 'completed' && selectedPlan.status !== 'cancelled' && (
-                  <button
-                    onClick={() => setShowAddItemModal(true)}
-                    className="px-3 py-1.5 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center"
-                  >
-                    <Plus className="w-4 h-4 mr-1" />
-                    Add Item
-                  </button>
-                )}
-              </div>
+              {/* Plan Items - Dish-Wise Grouping */}
+              <div>
+                {(() => {
+                  const { dishGroups, unassignedItems } = groupPlanItemsByDish(selectedPlan.items || []);
 
-              {!selectedPlan.items || selectedPlan.items.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">
-                  <Package className="w-12 h-12 mx-auto mb-2" />
-                  <p>No items in this plan</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-200 text-left text-xs text-gray-500 uppercase">
-                        <th className="pb-2 pr-4">Item</th>
-                        <th className="pb-2 pr-4">Type</th>
-                        <th className="pb-2 pr-4 text-right">Qty</th>
-                        <th className="pb-2 pr-4 text-right">Unit</th>
-                        <th className="pb-2 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedPlan.items.map((item) => (
-                        <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="py-3 pr-4">
-                            {item.menuItem?.name || item.inventoryItem?.name || item.item?.name || 'Unknown'}
-                          </td>
-                          <td className="py-3 pr-4 text-sm">
-                            {item.menuItemId ? 'Menu' : item.inventoryItemId ? 'Inventory' : 'Item'}
-                          </td>
-                          <td className="py-3 pr-4 text-right font-medium">
-                            {item.quantity}
-                          </td>
-                          <td className="py-3 pr-4 text-right">{item.unit}</td>
-                          <td className="py-3 text-right">
+                  return (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                            <Utensils className="w-4 h-4 text-purple-600" />
+                            Raw Materials by Dish
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            {dishGroups.length} Dish(es) • {(selectedPlan.items || []).length} Total Items
+                          </p>
+                        </div>
+                        {selectedPlan.status !== 'completed' && selectedPlan.status !== 'cancelled' && (
+                          <button
+                            onClick={() => openAddItemModal(null)}
+                            className="px-3 py-1.5 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-1 shadow-sm"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Add Raw Material
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Render Each Dish Group */}
+                      {dishGroups.map((dish) => (
+                        <div key={dish.id || dish.name} className="border border-purple-200/80 rounded-xl bg-white overflow-hidden shadow-xs">
+                          {/* Dish Header */}
+                          <div className="bg-purple-50/70 border-b border-purple-200/60 px-4 py-2.5 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-gray-900 text-sm">🍛 {dish.name}</span>
+                              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                {dish.items.length} Ingredients
+                              </span>
+                            </div>
                             {selectedPlan.status !== 'completed' && selectedPlan.status !== 'cancelled' && (
                               <button
-                                onClick={() => handleDeleteItem(item.id)}
-                                className="p-1 text-gray-400 hover:text-red-600 rounded"
+                                onClick={() => openAddItemModal(dish)}
+                                className="px-2.5 py-1 bg-white hover:bg-purple-100/60 text-purple-700 border border-purple-300 text-xs font-medium rounded-md transition flex items-center gap-1 shadow-2xs"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Plus className="w-3.5 h-3.5" />
+                                Add to {dish.name}
                               </button>
                             )}
-                          </td>
-                        </tr>
+                          </div>
+
+                          {/* Table for Dish Ingredients */}
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                              <thead className="bg-gray-50/70 text-gray-500 text-xs uppercase border-b">
+                                <tr>
+                                  <th className="p-2.5 text-left">Raw Material</th>
+                                  <th className="p-2.5 text-right">Required Qty</th>
+                                  <th className="p-2.5 text-center">Unit</th>
+                                  <th className="p-2.5 text-right">Cost Price</th>
+                                  {selectedPlan.status !== 'completed' && selectedPlan.status !== 'cancelled' && (
+                                    <th className="p-2.5 text-right">Actions</th>
+                                  )}
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-gray-100">
+                                {dish.items.map((item) => {
+                                  const cost = Number(item.inventoryItem?.avgCostPrice || 0);
+                                  return (
+                                    <tr key={item.id} className="hover:bg-purple-50/20">
+                                      <td className="p-2.5">
+                                        <div className="font-medium text-gray-900 flex items-center gap-1.5 flex-wrap">
+                                          <span>{item.inventoryItem?.name || item.name || 'Raw Material'}</span>
+                                          {(item.notes?.includes('[External]') || item.inventoryItem?.category?.includes('External')) && (
+                                            <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-semibold rounded-md border border-purple-200">
+                                              🛒 External
+                                            </span>
+                                          )}
+                                        </div>
+                                        {item.notes && (
+                                          <div className="text-xs text-gray-400 italic">
+                                            {item.notes}
+                                          </div>
+                                        )}
+                                      </td>
+                                      <td className="p-2.5 text-right font-bold text-purple-700 font-mono">
+                                        {Number(item.quantity).toLocaleString()}
+                                      </td>
+                                      <td className="p-2.5 text-center text-gray-600">{item.unit}</td>
+                                      <td className="p-2.5 text-right font-mono text-gray-600 text-xs">
+                                        {cost > 0 ? `Rs ${cost.toLocaleString()}` : '—'}
+                                      </td>
+                                      {selectedPlan.status !== 'completed' && selectedPlan.status !== 'cancelled' && (
+                                        <td className="p-2.5 text-right">
+                                          <button
+                                            onClick={() => handleDeleteItem(item.id)}
+                                            className="p-1 text-gray-400 hover:text-red-600 rounded transition-colors"
+                                            title="Delete item"
+                                          >
+                                            <Trash2 className="w-4 h-4 inline" />
+                                          </button>
+                                        </td>
+                                      )}
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+
+                      {/* Render Unassigned / General Ingredients */}
+                      {unassignedItems.length > 0 && (
+                        <div className="border border-gray-200 rounded-xl bg-white overflow-hidden shadow-xs">
+                          <div className="bg-gray-50 border-b border-gray-200 px-4 py-2.5 flex items-center justify-between">
+                            <span className="font-semibold text-gray-700 text-sm">
+                              General / Unassigned Ingredients ({unassignedItems.length})
+                            </span>
+                            {selectedPlan.status !== 'completed' && selectedPlan.status !== 'cancelled' && (
+                              <button
+                                onClick={() => openAddItemModal(null)}
+                                className="px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 text-xs font-medium rounded-md transition flex items-center gap-1"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                                Add General
+                              </button>
+                            )}
+                          </div>
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                              <thead className="bg-gray-50 text-gray-500 text-xs uppercase border-b">
+                                <tr>
+                                  <th className="p-2.5 text-left">Item</th>
+                                  <th className="p-2.5 text-right">Qty</th>
+                                  <th className="p-2.5 text-center">Unit</th>
+                                  {selectedPlan.status !== 'completed' && selectedPlan.status !== 'cancelled' && (
+                                    <th className="p-2.5 text-right">Actions</th>
+                                  )}
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-gray-100">
+                                {unassignedItems.map((item) => (
+                                  <tr key={item.id} className="hover:bg-gray-50">
+                                    <td className="p-2.5">
+                                      <div className="font-medium text-gray-900 flex items-center gap-1.5 flex-wrap">
+                                        <span>{item.inventoryItem?.name || item.name || 'Unknown'}</span>
+                                        {(item.notes?.includes('[External]') || item.inventoryItem?.category?.includes('External')) && (
+                                          <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-semibold rounded-md border border-purple-200">
+                                            🛒 External
+                                          </span>
+                                        )}
+                                      </div>
+                                      {item.notes && <div className="text-xs text-gray-400">{item.notes}</div>}
+                                    </td>
+                                    <td className="p-2.5 text-right font-bold text-gray-800 font-mono">
+                                      {Number(item.quantity).toLocaleString()}
+                                    </td>
+                                    <td className="p-2.5 text-center text-gray-600">{item.unit}</td>
+                                    {selectedPlan.status !== 'completed' && selectedPlan.status !== 'cancelled' && (
+                                      <td className="p-2.5 text-right">
+                                        <button
+                                          onClick={() => handleDeleteItem(item.id)}
+                                          className="p-1 text-gray-400 hover:text-red-600 rounded"
+                                        >
+                                          <Trash2 className="w-4 h-4 inline" />
+                                        </button>
+                                      </td>
+                                    )}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+
+                      {(!selectedPlan.items || selectedPlan.items.length === 0) && (
+                        <div className="text-center py-8 text-gray-400 border border-dashed border-gray-200 rounded-xl">
+                          <Package className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                          <p className="font-medium">No items in this plan</p>
+                          <button
+                            onClick={() => openAddItemModal(null)}
+                            className="mt-2 px-3 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-xs font-medium transition"
+                          >
+                            + Add First Raw Material
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
             </div>
 
             <div className="p-4 border-t border-gray-200 bg-gray-50 flex flex-wrap items-center justify-between gap-3">
@@ -1353,82 +1623,94 @@ const KitchenSheet = () => {
 
             {/* Body — scrollable */}
             <form onSubmit={handleAddItem} className="flex-1 overflow-y-auto p-4 space-y-4">
-              {/* Menu Item */}
+              {/* Target Dish Selector */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Menu Item
+                  Target Dish / Menu Item
                 </label>
                 <ReactSelect
-                  options={menuItemOptions}
-                  value={newItem.menuItemId}  // Simple string
-                  onChange={opt => setNewItem({
-                    ...newItem,
-                    menuItemId: opt || '',
-                    inventoryItemId: '',
-                    itemId: ''
-                  })}
-                  placeholder="Select Menu Item"
+                  options={availableDishOptions}
+                  value={newItem.menuItemId}
+                  onChange={opt => {
+                    const selected = availableDishOptions.find(o => o.value === opt);
+                    setNewItem({
+                      ...newItem,
+                      menuItemId: opt || '',
+                      dishName: selected ? selected.label.replace(/^🍛\s*/, '') : ''
+                    });
+                  }}
+                  placeholder="-- Select Target Dish (e.g. Mutton Korma) --"
                 />
                 <p className="text-xs text-gray-400 mt-1">
-                  {menuItems.length} menu items available
+                  {newItem.dishName ? `Assigning raw material to: 🍛 ${newItem.dishName}` : 'Select which dish this raw material belongs to, or leave general.'}
                 </p>
               </div>
 
-              {/* OR Divider */}
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-px bg-gray-200"></div>
-                <span className="text-xs text-gray-400 font-medium px-2">OR</span>
-                <div className="flex-1 h-px bg-gray-200"></div>
-              </div>
-
-              {/* Inventory Item */}
+              {/* Source Type Selector: Inventory vs External */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Inventory Item
+                <label className="block text-xs font-semibold text-gray-600 uppercase mb-1.5">
+                  Item Source <span className="text-red-500">*</span>
                 </label>
-                <ReactSelect
-                  options={inventoryItemOptions}
-                  value={newItem.inventoryItemId}  // Simple string
-                  onChange={opt => setNewItem({
-                    ...newItem,
-                    inventoryItemId: opt || '',
-                    menuItemId: '',
-                    itemId: ''
-                  })}
-                  placeholder="Select Inventory Item"
-                />
-                <p className="text-xs text-gray-400 mt-1">
-                  {inventoryItems.length} inventory items available
-                </p>
+                <div className="flex bg-gray-100 p-1 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setItemSourceType('inventory')}
+                    className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                      itemSourceType === 'inventory'
+                        ? 'bg-white text-gray-900 shadow-xs'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    <Package size={14} className={itemSourceType === 'inventory' ? 'text-purple-600' : ''} />
+                    From Inventory Stock
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setItemSourceType('external')}
+                    className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                      itemSourceType === 'external'
+                        ? 'bg-purple-600 text-white shadow-xs'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    <ShoppingCart size={14} />
+                    External Item (Market / Direct)
+                  </button>
+                </div>
               </div>
 
-              {/* OR Divider */}
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-px bg-gray-200"></div>
-                <span className="text-xs text-gray-400 font-medium px-2">OR</span>
-                <div className="flex-1 h-px bg-gray-200"></div>
-              </div>
-
-              {/* Generic Item */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Item (Generic)
-                </label>
-                <ReactSelect
-                  options={genericItemOptions}
-                  value={newItem.itemId}  // Simple string
-                  onChange={opt => setNewItem({
-                    ...newItem,
-                    itemId: opt || '',
-                    menuItemId: '',
-                    inventoryItemId: ''
-                  })}
-                  placeholder="Select Item"
-                />
-                <p className="text-xs text-gray-400 mt-1">
-                  {items.length} items available
-                </p>
-              </div>
+              {/* Raw Material: Dropdown for Inventory OR Text Input for External */}
+              {itemSourceType === 'inventory' ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Raw Material (From Inventory) <span className="text-red-500">*</span>
+                  </label>
+                  <ReactSelect
+                    options={inventoryItemOptions}
+                    value={newItem.inventoryItemId}
+                    onChange={handleInventoryItemSelect}
+                    placeholder="-- Search & Select Raw Material (e.g. Yogurt, Meat, Rice) --"
+                    isRequired
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-purple-700 mb-1">
+                    External Item Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Dahi / Yogurt, Koyla, Hara Masala, Khoya..."
+                    value={newItem.externalItemName || ''}
+                    onChange={(e) => setNewItem({ ...newItem, externalItemName: e.target.value })}
+                    className="w-full px-3 py-2 bg-purple-50/40 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-sm font-medium"
+                    required
+                  />
+                  <p className="text-[11px] text-purple-600/80 mt-1">
+                    🛒 Direct / Market purchase item — will be linked to this dish without blocking warehouse stock.
+                  </p>
+                </div>
+              )}
 
               {/* Quantity & Unit — Responsive Grid */}
               <div className="grid grid-cols-2 gap-3">
@@ -1443,7 +1725,7 @@ const KitchenSheet = () => {
                     value={newItem.quantity}
                     onChange={(e) => setNewItem({ ...newItem, quantity: parseFloat(e.target.value) || 0 })}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-sm font-mono"
                   />
                 </div>
                 <div>
@@ -1459,6 +1741,48 @@ const KitchenSheet = () => {
                   />
                 </div>
               </div>
+
+              {/* Runtime Cost Price & Sale Price */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Cost Price (PKR / Unit)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="e.g. 1500"
+                    value={newItem.costPrice}
+                    onChange={(e) => setNewItem({ ...newItem, costPrice: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-sm font-mono"
+                  />
+                  <p className="text-[10px] text-gray-400 mt-0.5">Runtime purchase / avg cost</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Sale Price (PKR / Unit)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="e.g. 1800"
+                    value={newItem.salePrice}
+                    onChange={(e) => setNewItem({ ...newItem, salePrice: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-sm font-mono"
+                  />
+                  <p className="text-[10px] text-gray-400 mt-0.5">Runtime menu / sale price</p>
+                </div>
+              </div>
+
+              {/* Live Cost Calculation Preview */}
+              {newItem.quantity && newItem.costPrice && (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 flex justify-between items-center text-xs">
+                  <span className="text-purple-900 font-medium">Estimated Item Cost:</span>
+                  <span className="font-mono font-bold text-purple-900 text-sm">
+                    Rs {(Number(newItem.quantity) * Number(newItem.costPrice)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+              )}
 
               {/* Notes */}
               <div>
@@ -1494,7 +1818,7 @@ const KitchenSheet = () => {
                       Adding...
                     </>
                   ) : (
-                    'Add Item'
+                    'Add Raw Material'
                   )}
                 </button>
               </div>

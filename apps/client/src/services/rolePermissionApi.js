@@ -1,4 +1,5 @@
-// services/roleApi.js
+// services/roleApi.js - FIXED
+
 import apiClient from './apiClient';
 
 // ── Helpers ──
@@ -40,7 +41,7 @@ export default {
       companyId: params.companyId || companyId
     };
     return apiClient.get('/role-permissions/roles-list', { params: finalParams })
-      .then(res => res.data || res);
+      .then(res => res.data);  // ✅ FIXED
   },
 
   // ── CREATE ROLE WITH PERMISSIONS ──
@@ -51,7 +52,7 @@ export default {
       ...data,
       branchId: data.branchId || branchId,
       companyId: data.companyId || companyId
-    }).then(res => res.data || res);
+    }).then(res => res.data);  // ✅ FIXED: Sirf res.data return karo
   },
 
   // ── GET ALL PERMISSIONS MATRIX ──
@@ -60,12 +61,12 @@ export default {
     const companyId = getCompanyId();
     return apiClient.get('/role-permissions', {
       params: { ...params, branchId: params.branchId || branchId, companyId: params.companyId || companyId }
-    }).then(res => res.data || res);
+    }).then(res => res.data);  // ✅ FIXED
   },
 
-  // ── GET MY PERMISSIONS (NEW — for current logged-in user) ──
+  // ── GET MY PERMISSIONS ──
   getMyPermissions: () => {
-    return apiClient.get('/role-permissions/my-permissions').then(res => res.data || res);
+    return apiClient.get('/role-permissions/my-permissions').then(res => res.data);  // ✅ FIXED
   },
 
   // ── SAVE / UPDATE / DELETE PERMISSION ──
@@ -76,15 +77,15 @@ export default {
       ...data,
       branchId: data.branchId || branchId,
       companyId: data.companyId || companyId
-    }).then(res => res.data || res);
+    }).then(res => res.data);  // ✅ FIXED
   },
 
   updatePermission: (id, data) => {
-    return apiClient.put(`/role-permissions/${id}`, data).then(res => res.data || res);
+    return apiClient.put(`/role-permissions/${id}`, data).then(res => res.data);  // ✅ FIXED
   },
 
   deletePermission: (id) => {
-    return apiClient.delete(`/role-permissions/${id}`).then(res => res.data || res);
+    return apiClient.delete(`/role-permissions/${id}`).then(res => res.data);  // ✅ FIXED
   },
 
   // ── ASSIGNMENTS ──
@@ -93,7 +94,7 @@ export default {
     const companyId = getCompanyId();
     return apiClient.get('/role-permissions/assignments', {
       params: { ...params, branchId: params.branchId || branchId, companyId: params.companyId || companyId }
-    }).then(res => res.data || res);
+    }).then(res => res.data);  // ✅ FIXED
   },
 
   assignRole: (userId, roleId, branchId = null) => {
@@ -102,10 +103,10 @@ export default {
       roleId,
       companyId: getCompanyId(),
       branchId: branchId || getSelectedBranchId()
-    }).then(res => res.data || res);
+    }).then(res => res.data);  // ✅ FIXED
   },
 
   removeAssignment: (assignmentId) => {
-    return apiClient.delete(`/role-permissions/assign/${assignmentId}`).then(res => res.data || res);
+    return apiClient.delete(`/role-permissions/assign/${assignmentId}`).then(res => res.data);  // ✅ FIXED
   }
 };

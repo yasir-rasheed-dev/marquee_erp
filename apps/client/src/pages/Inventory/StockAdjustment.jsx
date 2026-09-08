@@ -146,7 +146,7 @@ export default function StockAdjustment() {
       case 'WASTAGE':
         return <span className="px-2.5 py-1 bg-red-50 text-red-700 rounded-lg text-xs font-bold border border-red-200">Wastage / Damage</span>;
       case 'TRANSFER_OUT':
-        return <span className="px-2.5 py-1 bg-amber-50 text-[#A97A1F] rounded-lg text-xs font-bold border border-amber-200">Transfer</span>;
+        return <span className="px-2.5 py-1 bg-amber-50 text-[#2563EB] rounded-lg text-xs font-bold border border-amber-200">Transfer</span>;
       default:
         return <span className="px-2.5 py-1 bg-gray-50 text-gray-700 rounded-lg text-xs font-bold border border-gray-200">Adjustment</span>;
     }
@@ -161,32 +161,32 @@ export default function StockAdjustment() {
   };
 
   return (
-    <div className="min-h-screen p-6" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] text-white shadow-md">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] text-white shadow-md">
               <RefreshCw className="w-6 h-6" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-800">Stock Transactions & Adjustments</h1>
               <p className="text-sm text-gray-600">
-                Track purchases, wastage, and manual stock logs for <span className="font-semibold text-[#A97A1F]">{currentBranch?.name || 'Selected Branch'}</span>
+                Track purchases, wastage, and manual stock logs for <span className="font-semibold text-[#2563EB]">{currentBranch?.name || 'Selected Branch'}</span>
               </p>
             </div>
           </div>
           <button 
             onClick={() => setShowModal(true)} 
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white font-semibold flex items-center gap-2 shadow-md hover:opacity-95 transition-all"
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white font-semibold flex items-center gap-2 shadow-md hover:opacity-95 transition-all"
           >
             <PlusCircle size={18} /> New Stock Transaction
           </button>
         </div>
 
         {/* Search Bar */}
-        <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] mb-6 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-300 mb-6 shadow-sm flex items-center justify-between">
           <div className="relative w-full">
             <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input 
@@ -194,7 +194,7 @@ export default function StockAdjustment() {
               value={search} 
               onChange={e => setSearch(e.target.value)} 
               placeholder="Search transactions by item name, type, or notes..." 
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/30" 
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30" 
             />
           </div>
           {itemSearchParam && (
@@ -208,10 +208,10 @@ export default function StockAdjustment() {
         </div>
 
         {/* History Table */}
-        <div className="bg-white rounded-2xl border border-[#E0D8CC] overflow-hidden shadow-sm">
+        <div className="bg-white rounded-2xl border border-slate-300 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="bg-[#F5F2EB] border-b border-[#E0D8CC] text-gray-700 font-semibold">
+              <thead className="bg-[#F1F5F9] border-b border-slate-300 text-gray-700 font-semibold">
                 <tr>
                   <th className="p-4">Date & Time</th>
                   <th className="p-4">Item Name</th>
@@ -248,7 +248,7 @@ export default function StockAdjustment() {
                             title="View Complete Details" 
                             className="p-2 hover:bg-amber-100 rounded-xl text-gray-600 transition-colors inline-flex items-center gap-1 text-xs font-medium"
                           >
-                            <Eye size={16} className="text-[#A97A1F]" />
+                            <Eye size={16} className="text-[#2563EB]" />
                             <span>Details</span>
                           </button>
                         </td>
@@ -270,10 +270,10 @@ export default function StockAdjustment() {
         {/* 🔍 Details Modal */}
         {selectedTx && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-2xl max-w-lg w-full p-6 animate-fadeIn">
+            <div className="bg-white rounded-2xl border border-slate-300 shadow-2xl max-w-lg w-full p-6 animate-fadeIn">
               <div className="flex justify-between items-center mb-5 pb-3 border-b border-gray-100">
                 <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                  <Package className="text-[#A97A1F]" size={20} />
+                  <Package className="text-[#2563EB]" size={20} />
                   Transaction Details
                 </h3>
                 <button onClick={() => setSelectedTx(null)} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
@@ -322,10 +322,10 @@ export default function StockAdjustment() {
         {/* 🚀 New Transaction Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-2xl max-w-lg w-full p-6 animate-fadeIn max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-2xl border border-slate-300 shadow-2xl max-w-lg w-full p-6 animate-fadeIn max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
                 <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                  <RefreshCw className="text-[#A97A1F]" size={20} />
+                  <RefreshCw className="text-[#2563EB]" size={20} />
                   New Stock Transaction
                 </h3>
                 <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
@@ -375,7 +375,7 @@ export default function StockAdjustment() {
                         type="checkbox" 
                         checked={form.isBoxMode} 
                         onChange={e => setForm({...form, isBoxMode: e.target.checked})} 
-                        className="w-4 h-4 rounded text-[#A97A1F]" 
+                        className="w-4 h-4 rounded text-[#2563EB]" 
                       />
                       <span className="text-xs font-bold text-amber-900 flex items-center gap-1">
                         <Box size={14} /> Enter in Packs / Boxes (Price & Qty will apply for whole pack)
@@ -395,7 +395,7 @@ export default function StockAdjustment() {
                       placeholder="0.000" 
                       value={form.quantity} 
                       onChange={e => setForm({...form, quantity: e.target.value})} 
-                      className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono font-bold text-[#A97A1F]" 
+                      className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono font-bold text-[#2563EB]" 
                       required 
                     />
                   </div>
@@ -441,7 +441,7 @@ export default function StockAdjustment() {
 
                 <div className="flex justify-end gap-3 pt-3 border-t border-gray-100">
                   <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-600 text-sm">Cancel</button>
-                  <button type="submit" disabled={loading} className="px-6 py-2.5 bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white font-semibold rounded-xl shadow-md text-sm flex items-center gap-2">
+                  <button type="submit" disabled={loading} className="px-6 py-2.5 bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white font-semibold rounded-xl shadow-md text-sm flex items-center gap-2">
                     <Send size={15} /> {loading ? 'Processing...' : 'Submit Transaction'}
                   </button>
                 </div>

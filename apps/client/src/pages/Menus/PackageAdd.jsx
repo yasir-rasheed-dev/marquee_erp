@@ -513,36 +513,36 @@ export default function PackageManagement() {
   };
 
   return (
-    <div className="min-h-screen pb-12 relative" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen pb-12 relative" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <ToastContainer />
 
       {/* TOP HEADER */}
-      <div className="border-b backdrop-blur-xl bg-white/90 sticky top-0 z-30 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+      <div className="border-b backdrop-blur-xl bg-white/90 sticky top-0 z-30 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-[0_4px_12px_rgba(169,122,31,0.3)] text-white">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.3)] text-white">
               <Package className="w-6 h-6" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-800">Banquet Packages</h1>
               <p className="text-xs font-medium text-gray-500">
                 Manage event packages with menus, services & add-ons
-                {currentBranch && <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-[#F4E7C9] text-[#8B6914] font-bold">📍 {currentBranch.name}</span>}
+                {currentBranch && <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-amber-100/80 text-[#8B6914] font-bold">📍 {currentBranch.name}</span>}
               </p>
             </div>
           </div>
           
           <div className="flex items-center gap-3">
-            <div className="bg-white p-1 rounded-xl border border-[#E0D8CC] flex items-center shadow-sm">
+            <div className="bg-white p-1 rounded-xl border border-slate-300 flex items-center shadow-sm">
               <button 
                 onClick={() => setViewMode('grid')} 
-                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
               >
                 <LayoutGrid size={18} />
               </button>
               <button 
                 onClick={() => setViewMode('table')} 
-                className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
               >
                 <TableIcon size={18} />
               </button>
@@ -550,7 +550,7 @@ export default function PackageManagement() {
 
             <button 
               onClick={handleOpenCreate} 
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white shadow-md hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white shadow-md hover:scale-[1.02]"
             >
               <Plus size={18} /> Create New Package
             </button>
@@ -562,28 +562,28 @@ export default function PackageManagement() {
 
         {/* STATS CARDS */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-amber-50 text-[#A97A1F]"><Layers size={24} /></div>
+          <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-4">
+            <div className="p-3 rounded-xl bg-amber-50 text-[#2563EB]"><Layers size={24} /></div>
             <div>
               <span className="text-xs text-gray-400 uppercase font-bold tracking-wider block">Total Packages</span>
               <span className="text-2xl font-bold font-mono text-gray-800">{stats.totalPackages}</span>
             </div>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-4">
+          <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-4">
             <div className="p-3 rounded-xl bg-emerald-50 text-emerald-600"><BookmarkCheck size={24} /></div>
             <div>
               <span className="text-xs text-gray-400 uppercase font-bold tracking-wider block">Active</span>
               <span className="text-2xl font-bold font-mono text-emerald-700">{stats.activePackages}</span>
             </div>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-4">
+          <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-4">
             <div className="p-3 rounded-xl bg-blue-50 text-blue-600"><Briefcase size={24} /></div>
             <div>
               <span className="text-xs text-gray-400 uppercase font-bold tracking-wider block">Total Services</span>
               <span className="text-2xl font-bold font-mono text-blue-700">{stats.totalServices}</span>
             </div>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-4">
+          <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-4">
             <div className="p-3 rounded-xl bg-purple-50 text-purple-600"><DollarSign size={24} /></div>
             <div>
               <span className="text-xs text-gray-400 uppercase font-bold tracking-wider block">Avg. Price</span>
@@ -593,7 +593,7 @@ export default function PackageManagement() {
         </div>
 
         {/* FILTER BAR */}
-        <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm grid grid-cols-1 md:grid-cols-5 gap-3 items-center">
+        <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm grid grid-cols-1 md:grid-cols-5 gap-3 items-center">
           <div className="relative md:col-span-2">
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input 
@@ -601,7 +601,7 @@ export default function PackageManagement() {
               value={search} 
               onChange={e => setSearch(e.target.value)} 
               placeholder="Search by package name or code..." 
-              className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]" 
+              className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]" 
             />
           </div>
           <div>
@@ -618,27 +618,27 @@ export default function PackageManagement() {
             />
           </div>
           <div className="flex items-center gap-1">
-            <input type="number" value={minPrice} onChange={e => setMinPrice(e.target.value)} placeholder="Min Price" className="w-1/2 p-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]" />
+            <input type="number" value={minPrice} onChange={e => setMinPrice(e.target.value)} placeholder="Min Price" className="w-1/2 p-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]" />
             <span className="text-gray-400">-</span>
-            <input type="number" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} placeholder="Max Price" className="w-1/2 p-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]" />
+            <input type="number" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} placeholder="Max Price" className="w-1/2 p-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]" />
           </div>
           <div>
-            <input type="number" value={minGuests} onChange={e => setMinGuests(e.target.value)} placeholder="Min Guests" className="w-full p-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]" />
+            <input type="number" value={minGuests} onChange={e => setMinGuests(e.target.value)} placeholder="Min Guests" className="w-full p-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]" />
           </div>
         </div>
 
         {/* CONTENT VIEW */}
         {loading ? (
           <div className="text-center py-20">
-            <div className="w-12 h-12 rounded-full border-4 border-t-[#A97A1F] animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
+            <div className="w-12 h-12 rounded-full border-4 border-t-[#2563EB] animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
             <p className="mt-4 text-sm font-bold text-gray-600">Loading packages...</p>
           </div>
         ) : filteredPackages.length === 0 ? (
-          <div className="bg-white rounded-2xl p-12 text-center border border-[#E0D8CC] shadow-sm">
+          <div className="bg-white rounded-2xl p-12 text-center border border-slate-300 shadow-sm">
             <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
             <h3 className="text-lg font-bold text-gray-800 mb-1">No Packages Found</h3>
             <p className="text-sm text-gray-500">Get started by creating your first banquet package.</p>
-            <button onClick={handleOpenCreate} className="mt-4 px-5 py-2.5 bg-[#A97A1F] text-white rounded-xl text-xs font-bold shadow-sm">
+            <button onClick={handleOpenCreate} className="mt-4 px-5 py-2.5 bg-[#2563EB] text-white rounded-xl text-xs font-bold shadow-sm">
               <Plus size={14} className="inline mr-1" /> Create Package
             </button>
           </div>
@@ -647,19 +647,19 @@ export default function PackageManagement() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {paginatedPackages.map(pkg => (
-                <div key={pkg.id} className="bg-white rounded-2xl border border-[#E0D8CC] p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                <div key={pkg.id} className="bg-white rounded-2xl border border-slate-300 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
                   <div>
                     <div className="flex items-start justify-between gap-2 mb-3">
                       <div>
                         {pkg.code && (
-                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 text-[#A97A1F] border border-amber-200">
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 text-[#2563EB] border border-amber-200">
                             {pkg.code}
                           </span>
                         )}
                         <h3 className="font-bold text-base text-gray-900 mt-1">{pkg.name}</h3>
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-[#A97A1F] border border-amber-200">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-[#2563EB] border border-amber-200">
                           {pkg.eventType || 'General'}
                         </span>
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${pkg.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
@@ -669,7 +669,7 @@ export default function PackageManagement() {
                     </div>
 
                     {/* Menus with Items Preview */}
-                    <div className="space-y-2 text-xs text-gray-600 mb-3 bg-[#FAF8F4] p-3 rounded-xl border border-[#E0D8CC]">
+                    <div className="space-y-2 text-xs text-gray-600 mb-3 bg-slate-50 p-3 rounded-xl border border-slate-300">
                       <span className="font-bold text-gray-700 mb-1 flex items-center gap-1">
                         <Utensils size={12} /> Attached Menus ({pkg.menus?.length || 0}):
                       </span>
@@ -677,7 +677,7 @@ export default function PackageManagement() {
                         <div key={idx} className="mb-2">
                           <div className="flex justify-between font-semibold">
                             <span>• {m.menu?.name || 'Menu'}</span>
-                            <span className="font-mono text-[#A97A1F]">{m.quantity} Guests</span>
+                            <span className="font-mono text-[#2563EB]">{m.quantity} Guests</span>
                           </div>
                           {m.menu?.items && m.menu.items.length > 0 && (
                             <div className="pl-3 mt-1 space-y-0.5">
@@ -734,12 +734,12 @@ export default function PackageManagement() {
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-[#F0ECE6] flex items-center justify-between">
+                  <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between">
                     <div className="flex items-center gap-1">
-                      <button onClick={() => handleOpenEdit(pkg)} title="Edit Package" className="p-2 rounded-xl hover:bg-amber-50 text-[#A97A1F] transition-all"><Edit2 size={16} /></button>
+                      <button onClick={() => handleOpenEdit(pkg)} title="Edit Package" className="p-2 rounded-xl hover:bg-amber-50 text-[#2563EB] transition-all"><Edit2 size={16} /></button>
                       <button onClick={() => handleDelete(pkg.id)} title="Delete Package" className="p-2 rounded-xl hover:bg-red-50 text-red-600 transition-all"><Trash2 size={16} /></button>
                     </div>
-                    <button onClick={() => handleOpenEdit(pkg)} className="px-3 py-1.5 rounded-xl border border-[#E0D8CC] text-xs font-semibold text-gray-700 hover:bg-gray-50">
+                    <button onClick={() => handleOpenEdit(pkg)} className="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-semibold text-gray-700 hover:bg-gray-50">
                       Configure
                     </button>
                   </div>
@@ -749,11 +749,11 @@ export default function PackageManagement() {
           </div>
         ) : (
           /* ── TABLE VIEW ── */
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-sm overflow-hidden hidden sm:block">
+          <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden hidden sm:block">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#FAF8F4] border-b border-[#E0D8CC] text-xs font-bold text-gray-600 uppercase tracking-wider">
+                  <tr className="bg-slate-50 border-b border-slate-300 text-xs font-bold text-gray-600 uppercase tracking-wider">
                     <th className="py-3.5 px-4">Package Name</th>
                     <th className="py-3.5 px-4">Event Type</th>
                     <th className="py-3.5 px-4">Menus / Items</th>
@@ -768,10 +768,10 @@ export default function PackageManagement() {
                     <tr key={pkg.id} className="hover:bg-amber-50/30 transition-all">
                       <td className="py-3.5 px-4">
                         <div className="font-bold text-gray-900">{pkg.name}</div>
-                        {pkg.code && <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#A97A1F]">{pkg.code}</span>}
+                        {pkg.code && <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#2563EB]">{pkg.code}</span>}
                       </td>
                       <td className="py-3.5 px-4">
-                        <span className="px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-amber-50 text-[#A97A1F] border border-amber-200">
+                        <span className="px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-amber-50 text-[#2563EB] border border-amber-200">
                           {pkg.eventType || 'General'}
                         </span>
                       </td>
@@ -800,7 +800,7 @@ export default function PackageManagement() {
                       </td>
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <button onClick={() => handleOpenEdit(pkg)} className="p-1.5 rounded-lg hover:bg-amber-50 text-[#A97A1F]"><Edit2 size={15} /></button>
+                          <button onClick={() => handleOpenEdit(pkg)} className="p-1.5 rounded-lg hover:bg-amber-50 text-[#2563EB]"><Edit2 size={15} /></button>
                           <button onClick={() => handleDelete(pkg.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-600"><Trash2 size={15} /></button>
                         </div>
                       </td>
@@ -816,7 +816,7 @@ export default function PackageManagement() {
             PAGINATION CONTROLS
             ═══════════════════════════════════════════════════════════ */}
         {filteredPackages.length > 0 && (
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3 text-xs text-gray-600">
               <span>
                 Showing <strong className="text-gray-800">{((currentPage - 1) * itemsPerPage) + 1}</strong> to <strong className="text-gray-800">{Math.min(currentPage * itemsPerPage, filteredPackages.length)}</strong> of <strong className="text-gray-800">{filteredPackages.length}</strong> packages
@@ -826,7 +826,7 @@ export default function PackageManagement() {
                 <select
                   value={itemsPerPage}
                   onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                  className="px-2 py-1 border border-gray-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#A97A1F]"
+                  className="px-2 py-1 border border-gray-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
                 >
                   <option value={6}>6</option>
                   <option value={12}>12</option>
@@ -852,7 +852,7 @@ export default function PackageManagement() {
                   onClick={() => handlePageChange(page)}
                   className={`w-8 h-8 rounded-xl text-xs font-bold transition-all ${
                     currentPage === page
-                      ? 'bg-[#A97A1F] text-white shadow-sm'
+                      ? 'bg-[#2563EB] text-white shadow-sm'
                       : 'border border-gray-200 text-gray-600 hover:bg-amber-50'
                   }`}
                 >
@@ -877,19 +877,19 @@ export default function PackageManagement() {
             ═══════════════════════════════════════════════════════════ */}
         {showModal && (
           <div className="fixed inset-y-0 right-0 left-0 lg:left-64 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-5xl max-h-[95vh] flex flex-col shadow-2xl border border-[#E0D8CC] overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+            <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-5xl max-h-[95vh] flex flex-col shadow-2xl border border-slate-300 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
               
               {/* Modal Header */}
-              <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b bg-[#FAF8F4] flex items-center justify-between border-[#E0D8CC] sticky top-0 z-20">
+              <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b bg-slate-50 flex items-center justify-between border-slate-300 sticky top-0 z-20">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-amber-100 text-[#A97A1F]">
+                  <div className="p-2 rounded-xl bg-amber-100 text-[#2563EB]">
                     <Package size={20} />
                   </div>
                   <div>
                     <h3 className="font-bold text-base sm:text-lg text-gray-800">
                       {editingId ? 'Edit Banquet Package' : 'Create Banquet Package'}
                     </h3>
-                    <p className="text-xs text-[#A97A1F] mt-0.5 font-medium">📍 Branch: <strong>{currentBranch?.name}</strong></p>
+                    <p className="text-xs text-[#2563EB] mt-0.5 font-medium">📍 Branch: <strong>{currentBranch?.name}</strong></p>
                   </div>
                 </div>
                 <button onClick={() => setShowModal(false)} className="p-2 rounded-xl hover:bg-gray-200 text-gray-600"><X size={20} /></button>
@@ -902,11 +902,11 @@ export default function PackageManagement() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="md:col-span-2">
                       <label className="text-xs font-bold text-gray-700 mb-1 block">Package Name *</label>
-                      <input required value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="e.g. Royal Gold Wedding Package" className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]" />
+                      <input required value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="e.g. Royal Gold Wedding Package" className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]" />
                     </div>
                     <div>
                       <label className="text-xs font-bold text-gray-700 mb-1 block">Package Code</label>
-                      <input value={form.code} onChange={e => setForm({...form, code: e.target.value})} placeholder="PKG-001" className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]" />
+                      <input value={form.code} onChange={e => setForm({...form, code: e.target.value})} placeholder="PKG-001" className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]" />
                     </div>
                   </div>
 
@@ -944,7 +944,7 @@ export default function PackageManagement() {
                       <span className="font-bold text-xs text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
                         <Utensils size={15} /> Attach Saved Menus & Guests
                       </span>
-                      <button type="button" onClick={handleAddMenu} className="px-3 py-1.5 bg-[#A97A1F] text-white rounded-xl text-xs font-bold shadow-sm hover:opacity-90">
+                      <button type="button" onClick={handleAddMenu} className="px-3 py-1.5 bg-[#2563EB] text-white rounded-xl text-xs font-bold shadow-sm hover:opacity-90">
                         + Attach Menu
                       </button>
                     </div>
@@ -963,7 +963,7 @@ export default function PackageManagement() {
                                 <select 
                                   value={pm.menuId} 
                                   onChange={e => handleUpdateMenu(index, 'menuId', e.target.value)} 
-                                  className="w-full p-2.5 border rounded-xl text-sm bg-white font-medium focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+                                  className="w-full p-2.5 border rounded-xl text-sm bg-white font-medium focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                                 >
                                   {masterMenus.map(m => (
                                     <option key={m.id} value={m.id}>
@@ -979,7 +979,7 @@ export default function PackageManagement() {
                                   value={pm.quantity} 
                                   onChange={e => handleUpdateMenu(index, 'quantity', e.target.value)} 
                                   placeholder="Guests" 
-                                  className="w-full p-2.5 border rounded-xl text-sm font-mono font-bold text-[#A97A1F] focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+                                  className="w-full p-2.5 border rounded-xl text-sm font-mono font-bold text-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                                 />
                               </div>
                               <div className="w-full md:w-36 text-right font-mono text-xs font-bold text-emerald-700">
@@ -1150,7 +1150,7 @@ export default function PackageManagement() {
                   <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="font-bold text-xs text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-                        <Sparkles size={15} className="text-[#A97A1F]" /> Extras / Cheese / Add-ons (Optional)
+                        <Sparkles size={15} className="text-[#2563EB]" /> Extras / Cheese / Add-ons (Optional)
                       </span>
                       <button type="button" onClick={handleAddExtra} className="px-3 py-1.5 bg-gray-700 text-white rounded-xl text-xs font-bold shadow-sm hover:opacity-90">
                         + Add Extra
@@ -1188,20 +1188,20 @@ export default function PackageManagement() {
                     </div>
                     <div>
                       <label className="text-[11px] font-bold text-amber-900 block mb-1">Discount (%)</label>
-                      <input type="number" step="0.1" value={form.discountPct} onChange={e => setForm({...form, discountPct: e.target.value})} className="w-full p-2.5 border rounded-xl text-sm font-mono bg-white focus:outline-none focus:ring-2 focus:ring-[#A97A1F]" />
+                      <input type="number" step="0.1" value={form.discountPct} onChange={e => setForm({...form, discountPct: e.target.value})} className="w-full p-2.5 border rounded-xl text-sm font-mono bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]" />
                     </div>
                     <div className="text-right">
                       <span className="text-[11px] font-bold text-amber-900 block uppercase">Final Package Price</span>
-                      <span className="font-mono font-bold text-[#A97A1F] text-xl">{formatCurrency(totals.finalPrice)}</span>
+                      <span className="font-mono font-bold text-[#2563EB] text-xl">{formatCurrency(totals.finalPrice)}</span>
                     </div>
                   </div>
 
                 </form>
               </div>
 
-              <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t bg-[#FAF8F4] flex items-center justify-end gap-3 border-[#E0D8CC] sticky bottom-0 z-20">
+              <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t bg-slate-50 flex items-center justify-end gap-3 border-slate-300 sticky bottom-0 z-20">
                 <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2.5 rounded-xl border text-gray-600 text-sm font-semibold hover:bg-gray-50">Cancel</button>
-                <button type="submit" form="packageForm" className="px-7 py-2.5 bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white font-semibold rounded-xl shadow-md text-sm hover:opacity-95">
+                <button type="submit" form="packageForm" className="px-7 py-2.5 bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white font-semibold rounded-xl shadow-md text-sm hover:opacity-95">
                   {editingId ? 'Update Package' : 'Save Package'}
                 </button>
               </div>

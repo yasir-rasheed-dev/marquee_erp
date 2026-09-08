@@ -12,6 +12,157 @@ import { useBranch } from '../../context/BranchContext';
 import useGlobalData from '../../hooks/useGlobalData';
 import toast from 'react-hot-toast';
 
+// ── Modal Component ──
+const AssetFormModal = ({ isOpen, onClose, editingId, form, setForm, onSubmit, categoriesList, unitsList, branchFormOptions, conditionFormOptions }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
+      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-300">
+        <div className="sticky top-0 bg-white z-10 px-6 py-4 border-b border-gray-100 flex justify-between items-center rounded-t-2xl">
+          <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+            <Tag size={18} className="text-[#2563EB]" />
+            {editingId ? 'Edit Fixed Asset' : 'Register New Fixed Asset'}
+          </h3>
+          <button 
+            onClick={onClose} 
+            className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <X size={22} />
+          </button>
+        </div>
+        
+        <form onSubmit={onSubmit} className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">Asset Name *</label>
+              <input 
+                required 
+                value={form.name} 
+                onChange={e => setForm({...form, name: e.target.value})} 
+                placeholder="e.g. Dining Chair" 
+                className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all" 
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">Asset Code / Tag</label>
+              <input 
+                value={form.code} 
+                onChange={e => setForm({...form, code: e.target.value})} 
+                placeholder="e.g. CHAIR-01" 
+                className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all" 
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">Category *</label>
+              <input 
+                required 
+                list="asset-category-list"
+                value={form.category} 
+                onChange={e => setForm({...form, category: e.target.value})} 
+                placeholder="Type or select category" 
+                className="w-full p-3 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all" 
+              />
+              <datalist id="asset-category-list">
+                {categoriesList.map(c => <option key={c.id} value={c.name} />)}
+              </datalist>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">Unit *</label>
+              <input 
+                required
+                list="asset-unit-list"
+                value={form.unit} 
+                onChange={e => setForm({...form, unit: e.target.value})} 
+                placeholder="Type or select unit" 
+                className="w-full p-3 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all" 
+              />
+              <datalist id="asset-unit-list">
+                {unitsList.map(u => <option key={u.id} value={u.name} />)}
+              </datalist>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">Condition *</label>
+              <ReactSelect
+                options={conditionFormOptions}
+                value={conditionFormOptions.find(opt => opt.value === form.condition) || null}
+                onChange={opt => setForm({...form, condition: opt?.value || 'GOOD'})}
+                placeholder="Select Condition"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">Quantity *</label>
+              <input 
+                type="number" 
+                min="1"
+                required 
+                value={form.quantity} 
+                onChange={e => setForm({...form, quantity: e.target.value})} 
+                placeholder="1" 
+                className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all" 
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">Unit Cost Price (Rs) *</label>
+              <input 
+                type="number" 
+                step="0.01" 
+                min="0"
+                required 
+                value={form.costPrice} 
+                onChange={e => setForm({...form, costPrice: e.target.value})} 
+                placeholder="0.00" 
+                className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all" 
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">Allocate Branch *</label>
+              <ReactSelect
+                options={branchFormOptions}
+                value={branchFormOptions.find(opt => opt.value === String(form.branchId)) || null}
+                onChange={opt => setForm({...form, branchId: opt?.value || ''})}
+                placeholder="-- Select Branch --"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">Notes / Remarks</label>
+              <input 
+                value={form.notes} 
+                onChange={e => setForm({...form, notes: e.target.value})} 
+                placeholder="Optional remarks..." 
+                className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all" 
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
+            <button 
+              type="button" 
+              onClick={onClose} 
+              className="px-6 py-2.5 rounded-xl border border-gray-300 text-gray-600 font-medium text-sm hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              className="px-6 py-2.5 bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white font-semibold rounded-xl shadow-md text-sm hover:opacity-95 transition-all"
+            >
+              {editingId ? 'Update Asset' : 'Save Asset'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 export default function FixedAssets() {
   const { currentBranch } = useBranch();
   const [search, setSearch] = useState('');
@@ -70,11 +221,11 @@ export default function FixedAssets() {
 
   // ── ReactSelect Options ──
   const conditionFilterOptions = useMemo(() => [
-    { value: 'ALL', label: '🔍 All Asset Conditions' },
-    { value: 'GOOD', label: '✅ Good Condition' },
-    { value: 'DAMAGED', label: '❌ Damaged' },
-    { value: 'UNDER_MAINTENANCE', label: '🔧 Under Maintenance' },
-    { value: 'DISPOSED', label: '🗑️ Disposed' }
+    { value: 'ALL', label: ' All Asset Conditions' },
+    { value: 'GOOD', label: ' Good Condition' },
+    { value: 'DAMAGED', label: ' Damaged' },
+    { value: 'UNDER_MAINTENANCE', label: ' Under Maintenance' },
+    { value: 'DISPOSED', label: ' Disposed' }
   ], []);
 
   const conditionFormOptions = useMemo(() => [
@@ -95,7 +246,36 @@ export default function FixedAssets() {
   const totalValuation = assetList.reduce((sum, item) => sum + Number(item.totalValuation || 0), 0);
   const damagedCount = assetList.filter(item => item.condition === 'DAMAGED').length;
 
-  // Handle Submit (Create / Update with Auto-Category & Unit Creation)
+  // ── Modal Open/Close Handlers ──
+  const openAddModal = () => {
+    setEditingId(null);
+    setForm(initialFormState);
+    setShowForm(true);
+  };
+
+  const openEditModal = (asset) => {
+    setForm({
+      name: asset.name,
+      code: asset.code || '',
+      category: asset.category || '',
+      unit: asset.unit || 'pcs',
+      condition: asset.condition || 'GOOD',
+      quantity: asset.quantity || 1,
+      costPrice: asset.costPrice || 0,
+      branchId: asset.branchId || currentBranch?.id || '',
+      notes: asset.notes || ''
+    });
+    setEditingId(asset.id);
+    setShowForm(true);
+  };
+
+  const closeModal = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setForm(initialFormState);
+  };
+
+  // ── Handle Submit ──
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -154,29 +334,11 @@ export default function FixedAssets() {
         toast.success('Asset registered successfully!');
       }
 
-      setShowForm(false);
-      setEditingId(null);
-      setForm(initialFormState);
+      closeModal();
       refetch();
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Failed to save asset');
     }
-  };
-
-  const handleEdit = (asset) => {
-    setForm({
-      name: asset.name,
-      code: asset.code || '',
-      category: asset.category || '',
-      unit: asset.unit || 'pcs',
-      condition: asset.condition || 'GOOD',
-      quantity: asset.quantity || 1,
-      costPrice: asset.costPrice || 0,
-      branchId: asset.branchId || currentBranch?.id || '',
-      notes: asset.notes || ''
-    });
-    setEditingId(asset.id);
-    setShowForm(true);
   };
 
   const handleDelete = async (id) => {
@@ -204,25 +366,25 @@ export default function FixedAssets() {
   };
 
   return (
-    <div className="min-h-screen p-6" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <div className="max-w-7xl mx-auto">
         
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] text-white shadow-md">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] text-white shadow-md">
               <Package className="w-6 h-6" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-800">Fixed Assets Management</h1>
               <p className="text-sm text-gray-600">
-                Track non-saleable assets (Chairs, Sofas, Plates, etc.) for <span className="font-semibold text-[#A97A1F]">{currentBranch?.name || 'All Branches'}</span>
+                Track non-saleable assets (Chairs, Sofas, Plates, etc.) for <span className="font-semibold text-[#2563EB]">{currentBranch?.name || 'All Branches'}</span>
               </p>
             </div>
           </div>
           <button 
-            onClick={() => { setShowForm(true); setEditingId(null); setForm(initialFormState); }} 
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white font-semibold flex items-center gap-2 shadow-md hover:opacity-95 transition-all"
+            onClick={openAddModal} 
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white font-semibold flex items-center gap-2 shadow-md hover:opacity-95 transition-all"
           >
             <Plus size={18} /> Add New Asset
           </button>
@@ -230,17 +392,17 @@ export default function FixedAssets() {
 
         {/* 📈 Analytics Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center justify-between">
+          <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Asset Items</p>
               <h3 className="text-2xl font-bold text-gray-800 mt-1 font-mono">{totalAssetsCount}</h3>
             </div>
-            <div className="p-3 bg-amber-50 rounded-xl text-[#A97A1F]">
+            <div className="p-3 bg-amber-50 rounded-xl text-[#2563EB]">
               <Package size={22} />
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center justify-between">
+          <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Units Available</p>
               <h3 className="text-2xl font-bold text-gray-800 mt-1 font-mono">{totalQuantityUnits.toLocaleString()}</h3>
@@ -250,7 +412,7 @@ export default function FixedAssets() {
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center justify-between">
+          <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Damaged / Maint.</p>
               <h3 className="text-2xl font-bold text-red-600 mt-1 font-mono">{damagedCount}</h3>
@@ -260,7 +422,7 @@ export default function FixedAssets() {
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center justify-between">
+          <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Asset Valuation</p>
               <h3 className="text-2xl font-bold text-emerald-700 mt-1 font-mono">Rs {totalValuation.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
@@ -272,7 +434,7 @@ export default function FixedAssets() {
         </div>
 
         {/* Filters & Search */}
-        <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] mb-6 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="bg-white p-4 rounded-2xl border border-slate-300 mb-6 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="relative">
             <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input 
@@ -280,7 +442,7 @@ export default function FixedAssets() {
               value={search} 
               onChange={e => setSearch(e.target.value)} 
               placeholder="Search assets by name, code, or category..." 
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/30" 
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30" 
             />
           </div>
           <div>
@@ -293,109 +455,25 @@ export default function FixedAssets() {
           </div>
         </div>
 
-        {/* Add / Edit Form Modal Box */}
-        {showForm && (
-          <div className="bg-white p-6 rounded-2xl border border-[#E0D8CC] mb-6 shadow-lg transition-all animate-fadeIn">
-            <div className="flex justify-between items-center mb-5 pb-3 border-b border-gray-100">
-              <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                <Tag size={18} className="text-[#A97A1F]" />
-                {editingId ? 'Edit Fixed Asset' : 'Register New Fixed Asset'}
-              </h3>
-              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
-                <X size={20} />
-              </button>
-            </div>
-            
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Asset Name * (e.g., Dining Chair)</label>
-                <input required value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Asset name" className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/30" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Asset Code / Tag SKU</label>
-                <input value={form.code} onChange={e => setForm({...form, code: e.target.value})} placeholder="e.g. CHAIR-01" className="w-full p-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/30" />
-              </div>
-
-              {/* 📂 Dynamic Asset Category Selection (Supports Custom Entry) */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Category * (Select or Type Custom)</label>
-                <input 
-                  required 
-                  list="asset-category-list"
-                  value={form.category} 
-                  onChange={e => setForm({...form, category: e.target.value})} 
-                  placeholder="e.g. Furniture, Crockery" 
-                  className="w-full p-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/30" 
-                />
-                <datalist id="asset-category-list">
-                  {categoriesList.map(c => <option key={c.id} value={c.name} />)}
-                </datalist>
-              </div>
-
-              {/* ⚖️ Dynamic Asset Unit Selection (Supports Custom Entry) */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Unit * (Select or Type Custom)</label>
-                <input 
-                  required
-                  list="asset-unit-list"
-                  value={form.unit} 
-                  onChange={e => setForm({...form, unit: e.target.value})} 
-                  placeholder="e.g. pcs, set, dozen" 
-                  className="w-full p-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/30" 
-                />
-                <datalist id="asset-unit-list">
-                  {unitsList.map(u => <option key={u.id} value={u.name} />)}
-                </datalist>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Condition *</label>
-                <ReactSelect
-                  options={conditionFormOptions}
-                  value={conditionFormOptions.find(opt => opt.value === form.condition) || null}
-                  onChange={opt => setForm({...form, condition: opt?.value || 'GOOD'})}
-                  placeholder="Select Condition"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Quantity *</label>
-                <input type="number" required value={form.quantity} onChange={e => setForm({...form, quantity: e.target.value})} placeholder="1" className="w-full p-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/30" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Unit Cost Price (Rs) *</label>
-                <input type="number" step="0.01" required value={form.costPrice} onChange={e => setForm({...form, costPrice: e.target.value})} placeholder="0.00" className="w-full p-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/30" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Allocate Branch *</label>
-                <ReactSelect
-                  options={branchFormOptions}
-                  value={branchFormOptions.find(opt => opt.value === String(form.branchId)) || null}
-                  onChange={opt => setForm({...form, branchId: opt?.value || ''})}
-                  placeholder="-- Select Branch --"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-xs font-medium text-gray-600 mb-1">Notes / Remarks</label>
-                <input value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Optional remarks..." className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/30" />
-              </div>
-
-              <div className="md:col-span-3 flex justify-end gap-3 mt-4">
-                <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-600 font-medium text-sm hover:bg-gray-50">
-                  Cancel
-                </button>
-                <button type="submit" className="px-6 py-2.5 bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white font-semibold rounded-xl shadow-md text-sm hover:opacity-95">
-                  {editingId ? 'Update Asset' : 'Save Asset'}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+        {/* ── Modal ── */}
+        <AssetFormModal
+          isOpen={showForm}
+          onClose={closeModal}
+          editingId={editingId}
+          form={form}
+          setForm={setForm}
+          onSubmit={handleSubmit}
+          categoriesList={categoriesList}
+          unitsList={unitsList}
+          branchFormOptions={branchFormOptions}
+          conditionFormOptions={conditionFormOptions}
+        />
 
         {/* Data Table */}
-        <div className="bg-white rounded-2xl border border-[#E0D8CC] overflow-hidden shadow-sm">
+        <div className="bg-white rounded-2xl border border-slate-300 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="bg-[#F5F2EB] border-b border-[#E0D8CC] text-gray-700 font-semibold">
+              <thead className="bg-[#F1F5F9] border-b border-slate-300 text-gray-700 font-semibold">
                 <tr>
                   <th className="p-4">Asset Details</th>
                   <th className="p-4">Category</th>
@@ -415,13 +493,13 @@ export default function FixedAssets() {
                         <div className="text-xs text-gray-400 font-mono mt-0.5">{asset.code || 'No Code/Tag'} • {asset.unit || 'pcs'}</div>
                       </td>
                       <td className="p-4">
-                        <span className="px-2.5 py-1 bg-amber-50 text-[#A97A1F] rounded-lg text-xs font-medium border border-amber-200">
+                        <span className="px-2.5 py-1 bg-amber-50 text-[#2563EB] rounded-lg text-xs font-medium border border-amber-200">
                           {asset.category}
                         </span>
                       </td>
                       <td className="p-4">
                         <span className="flex items-center gap-1.5 font-medium text-gray-800">
-                          <Building2 size={14} className="text-[#A97A1F]" />
+                          <Building2 size={14} className="text-[#2563EB]" />
                           {asset.branch?.name || 'Main Branch'}
                         </span>
                       </td>
@@ -436,7 +514,7 @@ export default function FixedAssets() {
                       </td>
                       <td className="p-4 text-center">
                         <div className="flex items-center justify-center gap-1.5">
-                          <button onClick={() => handleEdit(asset)} title="Edit" className="p-2 hover:bg-amber-100 rounded-xl text-gray-600 transition-colors">
+                          <button onClick={() => openEditModal(asset)} title="Edit" className="p-2 hover:bg-amber-100 rounded-xl text-gray-600 transition-colors">
                             <Edit2 size={15} />
                           </button>
                           <button onClick={() => handleDelete(asset.id)} title="Delete" className="p-2 hover:bg-red-100 rounded-xl text-red-600 transition-colors">

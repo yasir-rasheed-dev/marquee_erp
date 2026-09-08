@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import customerApi from '../../services/customerApi';
 import { useBranch } from '../../context/BranchContext';
+import { usePermissions } from '../../hooks/usePermissions';
 
 const useToast = () => {
   const [toasts, setToasts] = useState([]);
@@ -35,6 +36,7 @@ const useToast = () => {
 export default function CustomerList() {
   const navigate = useNavigate();
   const { currentBranch } = useBranch();
+  const { canCreate, canEdit, canDelete } = usePermissions();
   const { addToast, ToastContainer } = useToast();
 
   const [customers, setCustomers] = useState([]);
@@ -104,44 +106,46 @@ export default function CustomerList() {
   const formatCurrency = (val) => new Intl.NumberFormat('en-PK', { style: 'currency', currency: 'PKR' }).format(val || 0);
 
   return (
-    <div className="min-h-screen p-6" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <ToastContainer />
       <div className="max-w-7xl mx-auto space-y-6">
 
         {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] text-white shadow-md">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] text-white shadow-md">
               <Users className="w-6 h-6" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-800">Customer Directory</h1>
-              <p className="text-sm text-gray-600">Manage clients and view complete event booking ledgers for <span className="text-[#A97A1F] font-semibold">{currentBranch?.name}</span></p>
+              <p className="text-sm text-gray-600">Manage clients and view complete event booking ledgers for <span className="text-[#2563EB] font-semibold">{currentBranch?.name}</span></p>
             </div>
           </div>
-          <button onClick={() => navigate('/customers/add')}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white font-semibold flex items-center gap-2 shadow-md hover:opacity-95 transition-all">
-            <Plus size={18} /> Add New Customer
-          </button>
+          {canCreate('customers') && (
+            <button onClick={() => navigate('/customers/add')}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white font-semibold flex items-center gap-2 shadow-md hover:opacity-95 transition-all">
+              <Plus size={18} /> Add New Customer
+            </button>
+          )}
         </div>
 
         {/* STATS CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-amber-50 text-[#A97A1F]"><Users size={24} /></div>
+          <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-4">
+            <div className="p-3 rounded-xl bg-amber-50 text-[#2563EB]"><Users size={24} /></div>
             <div>
               <span className="text-xs text-gray-400 uppercase font-bold tracking-wider block">Total Customers</span>
               <span className="text-2xl font-bold font-mono text-gray-800">{totalCustomers}</span>
             </div>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-4">
+          <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-4">
             <div className="p-3 rounded-xl bg-emerald-50 text-emerald-600"><Calendar size={24} /></div>
             <div>
               <span className="text-xs text-gray-400 uppercase font-bold tracking-wider block">Clients with Bookings</span>
               <span className="text-2xl font-bold font-mono text-emerald-700">{activeWithBookings}</span>
             </div>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-4">
+          <div className="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-4">
             <div className="p-3 rounded-xl bg-blue-50 text-blue-600"><Building size={24} /></div>
             <div>
               <span className="text-xs text-gray-400 uppercase font-bold tracking-wider block">Total Events Booked</span>
@@ -151,7 +155,7 @@ export default function CustomerList() {
         </div>
 
         {/* ADVANCED FILTER BAR */}
-        <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="relative">
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, phone, email or CNIC..." className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none" />
@@ -169,9 +173,9 @@ export default function CustomerList() {
         </div>
 
         {/* CUSTOMER TABLE */}
-        <div className="bg-white rounded-2xl border border-[#E0D8CC] overflow-hidden shadow-sm">
+        <div className="bg-white rounded-2xl border border-slate-300 overflow-hidden shadow-sm">
           <table className="w-full text-sm text-left">
-            <thead className="bg-[#FAF8F4] border-b border-[#E0D8CC] text-gray-700 font-semibold">
+            <thead className="bg-slate-50 border-b border-slate-300 text-gray-700 font-semibold">
               <tr>
                 <th className="p-4">Customer Details</th>
                 <th className="p-4">City / Address</th>
@@ -189,8 +193,8 @@ export default function CustomerList() {
                     <td className="p-4">
                       <div className="font-bold text-gray-800 text-base">{cust.name}</div>
                       <div className="text-xs text-gray-500 flex items-center gap-3 mt-1 font-mono">
-                        <span className="flex items-center gap-1"><Phone size={12} className="text-[#A97A1F]" /> {cust.phone}</span>
-                        {cust.email && <span className="flex items-center gap-1"><Mail size={12} className="text-[#A97A1F]" /> {cust.email}</span>}
+                        <span className="flex items-center gap-1"><Phone size={12} className="text-[#2563EB]" /> {cust.phone}</span>
+                        {cust.email && <span className="flex items-center gap-1"><Mail size={12} className="text-[#2563EB]" /> {cust.email}</span>}
                       </div>
                     </td>
                     <td className="p-4 text-gray-700">
@@ -199,17 +203,21 @@ export default function CustomerList() {
                     </td>
                     <td className="p-4 font-mono text-xs text-gray-600">{cust.cnic || 'N/A'}</td>
                     <td className="p-4 text-center">
-                      <span className="px-3 py-1 bg-amber-50 text-[#A97A1F] rounded-full text-xs font-bold border border-amber-200">
+                      <span className="px-3 py-1 bg-amber-50 text-[#2563EB] rounded-full text-xs font-bold border border-amber-200">
                         {cust._count?.bookings || 0} Bookings
                       </span>
                     </td>
                     <td className="p-4 text-center">
                       <div className="flex items-center justify-center gap-2">
-                        <button onClick={() => handleViewHistory(cust.id)} title="View Complete History & Ledger" className="px-3 py-1.5 bg-amber-100 text-[#A97A1F] rounded-xl text-xs font-bold flex items-center gap-1 hover:bg-amber-200 transition-all">
+                        <button onClick={() => handleViewHistory(cust.id)} title="View Complete History & Ledger" className="px-3 py-1.5 bg-amber-100 text-[#2563EB] rounded-xl text-xs font-bold flex items-center gap-1 hover:bg-amber-200 transition-all">
                           <History size={14} /> History Ledger
                         </button>
-                        <button onClick={() => navigate(`/customers/edit/${cust.id}`)} title="Edit" className="p-2 hover:bg-blue-100 rounded-xl text-blue-600 transition-all"><Edit2 size={15} /></button>
-                        <button onClick={() => handleDelete(cust.id)} title="Delete" className="p-2 hover:bg-red-100 rounded-xl text-red-600 transition-all"><Trash2 size={15} /></button>
+                        {canEdit('customers') && (
+                          <button onClick={() => navigate(`/customers/edit/${cust.id}`)} title="Edit" className="p-2 hover:bg-blue-100 rounded-xl text-blue-600 transition-all"><Edit2 size={15} /></button>
+                        )}
+                        {canDelete('customers') && (
+                          <button onClick={() => handleDelete(cust.id)} title="Delete" className="p-2 hover:bg-red-100 rounded-xl text-red-600 transition-all"><Trash2 size={15} /></button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -224,7 +232,7 @@ export default function CustomerList() {
         {/* CUSTOMER HISTORY & COMPLETE EVENT LEDGER MODAL */}
         {selectedCustomerHistory && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl w-full max-w-4xl p-6 shadow-2xl border border-[#E0D8CC] max-h-[90vh] overflow-y-auto space-y-6">
+            <div className="bg-white rounded-3xl w-full max-w-4xl p-6 shadow-2xl border border-slate-300 max-h-[90vh] overflow-y-auto space-y-6">
               
               <div className="flex justify-between items-center pb-4 border-b">
                 <div>
@@ -246,14 +254,14 @@ export default function CustomerList() {
               )}
 
               <div className="space-y-4">
-                <h4 className="font-bold text-sm text-gray-700 uppercase tracking-wider flex items-center gap-1.5"><Calendar size={16} className="text-[#A97A1F]" /> Booked Halls, Events, Menus & Bill Ledger</h4>
+                <h4 className="font-bold text-sm text-gray-700 uppercase tracking-wider flex items-center gap-1.5"><Calendar size={16} className="text-[#2563EB]" /> Booked Halls, Events, Menus & Bill Ledger</h4>
 
                 {selectedCustomerHistory.bookings?.length > 0 ? (
                   selectedCustomerHistory.bookings.map(b => (
                     <div key={b.id} className="p-4 rounded-2xl border border-gray-200 bg-gray-50/50 space-y-3 shadow-sm">
                       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 pb-2 border-b border-gray-200">
                         <div>
-                          <span className="font-bold text-gray-900 text-base">{b.bookingNo} — Event Type: <span className="text-[#A97A1F] uppercase">{b.eventType}</span></span>
+                          <span className="font-bold text-gray-900 text-base">{b.bookingNo} — Event Type: <span className="text-[#2563EB] uppercase">{b.eventType}</span></span>
                           <span className="text-xs text-gray-500 block mt-0.5">
                             📅 <strong>Event Date:</strong> {new Date(b.eventDate).toDateString()} | 🕒 <strong>Slot:</strong> {new Date(b.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(b.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>

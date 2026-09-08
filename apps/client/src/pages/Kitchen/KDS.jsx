@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   RefreshCw,
   Search,
@@ -49,6 +49,7 @@ import inventoryApi from '../../services/inventoryApi';
 import menuApi from '../../services/menuApi';
 import packageApi from '../../services/packageApi';
 import ReactSelect from '../../components/ui/ReactSelect';
+import { useBranch } from '../../context/BranchContext';
 
 // ── Constants ──
 const ORDER_STATUSES = [
@@ -76,6 +77,7 @@ const STATUS_FLOW = {
 
 // ── Main Component ──
 const KDS = () => {
+  const { currentBranch } = useBranch();
   // ── State ── (All existing state remains same)
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
@@ -146,7 +148,7 @@ const KDS = () => {
   const bookingOptions = useMemo(() =>
     bookings.map(b => ({
       value: String(b.id),
-      label: `${b.bookingNo} - ${b.title} (${b.guestName}) - ${b.guestCount} guests`
+      label: `${b.bookingNo || `BK-${b.id}`} - ${b.title || 'Booking'} (${b.guestName || b.customer?.name || 'Guest'}) - ${b.guestCount || 0} guests`
     }))
   , [bookings]);
 
@@ -206,20 +208,26 @@ const KDS = () => {
 
   const fetchBookings = useCallback(async () => {
     try {
-      let response;
-      try {
-        response = await bookingApi.getAll({ limit: 100, branchId: 1 });
-      } catch (e) {
-        response = await bookingApi.getAll({ limit: 100 });
+      const branchId = currentBranch?.id;
+      const params = { limit: 200 };
+      if (branchId) params.branchId = branchId;
+      const response = await bookingApi.getAll(params);
+      let bookingData = [];
+      if (response?.data?.success && Array.isArray(response.data.data)) {
+        bookingData = response.data.data;
+      } else if (Array.isArray(response?.data?.data)) {
+        bookingData = response.data.data;
+      } else if (Array.isArray(response?.data)) {
+        bookingData = response.data;
+      } else if (Array.isArray(response)) {
+        bookingData = response;
       }
-      let bookingData = response?.data || [];
-      if (!Array.isArray(bookingData)) bookingData = [];
       setBookings(bookingData);
     } catch (err) {
-      console.error('❌ Error fetching bookings:', err);
+      console.error('❌ Error fetching bookings in KDS:', err);
       setBookings([]);
     }
-  }, []);
+  }, [currentBranch?.id]);
 
   const fetchInventoryItems = useCallback(async () => {
     try {
@@ -264,6 +272,12 @@ const KDS = () => {
       }
     };
   }, [fetchOrders, fetchBookings, fetchInventoryItems, fetchMenuItems, autoRefresh, refreshInterval]);
+
+  useEffect(() => {
+    if (showCreateModal) {
+      fetchBookings();
+    }
+  }, [showCreateModal, fetchBookings]);
 
   // ── Filter Orders ──
   useEffect(() => {
@@ -706,7 +720,7 @@ const KDS = () => {
 
     // Header
     doc.setFontSize(18);
-    doc.setTextColor('#A97A1F');
+    doc.setTextColor('#2563EB');
     doc.text('UniSoft Enterprise', margin, 40);
     doc.setFontSize(10);
     doc.setTextColor('#666');
@@ -714,7 +728,7 @@ const KDS = () => {
     doc.text('www.UniSoft.com | info@UniSoft.com | 0300-1234567', margin, 72);
 
     // Divider
-    doc.setDrawColor('#A97A1F');
+    doc.setDrawColor('#2563EB');
     doc.setLineWidth(0.5);
     doc.line(margin, 85, pageWidth - margin, 85);
 
@@ -750,7 +764,7 @@ const KDS = () => {
       head: [['Item', 'Qty', 'Unit', 'Cost/Unit', 'Total']],
       body: tableRows,
       theme: 'striped',
-      headStyles: { fillColor: '#A97A1F', textColor: '#fff', fontSize: 9, fontStyle: 'bold' },
+      headStyles: { fillColor: '#2563EB', textColor: '#fff', fontSize: 9, fontStyle: 'bold' },
       bodyStyles: { fontSize: 8 },
       columnStyles: {
         0: { cellWidth: 'auto' },
@@ -1330,7 +1344,7 @@ const KDS = () => {
                 {/* 🔥 NEW: Print PDF Button */}
                 <button
                   onClick={() => generateOrderPDF(selectedOrder, selectedOrderItems)}
-                  className="px-3 py-1.5 text-sm font-medium text-[#A97A1F] bg-white border border-[#A97A1F] rounded-lg hover:bg-amber-50 transition-colors flex items-center"
+                  className="px-3 py-1.5 text-sm font-medium text-[#2563EB] bg-white border border-[#2563EB] rounded-lg hover:bg-amber-50 transition-colors flex items-center"
                 >
                   <Printer className="w-4 h-4 mr-1" />
                   Print PDF

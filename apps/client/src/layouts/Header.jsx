@@ -1,4 +1,4 @@
-﻿import { Bell, Search, Settings, ChevronDown, LogOut, User, Building2, Check, RefreshCw } from 'lucide-react';
+import { Bell, Search, Settings, ChevronDown, LogOut, User, Building2, Check, RefreshCw } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -177,21 +177,21 @@ const Header = ({ sidebarCollapsed }) => {
 
   return (
     <header 
-      className={`fixed top-0 right-0 h-16 bg-white/95 backdrop-blur-xl border-b border-[#ECE8DF] 
-        flex items-center justify-between px-6 z-40 transition-all duration-300
+      className={`fixed top-0 right-0 h-16 bg-white/90 backdrop-blur-xl border-b border-slate-300 
+        flex items-center justify-between px-6 z-40 transition-all duration-300 shadow-[0_1px_3px_rgba(0,0,0,0.02)]
         ${sidebarCollapsed ? 'left-[80px]' : 'left-[280px]'}`}
     >
       {/* ── Left Side: Search + Branch Selector ── */}
       <div className="flex items-center gap-4 flex-1">
         {/* Search */}
         <div className="relative w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input 
             type="text" 
-            placeholder="Search anything..."
-            className="w-full pl-9 pr-4 py-2 text-sm text-[#1F2937] bg-[#FAF8F4] border border-[#ECE8DF] rounded-xl 
-              focus:bg-white focus:border-[#C89B3C] focus:ring-2 focus:ring-[#C89B3C]/20 transition-all duration-300 
-              placeholder:text-[#9CA3AF] outline-none"
+            placeholder="Search bookings, guests..."
+            className="w-full pl-9 pr-4 py-2 text-sm text-slate-800 bg-slate-50 border border-slate-300 rounded-xl 
+              focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all duration-200 
+              placeholder:text-slate-400 outline-none"
           />
         </div>
 
@@ -201,20 +201,20 @@ const Header = ({ sidebarCollapsed }) => {
             ref={branchButtonRef}
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             disabled={branchLoading || isSwitching}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl border border-[#ECE8DF] bg-white 
-              hover:border-[#C89B3C] transition-all duration-300 shadow-sm 
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-300 bg-white 
+              hover:border-blue-600 transition-all duration-200 shadow-xs 
               disabled:opacity-50 disabled:cursor-not-allowed
               ${isSwitching ? 'animate-pulse' : ''}`}
           >
             {isSwitching ? (
-              <RefreshCw className="w-4 h-4 text-[#C89B3C] animate-spin" />
+              <RefreshCw className="w-4 h-4 text-blue-600 animate-spin" />
             ) : (
-              <Building2 className="w-4 h-4 text-[#C89B3C]" />
+              <Building2 className="w-4 h-4 text-blue-600" />
             )}
-            <span className="text-sm font-medium text-[#1F2937] max-w-[120px] truncate">
+            <span className="text-sm font-medium text-slate-800 max-w-[120px] truncate">
               {isSwitching ? 'Switching...' : getBranchName()}
             </span>
-            <ChevronDown className={`w-4 h-4 text-[#6B7280] transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {/* Dropdown */}
@@ -222,7 +222,7 @@ const Header = ({ sidebarCollapsed }) => {
             createPortal(
               <div
                 ref={dropdownRef}
-                className="bg-white rounded-xl border border-[#ECE8DF] shadow-[0_8px_30px_rgba(0,0,0,0.12)] py-2 max-h-72 overflow-y-auto"
+                className="bg-white rounded-2xl border border-slate-300 shadow-[0_10px_35px_rgba(15,23,42,0.12)] py-2 max-h-72 overflow-y-auto"
                 style={{
                   position: 'fixed',
                   top: branchDropdownPos.top,
@@ -231,49 +231,49 @@ const Header = ({ sidebarCollapsed }) => {
                   zIndex: 99999,
                 }}
               >
-                <div className="px-4 py-2 border-b border-[#F0ECE6] flex items-center justify-between">
-                  <p className="text-xs font-bold text-[#6B7280] uppercase tracking-wider">Select Branch</p>
-                  <span className="text-[10px] text-[#6B7280]">{branches.length} branches</span>
+                <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
+                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Select Branch</p>
+                  <span className="text-[10px] text-slate-400">{branches.length} branches</span>
                 </div>
                 {branches.map((branch) => (
                   <button
                     key={branch.id}
                     onClick={() => handleBranchChange(branch)}
                     disabled={isSwitching}
-                    className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-all hover:bg-[#FAF8F4] 
-                      ${selectedBranch?.id === branch.id ? 'bg-[#F4E7C9]' : ''}
+                    className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-all hover:bg-slate-50 
+                      ${selectedBranch?.id === branch.id ? 'bg-blue-50 text-blue-900 font-semibold' : 'text-slate-700'}
                       ${isSwitching ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <Building2 className={`w-4 h-4 shrink-0 ${selectedBranch?.id === branch.id ? 'text-[#C89B3C]' : 'text-[#6B7280]'}`} />
-                      <span className={`font-medium truncate ${selectedBranch?.id === branch.id ? 'text-[#1F2937]' : 'text-[#4A4A4A]'}`}>
+                      <Building2 className={`w-4 h-4 shrink-0 ${selectedBranch?.id === branch.id ? 'text-blue-600' : 'text-slate-400'}`} />
+                      <span className="truncate">
                         {branch.name}
                       </span>
                       {branch.isMain && (
-                        <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-[#F4E7C9] text-[#8B6914] shrink-0">
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-100 text-blue-800 shrink-0">
                           Main
                         </span>
                       )}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       {branch._count?.users > 0 && (
-                        <span className="text-[10px] text-[#6B7280]">
+                        <span className="text-[10px] text-slate-400">
                           {branch._count.users} users
                         </span>
                       )}
                       {selectedBranch?.id === branch.id && (
-                        <Check className="w-4 h-4 text-[#C89B3C]" />
+                        <Check className="w-4 h-4 text-blue-600" />
                       )}
                     </div>
                   </button>
                 ))}
                 {branches.length === 0 && !branchLoading && (
                   <div className="px-4 py-6 text-center">
-                    <Building2 className="w-8 h-8 mx-auto mb-2 text-[#B0A89C]" />
-                    <p className="text-sm text-[#6B7280]">No branches available</p>
+                    <Building2 className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p className="text-sm text-slate-500">No branches available</p>
                     <button 
                       onClick={() => navigate('/settings/branches')}
-                      className="mt-2 text-xs font-medium text-[#C89B3C] hover:underline"
+                      className="mt-2 text-xs font-semibold text-blue-600 hover:underline"
                     >
                       Create a branch
                     </button>
@@ -281,8 +281,8 @@ const Header = ({ sidebarCollapsed }) => {
                 )}
                 {branchLoading && (
                   <div className="px-4 py-4 text-center">
-                    <div className="w-5 h-5 border-2 border-[#C89B3C] border-t-transparent rounded-full animate-spin mx-auto" />
-                    <p className="text-xs text-[#6B7280] mt-2">Loading branches...</p>
+                    <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+                    <p className="text-xs text-slate-500 mt-2">Loading branches...</p>
                   </div>
                 )}
               </div>,
@@ -292,17 +292,17 @@ const Header = ({ sidebarCollapsed }) => {
 
         {/* ── Current Branch Badge ── */}
         {selectedBranch && (
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-[#F4E7C9] border border-[#C89B3C]/20">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#C89B3C] animate-pulse" />
-            <span className="text-xs font-medium text-[#8B6914]">
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+            <span className="text-xs font-semibold text-blue-900">
               {selectedBranch.name}
             </span>
             <button 
               onClick={handleRefreshBranch}
-              className="ml-1 p-0.5 rounded-full hover:bg-[#C89B3C]/20 transition-colors"
+              className="ml-1 p-0.5 rounded-full hover:bg-blue-100 transition-colors"
               title="Refresh branch data"
             >
-              <RefreshCw className="w-3 h-3 text-[#8B6914]" />
+              <RefreshCw className="w-3 h-3 text-blue-700" />
             </button>
           </div>
         )}
@@ -311,68 +311,68 @@ const Header = ({ sidebarCollapsed }) => {
       {/* ── Right Side: Actions + Profile ── */}
       <div className="flex items-center gap-3">
         {/* Notification Bell */}
-        <button className="relative p-2.5 rounded-xl hover:bg-[#F7F2E8] transition-all duration-300 group">
-          <Bell className="w-5 h-5 text-[#6B7280] group-hover:text-[#C89B3C] transition-colors" />
-          <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#D64545] rounded-full border-2 border-white shadow-[0_0_8px_rgba(214,69,69,0.4)]" />
+        <button className="relative p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-200 group">
+          <Bell className="w-5 h-5 text-slate-500 group-hover:text-blue-600 transition-colors" />
+          <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(244,63,94,0.4)]" />
         </button>
 
         {/* Settings */}
         <button 
           onClick={() => navigate('/settings/company')}
-          className="p-2.5 rounded-xl hover:bg-[#F7F2E8] transition-all duration-300 group"
+          className="p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-200 group"
         >
-          <Settings className="w-5 h-5 text-[#6B7280] group-hover:text-[#C89B3C] transition-colors" />
+          <Settings className="w-5 h-5 text-slate-500 group-hover:text-blue-600 transition-colors" />
         </button>
 
         {/* Divider */}
-        <div className="w-px h-8 bg-[#ECE8DF] mx-1" />
+        <div className="w-px h-7 bg-slate-200 mx-1" />
 
         {/* ── User Profile ── */}
         <div className="relative" ref={profileRef}>
           <div 
             onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="flex items-center gap-3 pl-2 group cursor-pointer"
+            className="flex items-center gap-3 pl-1 group cursor-pointer"
           >
-            <div className={`w-9 h-9 rounded-xl bg-gradient-to-br from-[#C89B3C] to-[#DDB35A] 
-              flex items-center justify-center text-white font-semibold text-sm 
-              shadow-[0_4px_12px_rgba(200,155,60,0.25)] group-hover:shadow-[0_4px_16px_rgba(200,155,60,0.35)] 
-              transition-all duration-300`}
+            <div className={`w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 
+              flex items-center justify-center text-white font-bold text-sm 
+              shadow-[0_2px_8px_rgba(37,99,235,0.25)] 
+              transition-all duration-200`}
             >
               {getUserInitials()}
             </div>
             <div className="hidden lg:block">
-              <p className="text-sm font-semibold text-[#1F2937]">{user?.name || 'User'}</p>
-              <p className="text-xs text-[#6B7280] capitalize">{user?.role || 'Staff'}</p>
+              <p className="text-sm font-semibold text-slate-800 leading-tight">{user?.name || 'User'}</p>
+              <p className="text-[11px] text-slate-500 capitalize">{user?.role || 'Staff'}</p>
             </div>
-            <ChevronDown className={`w-4 h-4 text-[#6B7280] group-hover:text-[#C89B3C] transition-all duration-300 ${
+            <ChevronDown className={`w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-all duration-200 ${
               isProfileOpen ? 'rotate-180' : ''
             }`} />
           </div>
 
           {/* Profile Dropdown */}
           {isProfileOpen && (
-            <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl border border-[#ECE8DF] shadow-[0_8px_30px_rgba(0,0,0,0.12)] py-2 z-50">
+            <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl border border-slate-300 shadow-[0_10px_35px_rgba(15,23,42,0.12)] py-2 z-50">
               {/* User Info */}
-              <div className="px-4 py-3 border-b border-[#F0ECE6]">
+              <div className="px-4 py-3 border-b border-slate-100">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C89B3C] to-[#DDB35A] 
-                    flex items-center justify-center text-white font-bold text-sm shadow-[0_4px_12px_rgba(200,155,60,0.2)]">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 
+                    flex items-center justify-center text-white font-bold text-sm shadow-sm">
                     {getUserInitials()}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-[#1F2937] truncate">{user?.name || 'User'}</p>
-                    <p className="text-xs text-[#6B7280] capitalize">{user?.role || 'Staff'}</p>
-                    <p className="text-xs text-[#6B7280] truncate">{user?.email || ''}</p>
+                    <p className="text-sm font-bold text-slate-900 truncate">{user?.name || 'User'}</p>
+                    <p className="text-xs text-slate-500 capitalize">{user?.role || 'Staff'}</p>
+                    <p className="text-xs text-slate-400 truncate">{user?.email || ''}</p>
                   </div>
                 </div>
               </div>
 
               {/* Branch Info */}
-              <div className="px-4 py-2 border-b border-[#F0ECE6]">
+              <div className="px-4 py-2 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <Building2 className="w-3.5 h-3.5 text-[#6B7280]" />
-                  <span className="text-xs font-medium text-[#4A4A4A]">
-                    Branch: <span className="font-bold text-[#1F2937]">{selectedBranch?.name || 'Not assigned'}</span>
+                  <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                  <span className="text-xs font-medium text-slate-600">
+                    Branch: <span className="font-bold text-slate-900">{selectedBranch?.name || 'Not assigned'}</span>
                   </span>
                 </div>
               </div>
@@ -383,9 +383,9 @@ const Header = ({ sidebarCollapsed }) => {
                   setIsProfileOpen(false);
                   navigate('/settings/company');
                 }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#4A4A4A] hover:bg-[#FAF8F4] transition-all"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-all font-medium"
               >
-                <User className="w-4 h-4" />
+                <User className="w-4 h-4 text-slate-400" />
                 My Profile
               </button>
               <button 
@@ -393,9 +393,9 @@ const Header = ({ sidebarCollapsed }) => {
                   setIsProfileOpen(false);
                   navigate('/settings/company');
                 }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#4A4A4A] hover:bg-[#FAF8F4] transition-all"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-all font-medium"
               >
-                <Settings className="w-4 h-4" />
+                <Settings className="w-4 h-4 text-slate-400" />
                 Settings
               </button>
               
@@ -406,17 +406,17 @@ const Header = ({ sidebarCollapsed }) => {
                     setIsProfileOpen(false);
                     navigate('/settings/branches');
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#4A4A4A] hover:bg-[#FAF8F4] transition-all"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-all font-medium"
                 >
-                  <Building2 className="w-4 h-4" />
+                  <Building2 className="w-4 h-4 text-slate-400" />
                   Manage Branches
                 </button>
               )}
               
-              <div className="border-t border-[#F0ECE6] my-1" />
+              <div className="border-t border-slate-100 my-1" />
               <button 
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#B71C1C] hover:bg-[#FFEBEE] transition-all font-medium"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition-all font-semibold"
               >
                 <LogOut className="w-4 h-4" />
                 Logout

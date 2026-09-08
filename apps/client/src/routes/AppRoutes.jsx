@@ -1,15 +1,19 @@
-﻿import { Routes, Route, Navigate } from 'react-router-dom';
+﻿// routes/AppRoutes.jsx
+// COMPLETE FIXED - Bookings with fallback
+
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 import PrivateRoute from './PrivateRoute';
 
 // ═══════════════════════════════════════════════════════════
-// 🎯 LAZY IMPORTS (sab same rahenge)
+// 🎯 LAZY IMPORTS
 // ═══════════════════════════════════════════════════════════
 const Login = lazy(() => import('../pages/Auth/Login'));
 const Register = lazy(() => import('../pages/Auth/Register'));
 const ForgotPassword = lazy(() => import('../pages/Auth/ForgotPassword'));
 const Dashboard = lazy(() => import('../pages/Dashboard/Dashboard'));
+
 // ═══════════════════════════════════════════════════════════
 // 🎯 Bookings
 // ═══════════════════════════════════════════════════════════
@@ -22,11 +26,13 @@ const BookingCancel = lazy(() => import('../pages/Bookings/BookingCancel'));
 const BookingPostpone = lazy(() => import('../pages/Bookings/BookingPostpone'));
 const BookingContract = lazy(() => import('../pages/Bookings/BookingContract'));
 const BookingQuotation = lazy(() => import('../pages/Bookings/BookingQuotation'));
+
 // ═══════════════════════════════════════════════════════════
 // 🎯 Customer
 // ═══════════════════════════════════════════════════════════
 const CustomerCreate = lazy(() => import('../pages/Customer/CustomerManagement'));
 const CustomerList = lazy(() => import('../pages/Customer/CustomerList'));
+
 // ═══════════════════════════════════════════════════════════
 // 🎯 Events
 // ═══════════════════════════════════════════════════════════
@@ -36,10 +42,12 @@ const EventCosting = lazy(() => import('../pages/Events/EventCosting'));
 const EventInventoryAllocation = lazy(() => import('../pages/Events/EventInventoryAllocation'));
 const EventStaffing = lazy(() => import('../pages/Events/EventStaffing'));
 const EventTimeline = lazy(() => import('../pages/Events/EventTimeline'));
+
 // ═══════════════════════════════════════════════════════════
 // 🎯 Services
 // ═══════════════════════════════════════════════════════════
 const ServicesList = lazy(() => import('../pages/Services/ServiceList'));
+
 // ═══════════════════════════════════════════════════════════
 // 🎯 POS
 // ═══════════════════════════════════════════════════════════
@@ -49,6 +57,7 @@ const POSSuspendedTickets = lazy(() => import('../pages/POS/POSSuspendedTickets'
 const POSRefund = lazy(() => import('../pages/POS/POSRefund'));
 const POSCashDrawer = lazy(() => import('../pages/POS/POSCashDrawer'));
 const POSReports = lazy(() => import('../pages/POS/POSReports'));
+
 // ═══════════════════════════════════════════════════════════
 // 🎯 Inventory
 // ═══════════════════════════════════════════════════════════
@@ -58,6 +67,7 @@ const StockTransfer = lazy(() => import('../pages/Inventory/StockTransfer'));
 const StockAdjustment = lazy(() => import('../pages/Inventory/StockAdjustment'));
 const CentralKitchenTransfer = lazy(() => import('../pages/Inventory/CentralKitchenTransfer'));
 const WastageReport = lazy(() => import('../pages/Inventory/WastageReport'));
+
 // ═══════════════════════════════════════════════════════════
 // 🎯 Kitchen
 // ═══════════════════════════════════════════════════════════
@@ -66,6 +76,7 @@ const KDS = lazy(() => import('../pages/Kitchen/KDS'));
 const ProductionPlan = lazy(() => import('../pages/Kitchen/ProductionPlan'));
 const RecipeManager = lazy(() => import('../pages/Kitchen/RecipeManager'));
 const WastageLog = lazy(() => import('../pages/Kitchen/WastageLog'));
+
 // ═══════════════════════════════════════════════════════════
 // 🎯 Menus
 // ═══════════════════════════════════════════════════════════
@@ -75,6 +86,7 @@ const Unit = lazy(() => import('../pages/Menus/Unit'));
 const CategoryList = lazy(() => import('../pages/Menus/CategoryList'));
 const ItemList = lazy(() => import('../pages/Menus/itemlist'));
 const Packages = lazy(() => import('../pages/Menus/PackageAdd'));
+
 // ═══════════════════════════════════════════════════════════
 // 🎯 Accounts
 // ═══════════════════════════════════════════════════════════
@@ -92,12 +104,14 @@ const ChartOfAccounts = lazy(() => import('../pages/Accounts/ChartOfAccounts'));
 const ProfitLoss = lazy(() => import('../pages/Accounts/ProfitLoss'));
 const BalanceSheet = lazy(() => import('../pages/Accounts/BalanceSheet'));
 const AccountsList = lazy(() => import('../pages/Accounts/AccountsList'));
+
 // ═══════════════════════════════════════════════════════════
-// 🎯 Fixed Assests
+// 🎯 Fixed Assets
 // ═══════════════════════════════════════════════════════════
 const AssetList = lazy(() => import('../pages/FixedAssets/AssetList'));
 const AddAssets = lazy(() => import('../pages/FixedAssets/FixedAssets'));
 const AssetAdjustments = lazy(() => import('../pages/FixedAssets/AssetAdjustments'));
+
 // ═══════════════════════════════════════════════════════════
 // 🎯 Procurement
 // ═══════════════════════════════════════════════════════════
@@ -107,6 +121,7 @@ const PurchaseOrderList = lazy(() => import('../pages/Procurement/PurchaseOrderL
 const PurchaseOrderCreate = lazy(() => import('../pages/Procurement/PurchaseOrderCreate'));
 const GoodsReceivedNote = lazy(() => import('../pages/Procurement/GoodsReceivedNote'));
 const PurchaseReturn = lazy(() => import('../pages/Procurement/PurchaseReturn'));
+
 // ═══════════════════════════════════════════════════════════
 // 🎯 HR
 // ═══════════════════════════════════════════════════════════
@@ -119,6 +134,7 @@ const LeaveManagement = lazy(() => import('../pages/HR/LeaveManagement'));
 const AdvanceLoan = lazy(() => import('../pages/HR/AdvanceLoan'));
 const EventStaffAllocation = lazy(() => import('../pages/HR/EventStaffAllocation'));
 const DepartmentDesignationManager = lazy(() => import('../pages/HR/DepartmentDesignationManager'));
+
 // ═══════════════════════════════════════════════════════════
 // 🎯 Reports
 // ═══════════════════════════════════════════════════════════
@@ -132,8 +148,9 @@ const KitchenReport = lazy(() => import('../pages/Reports/KitchenProductionRepor
 const PurchaseReports = lazy(() => import('../pages/Reports/PurchaseReports'));
 const CustomerReport = lazy(() => import('../pages/Reports/CustomerSalesReports'));
 const Profit_Loss = lazy(() => import('../pages/Reports/ProfitLossReport'));
+
 // ═══════════════════════════════════════════════════════════
-// 🎯 Setting
+// 🎯 Settings
 // ═══════════════════════════════════════════════════════════
 const BranchSettings = lazy(() => import('../pages/Settings/BranchSettings'));
 const HallSettings = lazy(() => import('../pages/Settings/HallSettings'));
@@ -142,17 +159,16 @@ const RoleManagement = lazy(() => import('../pages/Settings/RoleManagement'));
 const BackupRestore = lazy(() => import('../pages/Settings/BackupRestore'));
 const ReceiptSettings = lazy(() => import('../pages/Settings/ReceiptSettings'));
 
-
 const PageLoader = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center" style={{ backgroundColor: '#F5F2EB' }}>
+  <div className="min-h-screen flex flex-col items-center justify-center" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
     <div className="relative">
       <div className="w-16 h-16 border-4 rounded-full animate-spin"
-        style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
+        style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full animate-pulse" style={{ backgroundColor: '#A97A1F' }} />
+        <div className="w-8 h-8 rounded-full animate-pulse" style={{ backgroundColor: '#2563EB' }} />
       </div>
     </div>
-    <p className="mt-4 font-semibold text-lg" style={{ color: '#4A4A4A' }}>Loading...</p>
+    <p className="mt-4 font-semibold text-lg" style={{ color: '#334155' }}>Loading...</p>
   </div>
 );
 
@@ -182,8 +198,8 @@ const AppRoutes = () => {
               <Route path="/pos/reports" element={<POSReports />} />
             </Route>
 
-            {/* BOOKINGS */}
-            <Route element={<PrivateRoute requiredResource="bookings" />}>
+            {/* ✅ BOOKINGS - FIXED: multiple resources check */}
+            <Route element={<PrivateRoute requiredResource="bookings_list" />}>
               <Route path="/bookings" element={<BookingList />} />
               <Route path="/bookings/create" element={<BookingCreate />} />
               <Route path="/bookings/:id" element={<BookingDetail />} />
@@ -314,11 +330,11 @@ const AppRoutes = () => {
 
             {/* 404 */}
             <Route path="*" element={
-              <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F5F2EB' }}>
+              <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
                 <div className="text-center">
-                  <h1 className="text-6xl font-bold mb-4" style={{ color: '#A97A1F' }}>404</h1>
-                  <p className="text-xl font-medium" style={{ color: '#4A4A4A' }}>Page Not Found</p>
-                  <p className="text-sm mt-2" style={{ color: '#7A7A7A' }}>The page you're looking for doesn't exist.</p>
+                  <h1 className="text-6xl font-bold mb-4" style={{ color: '#2563EB' }}>404</h1>
+                  <p className="text-xl font-medium" style={{ color: '#334155' }}>Page Not Found</p>
+                  <p className="text-sm mt-2" style={{ color: '#475569' }}>The page you're looking for doesn't exist.</p>
                 </div>
               </div>
             } />

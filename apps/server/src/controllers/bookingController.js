@@ -121,10 +121,20 @@ const getBookings = async (req, res) => {
     if (paymentStatus) where.paymentStatus = paymentStatus;
     if (hallId) where.hallId = parseInt(hallId);
     
-    if (fromDate || toDate) {
+    const fDate = fromDate || req.query.from || req.query.startDate;
+    const tDate = toDate || req.query.to || req.query.endDate;
+    if (fDate || tDate) {
       where.eventDate = {};
-      if (fromDate) where.eventDate.gte = new Date(fromDate);
-      if (toDate) where.eventDate.lte = new Date(toDate);
+      if (fDate) {
+        const s = new Date(fDate);
+        s.setHours(0, 0, 0, 0);
+        where.eventDate.gte = s;
+      }
+      if (tDate) {
+        const e = new Date(tDate);
+        e.setHours(23, 59, 59, 999);
+        where.eventDate.lte = e;
+      }
     }
 
     if (search && search.trim() !== '') {
@@ -245,10 +255,22 @@ const getBooking = async (req, res) => {
           orderBy: { createdAt: 'desc' }
         },
         changeLogs: {
-  include: { changedBy: { select: { name: true } } },
-  orderBy: { createdAt: 'desc' }
-},
-customItems: true
+          include: { changedBy: { select: { name: true } } },
+          orderBy: { createdAt: 'desc' }
+        },
+        customItems: true,
+        eventDamages: {
+          include: {
+            inventoryItem: { select: { id: true, name: true, unit: true } },
+            asset: { select: { id: true, name: true } },
+            createdBy: { select: { id: true, name: true } }
+          },
+          orderBy: { createdAt: 'desc' }
+        },
+        whatsappMessages: {
+          include: { user: { select: { id: true, name: true } } },
+          orderBy: { sentAt: 'desc' }
+        }
       }
     });
 
@@ -266,10 +288,12 @@ customItems: true
 
     const totalPaid = booking.payments.reduce((sum, p) => sum + Number(p.amount), 0);
     const totalInvoiced = booking.invoices.reduce((sum, inv) => sum + Number(inv.totalAmount || 0), 0);
+    const totalDamages = (booking.eventDamages || []).reduce((sum, d) => sum + Number(d.totalCost || 0), 0);
     
     const summary = {
       totalPaid,
       totalInvoiced,
+      totalDamages,
       totalMenusCost: booking.menus.reduce((sum, m) => sum + Number(m.totalPrice), 0),
       totalServicesCost: booking.services.reduce((sum, s) => sum + Number(s.totalPrice), 0),
       profit: Number(booking.totalAmount) - (
@@ -585,12 +609,13 @@ const updateBooking = async (req, res) => {
     }
 
     const { 
-      title, description, eventId, eventType, eventDate, startTime, endTime, 
-      guestCount, actualGuestCount, guestName, guestPhone, guestEmail, 
-      customerId, status, paymentStatus, hallId, isMealIncluded, 
-      totalAmount, paidAmount, advanceAmount, discount, 
-      menus, services, replaceMenus, replaceServices
-    } = req.body;
+  title, description, eventId, eventType, eventDate, startTime, endTime, 
+  guestCount, actualGuestCount, guestName, guestPhone, guestEmail, 
+  customerId, status, paymentStatus, hallId, isMealIncluded, 
+  totalAmount, paidAmount, advanceAmount, discount, 
+  menus, services, replaceMenus, replaceServices,
+  packageTotal, selectedPackage, customItems  
+} = req.body;
 
     const userId = req.user?.id || null;
 
@@ -653,76 +678,105 @@ const updateBooking = async (req, res) => {
     const booking = await prisma.$transaction(async (tx) => {
       // ── Handle Menus: Replace or Append ──
       if (menus && Array.isArray(menus)) {
-        if (replaceMenus === true) {
-          await tx.bookingMenu.deleteMany({ where: { bookingId: id } });
-        }
+  if (replaceMenus === true) {
+    await tx.bookingMenu.deleteMany({ where: { bookingId: id } });
+  }
 
-        const newMenus = menus.filter(m => m.menuId && !isNaN(parseInt(m.menuId))).map(m => ({
-          menuId: parseInt(m.menuId),
-          menuName: m.menuName || null,
-          quantity: parseInt(m.quantity) || 1,
-          unit: m.unit || null,
-          unitId: m.unitId ? parseInt(m.unitId) : null,
-          unitPrice: parseFloat(m.unitPrice) || 0,
-          totalPrice: parseFloat(m.totalPrice) || 0,
-          notes: m.notes || null
-        }));
+  const newMenus = menus.filter(m => m.menuId && !isNaN(parseInt(m.menuId))).map(m => ({
+    menuId: parseInt(m.menuId),
+    menuName: m.menuName || null,
+    quantity: parseInt(m.quantity) || 1,
+    unit: m.unit || null,
+    unitId: m.unitId ? parseInt(m.unitId) : null,
+    unitPrice: parseFloat(m.unitPrice) || 0,
+    totalPrice: parseFloat(m.totalPrice) || 0,
+    notes: m.notes || null
+  }));
 
-        if (newMenus.length > 0) {
-          await tx.bookingMenu.createMany({
-            data: newMenus.map(m => ({ ...m, bookingId: id })),
-            skipDuplicates: true
-          });
-        }
-      }
+  if (newMenus.length > 0) {
+    await tx.bookingMenu.createMany({
+      data: newMenus.map(m => ({ ...m, bookingId: id })),
+      skipDuplicates: true
+    });
+  }
+}
 
       // ── Handle Services: Replace or Append ──
       if (validServices.length > 0) {
-        if (replaceServices === true) {
-          await tx.bookingService.deleteMany({ where: { bookingId: id } });
-        }
+  if (replaceServices === true) {
+    await tx.bookingService.deleteMany({ where: { bookingId: id } });
+  }
 
-        await tx.bookingService.createMany({
-          data: validServices.map(s => ({
-            bookingId: id,
-            serviceId: s.serviceId,
-            serviceName: s.serviceName,
-            quantity: s.quantity,
-            unitPrice: s.unitPrice,
-            totalPrice: s.totalPrice,
-            notes: s.notes
-          })),
-          skipDuplicates: true
-        });
-      }
+  await tx.bookingService.createMany({
+    data: validServices.map(s => ({
+      bookingId: id,
+      serviceId: s.serviceId,
+      serviceName: s.serviceName,
+      quantity: s.quantity,
+      unitPrice: s.unitPrice,
+      totalPrice: s.totalPrice,
+      notes: s.notes
+    })),
+    skipDuplicates: true
+  });
+}
+
+// ── 🔥 NEW: Handle CustomItems ──
+if (customItems && Array.isArray(customItems) && isMealIncluded !== false) {
+  // Delete existing custom items
+  await tx.bookingCustomItem.deleteMany({ where: { bookingId: id } });
+  
+  // Create new custom items
+  const validCustomItems = customItems
+    .filter(item => item.itemName)
+    .map(item => ({
+      bookingId: id,
+      itemId: item.itemId || null,
+      itemName: item.itemName || 'Custom Item',
+      quantity: Number(item.quantity) || 1,
+      unitPrice: Number(item.unitPrice) || 0,
+      totalPrice: Number(item.totalPrice) || 0,
+      unit: item.unit || 'pcs',
+      notes: item.note || item.notes || null
+    }));
+  
+  if (validCustomItems.length > 0) {
+    await tx.bookingCustomItem.createMany({
+      data: validCustomItems
+    });
+  }
+}
 
       // ── Build Update Data ──
       const updateData = {
-        ...(title !== undefined && { title: title.trim() }),
-        ...(description !== undefined && { description }),
-        ...(eventId !== undefined && { eventId: eventId ? parseInt(eventId) : null }),
-        ...(eventType !== undefined && { eventType }),
-        ...(eventDate && { eventDate: new Date(eventDate) }),
-        ...(startTime && { startTime: new Date(startTime) }),
-        ...(endTime && { endTime: new Date(endTime) }),
-        ...(guestCount !== undefined && { guestCount: parseInt(guestCount) }),
-        ...(actualGuestCount !== undefined && { actualGuestCount: parseInt(actualGuestCount) }),
-        ...(guestName !== undefined && { guestName: guestName.trim() }),
-        ...(guestPhone !== undefined && { guestPhone: guestPhone.trim() }),
-        ...(guestEmail !== undefined && { guestEmail }),
-        ...(customerId !== undefined && { customerId: customerId ? parseInt(customerId) : null }),
-        ...(status !== undefined && { status }),
-        ...(paymentStatus !== undefined && { paymentStatus }),
-        ...(hallId !== undefined && { hallId: hallId ? parseInt(hallId) : null }),
-        ...(isMealIncluded !== undefined && { isMealIncluded: Boolean(isMealIncluded) }),
-        ...(totalAmount !== undefined && { totalAmount: newTotal }),
-        ...(paidAmount !== undefined && { paidAmount: newPaid }),
-        ...(advanceAmount !== undefined && { advanceAmount: finalAdv }),
-        ...(discount !== undefined && { discount: newDisc }),
-        dueAmount: newDue,
-        paymentStatus: newPayStatus,
-        updatedById: userId
-      };
+  ...(title !== undefined && { title: title.trim() }),
+  ...(description !== undefined && { description }),
+  ...(eventId !== undefined && { eventId: eventId ? parseInt(eventId) : null }),
+  ...(eventType !== undefined && { eventType }),
+  ...(eventDate && { eventDate: new Date(eventDate) }),
+  ...(startTime && { startTime: new Date(startTime) }),
+  ...(endTime && { endTime: new Date(endTime) }),
+  ...(guestCount !== undefined && { guestCount: parseInt(guestCount) }),
+  ...(actualGuestCount !== undefined && { actualGuestCount: parseInt(actualGuestCount) }),
+  ...(guestName !== undefined && { guestName: guestName.trim() }),
+  ...(guestPhone !== undefined && { guestPhone: guestPhone.trim() }),
+  ...(guestEmail !== undefined && { guestEmail }),
+  ...(customerId !== undefined && { customerId: customerId ? parseInt(customerId) : null }),
+  ...(status !== undefined && { status }),
+  ...(paymentStatus !== undefined && { paymentStatus }),
+  ...(hallId !== undefined && { hallId: hallId ? parseInt(hallId) : null }),
+  ...(isMealIncluded !== undefined && { isMealIncluded: Boolean(isMealIncluded) }),
+  ...(totalAmount !== undefined && { totalAmount: newTotal }),
+  ...(paidAmount !== undefined && { paidAmount: newPaid }),
+  ...(advanceAmount !== undefined && { advanceAmount: finalAdv }),
+  ...(discount !== undefined && { discount: newDisc }),
+  // ── 🔥 FIXED: Package fields update karein ──
+  ...(packageTotal !== undefined && { package_total: parseFloat(packageTotal || 0) }),
+  ...(selectedPackage !== undefined && { selected_package: selectedPackage }),
+  dueAmount: newDue,
+  paymentStatus: newPayStatus,
+  updatedById: userId
+};
 
       const updated = await tx.booking.update({
         where: { id },
@@ -979,6 +1033,542 @@ const addPayment = async (req, res) => {
   }
 };
 
+// ───────────────────────────────────────────────────────────
+// @desc    Get all damages for a booking
+// @route   GET /api/bookings/:id/damages
+// ───────────────────────────────────────────────────────────
+const getBookingDamages = async (req, res) => {
+  try {
+    const bookingId = parseInt(req.params.id);
+    if (isNaN(bookingId)) {
+      return res.status(400).json({ success: false, message: 'Invalid booking ID' });
+    }
+
+    const damages = await prisma.eventDamage.findMany({
+      where: { bookingId },
+      include: {
+        inventoryItem: { select: { id: true, name: true, unit: true } },
+        asset: { select: { id: true, name: true } },
+        createdBy: { select: { id: true, name: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    const totalDamagesCost = damages.reduce((sum, d) => sum + Number(d.totalCost || 0), 0);
+    res.status(200).json({ success: true, count: damages.length, totalDamagesCost, data: damages });
+  } catch (error) {
+    console.error('getBookingDamages error:', error);
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+  }
+};
+
+// ───────────────────────────────────────────────────────────
+// @desc    Add damage / extra charge to booking (Billed to customer)
+// @route   POST /api/bookings/:id/damages
+// ───────────────────────────────────────────────────────────
+const addBookingDamage = async (req, res) => {
+  try {
+    const bookingId = parseInt(req.params.id);
+    if (isNaN(bookingId)) {
+      return res.status(400).json({ success: false, message: 'Invalid booking ID' });
+    }
+
+    const {
+      itemName, quantity, unit, costPrice, description,
+      inventoryItemId, assetId, chargeCustomer = true
+    } = req.body;
+
+    if (!itemName || quantity === undefined) {
+      return res.status(400).json({ success: false, message: 'Item name and quantity are required.' });
+    }
+
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: {
+        id: true,
+        branchId: true,
+        totalAmount: true,
+        dueAmount: true,
+        paidAmount: true,
+        discount: true,
+        title: true
+      }
+    });
+
+    if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
+
+    const qty = parseFloat(quantity) || 1;
+    const cost = parseFloat(costPrice || 0);
+    const totalCost = parseFloat((qty * cost).toFixed(2));
+    const userId = req.user?.id || 1;
+
+    const result = await prisma.$transaction(async (tx) => {
+      const damage = await tx.eventDamage.create({
+        data: {
+          bookingId,
+          itemName: itemName.trim(),
+          quantity: qty,
+          unit: unit || 'unit',
+          costPrice: cost,
+          totalCost,
+          description: description || null,
+          inventoryItemId: inventoryItemId ? parseInt(inventoryItemId) : null,
+          assetId: assetId ? parseInt(assetId) : null,
+          createdById: userId
+        },
+        include: {
+          inventoryItem: { select: { id: true, name: true } },
+          asset: { select: { id: true, name: true } },
+          createdBy: { select: { id: true, name: true } }
+        }
+      });
+
+      let updatedBooking = null;
+      if (chargeCustomer !== false && totalCost > 0) {
+        const curTotal = parseFloat(booking.totalAmount) || 0;
+        const curDue = parseFloat(booking.dueAmount) || 0;
+        const curPaid = parseFloat(booking.paidAmount) || 0;
+
+        const newTotal = parseFloat((curTotal + totalCost).toFixed(2));
+        const newDue = parseFloat((curDue + totalCost).toFixed(2));
+        const newPaymentStatus = newDue <= 0 ? 'completed' : (curPaid > 0 ? 'partial' : 'pending');
+
+        updatedBooking = await tx.booking.update({
+          where: { id: bookingId },
+          data: {
+            totalAmount: newTotal,
+            dueAmount: newDue,
+            paymentStatus: newPaymentStatus
+          }
+        });
+
+        await tx.bookingChangeLog.create({
+          data: {
+            bookingId,
+            fieldName: 'damage_extra_charge',
+            oldValue: `Total: Rs ${curTotal}`,
+            newValue: `Added ${itemName} (Qty: ${qty} @ Rs ${cost} = Rs ${totalCost}) -> New Total: Rs ${newTotal}`,
+            changedById: userId
+          }
+        });
+      }
+
+      return { damage, updatedBooking };
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Damage / Extra charge added to party bill.',
+      data: result.damage,
+      booking: result.updatedBooking
+    });
+  } catch (error) {
+    console.error('addBookingDamage error:', error);
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+  }
+};
+
+// ───────────────────────────────────────────────────────────
+// @desc    Remove damage / extra charge from booking
+// @route   DELETE /api/bookings/:id/damages/:damageId
+// ───────────────────────────────────────────────────────────
+const removeBookingDamage = async (req, res) => {
+  try {
+    const bookingId = parseInt(req.params.id);
+    const damageId = parseInt(req.params.damageId);
+
+    const damage = await prisma.eventDamage.findUnique({
+      where: { id: damageId }
+    });
+
+    if (!damage || damage.bookingId !== bookingId) {
+      return res.status(404).json({ success: false, message: 'Damage record not found' });
+    }
+
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: {
+        id: true,
+        totalAmount: true,
+        dueAmount: true,
+        paidAmount: true,
+        discount: true
+      }
+    });
+
+    const totalCost = parseFloat(damage.totalCost) || 0;
+    const userId = req.user?.id || null;
+
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.eventDamage.delete({ where: { id: damageId } });
+
+      let updatedBooking = null;
+      if (booking && totalCost > 0) {
+        const curTotal = parseFloat(booking.totalAmount) || 0;
+        const curPaid = parseFloat(booking.paidAmount) || 0;
+        const curDisc = parseFloat(booking.discount) || 0;
+
+        const newTotal = Math.max(0, parseFloat((curTotal - totalCost).toFixed(2)));
+        const newDue = Math.max(0, parseFloat((newTotal - curDisc - curPaid).toFixed(2)));
+        const newPaymentStatus = newDue <= 0 ? 'completed' : (curPaid > 0 ? 'partial' : 'pending');
+
+        updatedBooking = await tx.booking.update({
+          where: { id: bookingId },
+          data: {
+            totalAmount: newTotal,
+            dueAmount: newDue,
+            paymentStatus: newPaymentStatus
+          }
+        });
+
+        await tx.bookingChangeLog.create({
+          data: {
+            bookingId,
+            fieldName: 'damage_extra_charge_deleted',
+            oldValue: `Total: Rs ${curTotal}`,
+            newValue: `Deleted ${damage.itemName} (-Rs ${totalCost}) -> New Total: Rs ${newTotal}`,
+            changedById: userId
+          }
+        });
+      }
+
+      return updatedBooking;
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Damage record removed and party bill updated.',
+      booking: result
+    });
+  } catch (error) {
+    console.error('removeBookingDamage error:', error);
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+  }
+};
+
+// ───────────────────────────────────────────────────────────
+// @desc    Complete Booking with optional Settlement Payment
+// @route   POST /api/bookings/:id/complete-settle
+// ───────────────────────────────────────────────────────────
+const completeAndSettleBooking = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const {
+      settlePayment, // optional: { amount, paymentMode, bankAccountId, notes }
+      notes,
+      allowReceivable = false
+    } = req.body;
+
+    const booking = await prisma.booking.findUnique({
+      where: { id },
+      include: { eventDamages: true, payments: true }
+    });
+
+    if (!booking || booking.deletedAt) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    const userId = req.user?.id || 1;
+
+    const result = await prisma.$transaction(async (tx) => {
+      let curPaid = parseFloat(booking.paidAmount) || 0;
+      let curTotal = parseFloat(booking.totalAmount) || 0;
+      let curDisc = parseFloat(booking.discount) || 0;
+      let recordedPayment = null;
+
+      // If final settlement payment is submitted
+      if (settlePayment && parseFloat(settlePayment.amount) > 0) {
+        const payAmount = parseFloat(settlePayment.amount);
+        curPaid = parseFloat((curPaid + payAmount).toFixed(2));
+        const payDateStr = new Date().toISOString().slice(2, 10).replace(/-/g, '');
+        const payRandom = Math.floor(1000 + Math.random() * 9000);
+        const paymentNo = `PAY-${payDateStr}-${payRandom}`;
+
+        const methodMap = {
+          'Cash': 'cash',
+          'Bank Transfer': 'bank_transfer',
+          'JazzCash / EasyPaisa': 'jazzcash',
+          'Credit Card': 'card',
+          'Cheque': 'cheque'
+        };
+
+        recordedPayment = await tx.payment.create({
+          data: {
+            paymentNo,
+            bookingId: id,
+            userId,
+            amount: payAmount,
+            method: methodMap[settlePayment.paymentMode] || settlePayment.paymentMode || 'cash',
+            paymentType: 'final',
+            status: 'completed',
+            companyId: booking.companyId,
+            branchId: booking.branchId,
+            notes: settlePayment.notes || 'Final settlement payment upon completion'
+          }
+        });
+
+        // Update Bank Account balance if selected
+        if (settlePayment.bankAccountId) {
+          const parsedBankId = parseInt(settlePayment.bankAccountId);
+          const bank = await tx.bankAccount.findUnique({ where: { id: parsedBankId } });
+          if (bank) {
+            const oldBal = Number(bank.currentBalance || 0);
+            const newBal = oldBal + payAmount;
+            await tx.accountTransaction.create({
+              data: {
+                bankAccountId: parsedBankId,
+                transactionType: 'credit',
+                amount: payAmount,
+                balanceAfter: newBal,
+                date: new Date(),
+                description: `Settlement Payment Booking #${booking.bookingNo}`,
+                relatedEntityType: 'Booking',
+                relatedEntityId: booking.id
+              }
+            });
+            await tx.bankAccount.update({
+              where: { id: parsedBankId },
+              data: { currentBalance: newBal }
+            });
+          }
+        }
+      }
+
+      const newDue = Math.max(0, parseFloat((curTotal - curDisc - curPaid).toFixed(2)));
+      const newPayStatus = newDue <= 0 ? 'completed' : (curPaid > 0 ? 'partial' : 'pending');
+
+      const updated = await tx.booking.update({
+        where: { id },
+        data: {
+          status: 'completed',
+          paymentStatus: newPayStatus,
+          paidAmount: curPaid,
+          dueAmount: newDue
+        }
+      });
+
+      await tx.bookingChangeLog.create({
+        data: {
+          bookingId: id,
+          fieldName: 'status',
+          oldValue: booking.status,
+          newValue: 'completed',
+          changedById: userId
+        }
+      });
+
+      return { booking: updated, payment: recordedPayment };
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Booking successfully marked as Completed and accounts settled.',
+      data: result
+    });
+  } catch (error) {
+    console.error('completeAndSettleBooking error:', error);
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+  }
+};
+
+// ───────────────────────────────────────────────────────────
+// @desc    Log a sent WhatsApp message for a booking
+// @route   POST /api/bookings/:id/whatsapp
+// ───────────────────────────────────────────────────────────
+const logWhatsAppMessage = async (req, res) => {
+  try {
+    const bookingId = parseInt(req.params.id);
+    if (isNaN(bookingId)) {
+      return res.status(400).json({ success: false, message: 'Invalid booking ID' });
+    }
+
+    const { phoneNumber, body, messageType } = req.body;
+    if (!phoneNumber || !body) {
+      return res.status(400).json({ success: false, message: 'Phone number and message body are required' });
+    }
+
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: { id: true, branchId: true, companyId: true, bookingNo: true }
+    });
+
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    const messageId = `WA-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+
+    const waMessage = await prisma.whatsAppMessage.create({
+      data: {
+        messageId,
+        phoneNumber: String(phoneNumber).trim(),
+        body: String(body).trim(),
+        status: 'sent',
+        bookingId: booking.id,
+        userId: req.user?.id || null,
+        branchId: booking.branchId,
+        companyId: booking.companyId,
+        sentAt: new Date(),
+      },
+      include: {
+        user: { select: { id: true, name: true } }
+      }
+    });
+
+    // Also log in bookingChangeLog
+    await prisma.bookingChangeLog.create({
+      data: {
+        bookingId: booking.id,
+        fieldName: 'whatsapp_notification',
+        oldValue: messageType || 'whatsapp_message',
+        newValue: `Sent to ${phoneNumber}`,
+        changedById: req.user?.id || null
+      }
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'WhatsApp message logged successfully',
+      data: waMessage
+    });
+  } catch (error) {
+    console.error('logWhatsAppMessage error:', error);
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+  }
+};
+
+// ───────────────────────────────────────────────────────────
+// @desc    Get WhatsApp message history for a booking
+// @route   GET /api/bookings/:id/whatsapp
+// ───────────────────────────────────────────────────────────
+const getWhatsAppMessages = async (req, res) => {
+  try {
+    const bookingId = parseInt(req.params.id);
+    if (isNaN(bookingId)) {
+      return res.status(400).json({ success: false, message: 'Invalid booking ID' });
+    }
+
+    const messages = await prisma.whatsAppMessage.findMany({
+      where: { bookingId },
+      include: {
+        user: { select: { id: true, name: true } }
+      },
+      orderBy: { sentAt: 'desc' }
+    });
+
+    res.status(200).json({
+      success: true,
+      count: messages.length,
+      data: messages
+    });
+  } catch (error) {
+    console.error('getWhatsAppMessages error:', error);
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+// @desc    Get upcoming event bookings for 1-day & 2-day reminders
+// @route   GET /api/bookings/upcoming-reminders
+// ═══════════════════════════════════════════════════════════
+const getUpcomingReminders = async (req, res) => {
+  try {
+    const branchId = req.query.branchId ? parseInt(req.query.branchId) : null;
+    const daysAhead = parseInt(req.query.days || '2');
+    const pastDays = parseInt(req.query.pastDays || '2'); // check recent 2 days to catch today & imminent events
+
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const startOfWindow = new Date(now.getFullYear(), now.getMonth(), now.getDate() - pastDays, 0, 0, 0, 0);
+    const endOfWindow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysAhead, 23, 59, 59, 999);
+
+    const bookings = await prisma.booking.findMany({
+      where: {
+        deletedAt: null,
+        status: { notIn: ['cancelled', 'completed', 'no_show'] },
+        eventDate: {
+          gte: startOfWindow,
+          lte: endOfWindow,
+        },
+        ...(branchId && !isNaN(branchId) && { branchId }),
+      },
+      include: {
+        customer: { select: { id: true, name: true, phone: true, email: true } },
+        hall: { select: { id: true, name: true } },
+        branch: { select: { id: true, name: true, phone: true, address: true } },
+        whatsappMessages: {
+          orderBy: { sentAt: 'desc' },
+          take: 5,
+        },
+      },
+      orderBy: { eventDate: 'asc' },
+    });
+
+    const mapped = bookings.map(b => {
+      const eventDate = new Date(b.eventDate);
+      const eventMidnight = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), 0, 0, 0, 0);
+      const diffTime = eventMidnight.getTime() - startOfToday.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+      let timingLabel = 'Aaj (Today)';
+      if (diffDays === -1) timingLabel = 'Kal Guzra (Yesterday)';
+      else if (diffDays < -1) timingLabel = `${Math.abs(diffDays)} Din Pehle`;
+      else if (diffDays === 1) timingLabel = 'Kal (Tomorrow)';
+      else if (diffDays === 2) timingLabel = 'Parson (In 2 Days)';
+      else if (diffDays > 2) timingLabel = `${diffDays} Din Baad`;
+
+      // Check if reminder was sent in the last 48 hours
+      const recentReminders = (b.whatsappMessages || []).filter(m => {
+        const sentTime = new Date(m.sentAt).getTime();
+        return (now.getTime() - sentTime) < (48 * 60 * 60 * 1000);
+      });
+
+      const lastSentMessage = recentReminders[0] || null;
+
+      return {
+        id: b.id,
+        bookingNo: b.bookingNo,
+        title: b.title,
+        eventType: b.eventType,
+        eventDate: b.eventDate,
+        startTime: b.startTime,
+        endTime: b.endTime,
+        guestCount: b.guestCount,
+        totalAmount: parseFloat(b.totalAmount) || 0,
+        paidAmount: parseFloat(b.paidAmount) || 0,
+        dueAmount: parseFloat(b.dueAmount) || 0,
+        status: b.status,
+        customer: b.customer,
+        guestName: b.guestName,
+        guestPhone: b.guestPhone || b.customer?.phone || '',
+        hall: b.hall,
+        branch: b.branch,
+        diffDays,
+        timingLabel,
+        reminderSent: !!lastSentMessage,
+        lastSentAt: lastSentMessage?.sentAt || null,
+      };
+    });
+
+    const pendingCount = mapped.filter(b => !b.reminderSent).length;
+    const sentCount = mapped.filter(b => b.reminderSent).length;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        total: mapped.length,
+        pendingCount,
+        sentCount,
+        daysAhead,
+        bookings: mapped,
+      },
+    });
+  } catch (error) {
+    console.error('getUpcomingReminders error:', error);
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+  }
+};
+
 module.exports = {
   getBookings,
   getBooking,
@@ -986,5 +1576,12 @@ module.exports = {
   updateBooking,
   deleteBooking,
   getBookingsByBranch,
-  addPayment
+  addPayment,
+  getBookingDamages,
+  addBookingDamage,
+  removeBookingDamage,
+  completeAndSettleBooking,
+  logWhatsAppMessage,
+  getWhatsAppMessages,
+  getUpcomingReminders
 };

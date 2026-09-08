@@ -251,7 +251,7 @@ export default function WastageLog() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <TrendingDown className="text-[#A97A1F]" size={28} />
+            <TrendingDown className="text-[#2563EB]" size={28} />
             Wastage Log
           </h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -267,7 +267,7 @@ export default function WastageLog() {
           </button>
           <button
             onClick={() => setShowCreate(true)}
-            className="px-5 py-2.5 bg-[#A97A1F] hover:bg-[#966b1a] text-white font-semibold rounded-xl text-sm shadow-sm transition flex items-center gap-2"
+            className="px-5 py-2.5 bg-[#2563EB] hover:bg-[#966b1a] text-white font-semibold rounded-xl text-sm shadow-sm transition flex items-center gap-2"
           >
             <Plus size={18} /> Log Wastage
           </button>
@@ -284,7 +284,7 @@ export default function WastageLog() {
         </div>
         <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
           <div className="text-xs text-gray-500 uppercase font-semibold">Total Quantity Wasted</div>
-          <div className="text-2xl font-bold text-[#A97A1F] mt-1 font-mono">
+          <div className="text-2xl font-bold text-[#2563EB] mt-1 font-mono">
             {Number(summary.totalQuantity || 0).toLocaleString()} <span className="text-sm text-gray-400">units</span>
           </div>
         </div>
@@ -305,7 +305,7 @@ export default function WastageLog() {
               placeholder="Search item or code..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#A97A1F] focus:outline-none"
+              className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#2563EB] focus:outline-none"
             />
           </div>
         </div>
@@ -326,7 +326,7 @@ export default function WastageLog() {
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#A97A1F] focus:outline-none"
+            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#2563EB] focus:outline-none"
           />
         </div>
 
@@ -336,7 +336,7 @@ export default function WastageLog() {
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#A97A1F] focus:outline-none"
+            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#2563EB] focus:outline-none"
           />
         </div>
 
@@ -366,7 +366,7 @@ export default function WastageLog() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="bg-[#F5F2EB] text-gray-700 font-semibold border-b">
+              <thead className="bg-[#F1F5F9] text-gray-700 font-semibold border-b">
                 <tr>
                   <th className="p-4 rounded-tl-xl">Item</th>
                   <th className="p-4">Qty</th>
@@ -388,7 +388,7 @@ export default function WastageLog() {
                           <div className="text-xs text-gray-400 font-mono">{log.inventory?.code}</div>
                         </td>
                         <td className="p-4">
-                          <span className="font-mono font-semibold text-[#A97A1F]">
+                          <span className="font-mono font-semibold text-[#2563EB]">
                             {Number(log.quantity).toLocaleString()}
                           </span>
                           <span className="text-xs text-gray-500 ml-1">{log.unit}</span>
@@ -447,7 +447,7 @@ export default function WastageLog() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
             <div className="flex justify-between items-center p-5 border-b">
               <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <AlertTriangle size={20} className="text-[#A97A1F]" />
+                <AlertTriangle size={20} className="text-[#2563EB]" />
                 Log Wastage
               </h3>
               <button onClick={() => setShowCreate(false)} className="p-1.5 hover:bg-gray-100 rounded-lg transition">
@@ -478,7 +478,7 @@ export default function WastageLog() {
                     placeholder="0.000"
                     value={form.quantity}
                     onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-[#A97A1F] focus:outline-none"
+                    className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-[#2563EB] focus:outline-none"
                     required
                   />
                 </div>
@@ -507,7 +507,7 @@ export default function WastageLog() {
                         onClick={() => setForm({ ...form, reason: r.value })}
                         className={`flex flex-col items-center gap-1 p-2 rounded-xl border text-xs font-medium transition ${
                           isActive
-                            ? 'border-[#A97A1F] bg-amber-50 text-[#A97A1F]'
+                            ? 'border-[#2563EB] bg-amber-50 text-[#2563EB]'
                             : 'border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100'
                         }`}
                       >
@@ -526,7 +526,7 @@ export default function WastageLog() {
                   placeholder="What happened? (optional)"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#A97A1F] focus:outline-none resize-none"
+                  className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#2563EB] focus:outline-none resize-none"
                 />
               </div>
 
@@ -537,7 +537,7 @@ export default function WastageLog() {
                   placeholder="Link to booking event"
                   value={form.bookingId}
                   onChange={(e) => setForm({ ...form, bookingId: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#A97A1F] focus:outline-none"
+                  className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#2563EB] focus:outline-none"
                 />
               </div>
 
@@ -552,7 +552,7 @@ export default function WastageLog() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 py-2.5 bg-[#A97A1F] hover:bg-[#966b1a] disabled:opacity-50 text-white font-medium rounded-xl text-sm transition flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 bg-[#2563EB] hover:bg-[#966b1a] disabled:opacity-50 text-white font-medium rounded-xl text-sm transition flex items-center justify-center gap-2"
                 >
                   {saving ? <Loader2 size={16} className="animate-spin" /> : <AlertTriangle size={16} />}
                   {saving ? 'Saving...' : 'Log Wastage'}
@@ -575,8 +575,8 @@ export default function WastageLog() {
             </div>
             <div className="p-5 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-[#F5F2EB] rounded-xl">
-                  <Package size={20} className="text-[#A97A1F]" />
+                <div className="p-3 bg-[#F1F5F9] rounded-xl">
+                  <Package size={20} className="text-[#2563EB]" />
                 </div>
                 <div>
                   <div className="font-semibold text-gray-900">{selectedLog.inventory?.name}</div>
@@ -587,7 +587,7 @@ export default function WastageLog() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-50 p-3 rounded-xl">
                   <div className="text-xs text-gray-500 uppercase">Quantity</div>
-                  <div className="text-lg font-bold text-[#A97A1F] font-mono">
+                  <div className="text-lg font-bold text-[#2563EB] font-mono">
                     {Number(selectedLog.quantity).toLocaleString()} {selectedLog.unit}
                   </div>
                 </div>
@@ -644,7 +644,7 @@ export default function WastageLog() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
             <div className="flex justify-between items-center p-5 border-b">
               <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <BarChart3 size={20} className="text-[#A97A1F]" />
+                <BarChart3 size={20} className="text-[#2563EB]" />
                 Wastage Report
               </h3>
               <button onClick={() => setShowReport(false)} className="p-1.5 hover:bg-gray-100 rounded-lg transition">

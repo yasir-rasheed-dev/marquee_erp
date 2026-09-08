@@ -1,6 +1,5 @@
-﻿// ═══════════════════════════════════════════════════════════
-// pages/Purchases/GoodsReceivedNote.jsx (With Data Table & Modal Form + Payment)
-// ═══════════════════════════════════════════════════════════
+﻿// pages/Purchases/GoodsReceivedNote.jsx
+// COMPLETE FIXED - Blank page issue resolved
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +8,7 @@ import {
   Package, Hash, Phone, DollarSign, Calendar, Truck, PhoneCall,
   ChevronDown, Receipt, Weight, FileText, ClipboardCheck, MapPin,
   X, TrendingUp, Calculator, Eye, XCircle, Filter, Search, Clock, CheckCircle2,
-  CreditCard, Banknote, Wallet
+  CreditCard, Banknote, Wallet, LayoutGrid, List, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import purchaseApi from '../../services/purchaseApi';
 import ReactSelect from '../../components/ui/ReactSelect';
@@ -47,44 +46,32 @@ const useToast = () => {
 const STATUS_OPTIONS = [
   { value: '', label: 'All Statuses' },
   { value: 'PENDING', label: 'Pending' },
+  { value: 'PARTIALLY_PAID', label: 'Partially Paid' },
   { value: 'COMPLETED', label: 'Completed' },
+  { value: 'PAID', label: 'Paid' },
   { value: 'CANCELLED', label: 'Cancelled' },
 ];
 
 const STATUS_STYLES = {
   PENDING: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', icon: Clock },
+  PARTIALLY_PAID: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: Clock },
   COMPLETED: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', icon: CheckCircle2 },
+  PAID: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', icon: CheckCircle2 },
   CANCELLED: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', icon: XCircle },
 };
 
 const PAYMENT_MODES = ['CASH', 'BANK_TRANSFER', 'CHEQUE', 'JAZZCASH', 'EASYPAISA', 'CREDIT_CARD'];
 
-// ── ReactSelect Options ──
-const statusFilterOptions = STATUS_OPTIONS;
+const PAYMENT_MODE_TO_ACCOUNT_TYPE = {
+  'CASH': 'CASH',
+  'BANK_TRANSFER': 'BANK',
+  'CHEQUE': 'BANK',
+  'JAZZCASH': 'JAZZCASH',
+  'EASYPAISA': 'EASYPAISA',
+  'CREDIT_CARD': 'CREDIT'
+};
 
-const poOptions = (purchaseOrders) => [
-  { value: '', label: 'Direct Bill / Select PO' },
-  ...purchaseOrders.map(po => ({
-    value: String(po.id),
-    label: `${po.poNo} — ${po.supplier?.name || ''}`
-  }))
-];
-
-const supplierOptions = (suppliers) => [
-  { value: '', label: '-- Choose Supplier --' },
-  ...suppliers.map(sup => ({
-    value: String(sup.id),
-    label: `${sup.name} ${sup.phone ? `(${sup.phone})` : ''}`
-  }))
-];
-
-const inventoryItemOptions = (inventoryItems) => [
-  { value: '', label: 'Select item...' },
-  ...inventoryItems.map(inv => ({
-    value: String(inv.id),
-    label: `${inv.name} (Stock: ${inv.currentStock || 0})`
-  }))
-];
+const PAGE_SIZE = 6;
 
 const DEFAULT_ITEM = {
   inventoryId: '',
@@ -105,11 +92,24 @@ const DEFAULT_FORM = {
   taxAmount: 0,
   discount: 0,
   notes: '',
-  // ── Payment Fields ──
   paymentAmount: 0,
   paymentMode: 'CASH',
   paymentAccountId: '',
   paymentDate: new Date().toISOString().split('T')[0],
+};
+
+// ── ✅ FIXED: poOptions with safe fallback ──
+const poOptions = (purchaseOrders = []) => {
+  if (!purchaseOrders || !Array.isArray(purchaseOrders)) {
+    return [{ value: '', label: 'Direct Bill / Select PO' }];
+  }
+  return [
+    { value: '', label: 'Direct Bill / Select PO' },
+    ...purchaseOrders.map(po => ({
+      value: String(po.id),
+      label: `${po.poNo || 'PO'} — ${po.supplier?.name || 'Unknown Supplier'}`
+    }))
+  ];
 };
 
 export default function GoodsReceivedNote() {
@@ -120,6 +120,7 @@ export default function GoodsReceivedNote() {
 
   // ── Data States ──
   const [bills, setBills] = useState([]);
+  const [totalBillsCount, setTotalBillsCount] = useState(0);
   const [suppliers, setSuppliers] = useState([]);
   const [inventoryItems, setInventoryItems] = useState([]);
   const [purchaseOrders, setPurchaseOrders] = useState([]);
@@ -127,9 +128,13 @@ export default function GoodsReceivedNote() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // ── Filter States ──
+  // ── Filter & Pagination States ──
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // ── View Mode ──
+  const [viewMode, setViewMode] = useState('cards');
 
   // ── Modal States ──
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -143,7 +148,7 @@ export default function GoodsReceivedNote() {
   const [items, setItems] = useState([{ ...DEFAULT_ITEM }]);
   const [errors, setErrors] = useState({});
 
-  // ── Derived: Selected Supplier & PO ──
+  // ── Derived ──
   const selectedSupplier = useMemo(() => {
     if (!form.supplierId) return null;
     return suppliers.find(s => s.id === parseInt(form.supplierId)) || null;
@@ -154,13 +159,26 @@ export default function GoodsReceivedNote() {
     return purchaseOrders.find(po => po.id === parseInt(form.purchaseOrderId)) || null;
   }, [form.purchaseOrderId, purchaseOrders]);
 
-  // ── Selected Account ──
   const selectedAccount = useMemo(() => {
     if (!form.paymentAccountId) return null;
     return accounts.find(a => a.id === parseInt(form.paymentAccountId)) || null;
   }, [form.paymentAccountId, accounts]);
 
-  // ── Fetch GRN / Bills List ──
+  const filteredAccounts = useMemo(() => {
+    if (!form.paymentMode) return accounts;
+    const requiredType = PAYMENT_MODE_TO_ACCOUNT_TYPE[form.paymentMode];
+    if (!requiredType) return accounts;
+    return accounts.filter(acc => acc.accountType === requiredType);
+  }, [accounts, form.paymentMode]);
+
+  const hasAccountsForMode = useMemo(() => {
+    if (!form.paymentMode) return false;
+    const requiredType = PAYMENT_MODE_TO_ACCOUNT_TYPE[form.paymentMode];
+    if (!requiredType) return false;
+    return accounts.some(acc => acc.accountType === requiredType);
+  }, [accounts, form.paymentMode]);
+
+  // ── Fetch Bills ──
   const fetchBills = useCallback(async () => {
     try {
       setLoading(true);
@@ -169,9 +187,21 @@ export default function GoodsReceivedNote() {
         search: search || undefined,
         status: statusFilter || undefined,
         branchId,
+        page: currentPage,
+        limit: PAGE_SIZE
       });
-      const data = res?.data?.data || res?.data || [];
-      setBills(data);
+      
+      const data = res?.data?.data || res?.data || res || [];
+      if (Array.isArray(data)) {
+        setBills(data);
+        setTotalBillsCount(data.length);
+      } else if (data.items) {
+        setBills(data.items);
+        setTotalBillsCount(data.total || data.items.length);
+      } else {
+        setBills(data);
+        setTotalBillsCount(data.length);
+      }
     } catch (err) {
       console.error('Failed to fetch bills:', err);
       if (err?.response?.status !== 429) {
@@ -180,7 +210,7 @@ export default function GoodsReceivedNote() {
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, currentBranch?.id, addToast]);
+  }, [search, statusFilter, currentBranch?.id, currentPage, addToast]);
 
   // Debounced fetch
   useEffect(() => {
@@ -188,8 +218,15 @@ export default function GoodsReceivedNote() {
     return () => clearTimeout(timer);
   }, [fetchBills]);
 
-  // ── Fetch Dependencies for Modal Form ──
-  const fetchModalDependencies = async () => {
+  // Reset page on search/filter change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter]);
+
+  const totalPages = Math.ceil(totalBillsCount / PAGE_SIZE);
+
+  // ── Fetch Dependencies ──
+  const fetchModalDependencies = useCallback(async () => {
     try {
       const branchId = currentBranch?.id || 1;
       const [supRes, invRes, poRes, accRes] = await Promise.all([
@@ -204,16 +241,17 @@ export default function GoodsReceivedNote() {
       setAccounts(accRes?.data?.data || accRes?.data || []);
     } catch (err) {
       console.error('Failed to load dependencies:', err);
+      // ✅ Don't show toast here, just log error
     }
-  };
+  }, [currentBranch?.id]);
 
-  // ── Open / Close Create Modal ──
-  const handleOpenModal = () => {
+  // ── Modal Handlers ──
+  const handleOpenModal = async () => {
     setForm(DEFAULT_FORM);
     setItems([{ ...DEFAULT_ITEM }]);
     setErrors({});
     setIsPartialPayment(false);
-    fetchModalDependencies();
+    await fetchModalDependencies();
     setIsModalOpen(true);
   };
 
@@ -261,13 +299,11 @@ export default function GoodsReceivedNote() {
     return Math.max(0, subTotal + ship + load + other + tax - disc);
   }, [subTotal, form]);
 
-  // ── Payment Calculations ──
   const paymentAmount = parseFloat(form.paymentAmount || 0);
   const dueAmount = useMemo(() => {
     return Math.max(0, totalAmount - paymentAmount);
   }, [totalAmount, paymentAmount]);
 
-  // ── Account Balance Check ──
   const hasSufficientBalance = useMemo(() => {
     if (!selectedAccount) return true;
     const balance = selectedAccount.currentBalance ?? selectedAccount.initialBalance ?? 0;
@@ -324,7 +360,6 @@ export default function GoodsReceivedNote() {
       else if (parseFloat(item.unitPrice) < 0) newErrors[`item_${idx}`] = 'Price cannot be negative';
     });
 
-    // ── Payment Validation ──
     if (paymentAmount > 0) {
       if (!form.paymentAccountId) {
         newErrors.paymentAccount = 'Please select a payment account';
@@ -371,7 +406,6 @@ export default function GoodsReceivedNote() {
           unitPrice: parseFloat(i.unitPrice),
           unit: i.unit || 'pcs',
         })),
-        // ── Payment Data ──
         payment: {
           amount: paymentAmount,
           mode: form.paymentMode,
@@ -384,11 +418,14 @@ export default function GoodsReceivedNote() {
 
       const res = await purchaseApi.bills.create(payload);
       const billNo = res?.data?.data?.billNo || res?.data?.billNo || 'generated';
+      const billStatus = res?.data?.data?.status || res?.data?.status || 'PENDING';
       
-      if (paymentAmount > 0) {
-        addToast(`GRN ${billNo} created with payment of ${formatCurrency(paymentAmount)}`);
+      if (billStatus === 'COMPLETED' || billStatus === 'PAID') {
+        addToast(`✅ GRN ${billNo} generated & FULLY PAID!`);
+      } else if (billStatus === 'PARTIALLY_PAID') {
+        addToast(`⚠️ GRN ${billNo} generated with PARTIAL payment. Due: ${formatCurrency(dueAmount)}`);
       } else {
-        addToast(`GRN / Bill ${billNo} generated & stock updated!`);
+        addToast(`📋 GRN ${billNo} generated. Payment pending.`);
       }
 
       setIsModalOpen(false);
@@ -401,7 +438,7 @@ export default function GoodsReceivedNote() {
     }
   };
 
-  // ── View Details Modal ──
+  // ── View Details ──
   const handleView = async (bill) => {
     if (bill.items && bill.items.length > 0) {
       setSelectedBill(bill);
@@ -434,7 +471,7 @@ export default function GoodsReceivedNote() {
     }
   };
 
-  // ── Status Badge Helper ──
+  // ── Status Badge ──
   const StatusBadge = ({ status }) => {
     const style = STATUS_STYLES[status] || STATUS_STYLES.PENDING;
     const Icon = style.icon;
@@ -445,23 +482,173 @@ export default function GoodsReceivedNote() {
     );
   };
 
-  // Stats calculation
+  // ── Stats ──
   const stats = useMemo(() => {
     const totalBills = bills.length;
     const totalVal = bills.reduce((acc, b) => acc + parseFloat(b.totalAmount || 0), 0);
-    const pending = bills.filter(b => b.status === 'PENDING').length;
-    const completed = bills.filter(b => b.status === 'COMPLETED').length;
+    const pending = bills.filter(b => b.status === 'PENDING' || b.status === 'PARTIALLY_PAID').length;
+    const completed = bills.filter(b => b.status === 'COMPLETED' || b.status === 'PAID').length;
     return { totalBills, totalVal, pending, completed };
   }, [bills]);
 
+  // ── Render Card ──
+  const renderBillCard = (bill) => (
+    <div key={bill.id} className="bg-white rounded-2xl border border-slate-300 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+      <div>
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <Receipt size={14} className="text-emerald-600" />
+              <span className="font-bold font-mono text-gray-800 text-sm">{bill.billNo || `#${bill.id}`}</span>
+              {bill.purchaseOrder && (
+                <span className="text-[10px] text-gray-400 font-mono">PO: {bill.purchaseOrder.poNo}</span>
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-0.5">{bill.supplier?.name || '—'}</p>
+          </div>
+          <StatusBadge status={bill.status} />
+        </div>
+        
+        <div className="space-y-1.5 text-xs text-gray-600 mb-4 border-t border-b border-gray-50 py-3">
+          <p className="flex items-center gap-2">
+            <Calendar size={13} className="text-gray-400" /> 
+            <span>{formatDate(bill.createdAt)}</span>
+          </p>
+          <p className="flex items-center gap-2">
+            <Truck size={13} className="text-gray-400" /> 
+            <span>{bill.vehicleNo || '—'}</span>
+            {bill.driverPhone && <span className="text-gray-400">({bill.driverPhone})</span>}
+          </p>
+          <p className="flex items-center gap-2">
+            <Package size={13} className="text-gray-400" /> 
+            <span>{bill.items?.length || 0} items</span>
+          </p>
+          {bill.paymentAmount > 0 && (
+            <p className="flex items-center gap-2 text-emerald-600">
+              <CreditCard size={13} /> 
+              <span className="font-bold">Paid: {formatCurrency(bill.paymentAmount)}</span>
+            </p>
+          )}
+          {bill.dueAmount > 0 && (
+            <p className="flex items-center gap-2 text-red-600">
+              <AlertCircle size={13} /> 
+              <span className="font-bold">Due: {formatCurrency(bill.dueAmount)}</span>
+            </p>
+          )}
+        </div>
+
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-gray-500 font-medium">Total</span>
+          <span className="text-lg font-bold font-mono text-emerald-700">{formatCurrency(bill.totalAmount)}</span>
+        </div>
+      </div>
+
+      <div className="pt-3 flex items-center justify-between border-t border-gray-100 mt-3">
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => handleView(bill)}
+            title="View Details"
+            className="p-2 rounded-xl hover:bg-emerald-100 text-emerald-600 transition-all"
+          >
+            <Eye size={16} />
+          </button>
+          <button
+            onClick={() => handleCancel(bill.id)}
+            title="Cancel GRN"
+            className="p-2 rounded-xl hover:bg-red-50 text-red-600 transition-all"
+          >
+            <XCircle size={16} />
+          </button>
+        </div>
+        <span className={`px-2 py-1 rounded text-[10px] font-bold ${bill.paymentAmount >= bill.totalAmount ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+          {bill.paymentAmount >= bill.totalAmount ? '✅ Paid' : '⚠️ Due'}
+        </span>
+      </div>
+    </div>
+  );
+
+  // ── Render Table Row ──
+  const renderBillTableRow = (bill) => (
+    <tr key={bill.id} className="hover:bg-slate-50/60 transition-colors">
+      <td className="px-4 py-3.5">
+        <div className="flex items-center gap-2">
+          <Receipt size={14} className="text-emerald-600" />
+          <span className="font-bold font-mono text-gray-800 text-xs">{bill.billNo || `#${bill.id}`}</span>
+        </div>
+        {bill.purchaseOrder && (
+          <span className="text-[10px] text-gray-400 font-mono block">PO: {bill.purchaseOrder.poNo}</span>
+        )}
+      </td>
+      <td className="px-4 py-3.5">
+        <span className="text-sm font-bold text-gray-800 block">{bill.supplier?.name || '—'}</span>
+        <span className="text-[10px] text-gray-400 font-mono">{bill.supplier?.phone || ''}</span>
+      </td>
+      <td className="px-4 py-3.5">
+        <div className="flex items-center gap-1.5 text-gray-600">
+          <Calendar size={12} className="text-gray-400" />
+          <span className="text-xs font-medium">{formatDate(bill.createdAt)}</span>
+        </div>
+      </td>
+      <td className="px-4 py-3.5">
+        <span className="text-xs font-medium text-gray-700 block">{bill.vehicleNo || '—'}</span>
+        <span className="text-[10px] text-gray-400">{bill.driverPhone || ''}</span>
+      </td>
+      <td className="px-4 py-3.5 text-center">
+        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-bold">
+          <Package size={10} /> {bill.items?.length || 0}
+        </span>
+      </td>
+      <td className="px-4 py-3.5 text-right">
+        <span className="text-sm font-bold font-mono text-gray-800">{formatCurrency(bill.totalAmount)}</span>
+        {bill.paymentAmount > 0 && (
+          <span className="text-[10px] text-emerald-600 block">Paid: {formatCurrency(bill.paymentAmount)}</span>
+        )}
+        {bill.dueAmount > 0 && (
+          <span className="text-[10px] text-red-600 block">Due: {formatCurrency(bill.dueAmount)}</span>
+        )}
+      </td>
+      <td className="px-4 py-3.5 text-center">
+        <StatusBadge status={bill.status} />
+      </td>
+      <td className="px-4 py-3.5 text-right">
+        <div className="flex items-center justify-end gap-1">
+          <button
+            onClick={() => handleView(bill)}
+            title="View Details"
+            className="p-2 rounded-xl hover:bg-emerald-100 text-emerald-600 transition-all"
+          >
+            <Eye size={16} />
+          </button>
+          <button
+            onClick={() => handleCancel(bill.id)}
+            title="Cancel GRN"
+            className="p-2 rounded-xl hover:bg-red-50 text-red-600 transition-all"
+          >
+            <XCircle size={16} />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+
+  // ── Loading State ──
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-full border-4 border-t-emerald-600 animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#059669' }} />
+          <p className="mt-4 text-sm font-bold text-gray-600">Loading goods received notes...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen pb-12" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen pb-12" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <ToastContainer />
 
-      {/* ═══════════════════════════════════════════════════════════
-          STICKY HEADER
-          ═══════════════════════════════════════════════════════════ */}
-      <div className="border-b backdrop-blur-xl bg-white/90 sticky top-0 z-30 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+      {/* ── HEADER ── */}
+      <div className="border-b backdrop-blur-xl bg-white/90 sticky top-0 z-30 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -497,20 +684,18 @@ export default function GoodsReceivedNote() {
 
       <div className="max-w-7xl mx-auto px-4 py-6 md:px-6 space-y-6">
 
-        {/* ═══════════════════════════════════════════════════════════
-            STATS CARDS
-            ═══════════════════════════════════════════════════════════ */}
+        {/* ── STATS CARDS ── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600">
               <ClipboardCheck size={20} />
             </div>
             <div>
               <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider block">Total GRNs</span>
-              <span className="text-2xl font-bold font-mono text-gray-800">{stats.totalBills}</span>
+              <span className="text-2xl font-bold font-mono text-gray-800">{totalBillsCount}</span>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600">
               <DollarSign size={20} />
             </div>
@@ -519,7 +704,7 @@ export default function GoodsReceivedNote() {
               <span className="text-lg font-bold font-mono text-gray-800">{formatCurrency(stats.totalVal)}</span>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600">
               <Clock size={20} />
             </div>
@@ -528,7 +713,7 @@ export default function GoodsReceivedNote() {
               <span className="text-2xl font-bold font-mono text-amber-700">{stats.pending}</span>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600">
               <CheckCircle2 size={20} />
             </div>
@@ -539,10 +724,8 @@ export default function GoodsReceivedNote() {
           </div>
         </div>
 
-        {/* ═══════════════════════════════════════════════════════════
-            FILTERS BAR
-            ═══════════════════════════════════════════════════════════ */}
-        <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm grid grid-cols-1 md:grid-cols-3 gap-3">
+        {/* ── FILTERS BAR + VIEW TOGGLE ── */}
+        <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="relative md:col-span-2">
             <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -553,26 +736,37 @@ export default function GoodsReceivedNote() {
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-sm"
             />
           </div>
-          <div>
-            <ReactSelect
-              options={statusFilterOptions}
-              value={statusFilter}
-              onChange={opt => setStatusFilter(opt || '')}
-              placeholder="All Statuses"
-            />
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <ReactSelect
+                options={STATUS_OPTIONS}
+                value={statusFilter}
+                onChange={opt => setStatusFilter(opt || '')}
+                placeholder="All Statuses"
+              />
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={() => setViewMode('cards')}
+                className={`p-2 rounded-xl transition-all ${viewMode === 'cards' ? 'bg-emerald-600 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                title="Card View"
+              >
+                <LayoutGrid size={18} />
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`p-2 rounded-xl transition-all ${viewMode === 'table' ? 'bg-emerald-600 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                title="Table View"
+              >
+                <List size={18} />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* ═══════════════════════════════════════════════════════════
-            DATA TABLE / EMPTY STATE
-            ═══════════════════════════════════════════════════════════ */}
-        {loading ? (
-          <div className="text-center py-20">
-            <div className="w-12 h-12 rounded-full border-4 border-t-emerald-600 animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#059669' }} />
-            <p className="mt-4 text-sm font-bold text-gray-600">Loading goods received notes...</p>
-          </div>
-        ) : bills.length === 0 ? (
-          <div className="bg-white rounded-2xl p-12 text-center border border-[#E0D8CC] shadow-sm">
+        {/* ── CONTENT ── */}
+        {bills.length === 0 ? (
+          <div className="bg-white rounded-2xl p-12 text-center border border-slate-300 shadow-sm">
             <ClipboardCheck className="w-16 h-16 mx-auto mb-4 text-gray-300" />
             <h3 className="text-lg font-bold text-gray-800 mb-1">No Goods Received Notes Found</h3>
             <p className="text-sm text-gray-500">Get started by generating your first GRN / bill.</p>
@@ -583,8 +777,12 @@ export default function GoodsReceivedNote() {
               <Plus size={14} /> New GRN / Bill
             </button>
           </div>
+        ) : viewMode === 'cards' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {bills.map(renderBillCard)}
+          </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -600,75 +798,72 @@ export default function GoodsReceivedNote() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {bills.map(bill => (
-                    <tr key={bill.id} className="hover:bg-[#FAF8F4]/60 transition-colors">
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-2">
-                          <Receipt size={14} className="text-emerald-600" />
-                          <span className="font-bold font-mono text-gray-800 text-xs">{bill.billNo || `#${bill.id}`}</span>
-                        </div>
-                        {bill.purchaseOrder && (
-                          <span className="text-[10px] text-gray-400 font-mono block">PO: {bill.purchaseOrder.poNo}</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="text-sm font-bold text-gray-800 block">{bill.supplier?.name || '—'}</span>
-                        <span className="text-[10px] text-gray-400 font-mono">{bill.supplier?.phone || ''}</span>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-1.5 text-gray-600">
-                          <Calendar size={12} className="text-gray-400" />
-                          <span className="text-xs font-medium">{formatDate(bill.createdAt)}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="text-xs font-medium text-gray-700 block">{bill.vehicleNo || '—'}</span>
-                        <span className="text-[10px] text-gray-400">{bill.driverPhone || ''}</span>
-                      </td>
-                      <td className="px-4 py-3.5 text-center">
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-bold">
-                          <Package size={10} /> {bill.items?.length || 0}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 text-right">
-                        <span className="text-sm font-bold font-mono text-gray-800">{formatCurrency(bill.totalAmount)}</span>
-                        {bill.paymentAmount > 0 && (
-                          <span className="text-[10px] text-emerald-600 block">Paid: {formatCurrency(bill.paymentAmount)}</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5 text-center">
-                        <StatusBadge status={bill.status} />
-                      </td>
-                      <td className="px-4 py-3.5 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={() => handleView(bill)}
-                            title="View Details"
-                            className="p-2 rounded-xl hover:bg-emerald-100 text-emerald-600 transition-all"
-                          >
-                            <Eye size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleCancel(bill.id)}
-                            title="Cancel GRN"
-                            className="p-2 rounded-xl hover:bg-red-50 text-red-600 transition-all"
-                          >
-                            <XCircle size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {bills.map(renderBillTableRow)}
                 </tbody>
               </table>
             </div>
           </div>
         )}
+
+        {/* ── PAGINATION ── */}
+        {bills.length > 0 && totalPages > 1 && (
+          <div className="flex items-center justify-between gap-4 bg-white px-4 py-3 rounded-2xl border border-slate-300 shadow-sm">
+            <div className="text-sm text-gray-500">
+              Showing <span className="font-semibold text-gray-700">{((currentPage - 1) * PAGE_SIZE) + 1}</span> to{' '}
+              <span className="font-semibold text-gray-700">
+                {Math.min(currentPage * PAGE_SIZE, totalBillsCount)}
+              </span> of{' '}
+              <span className="font-semibold text-gray-700">{totalBillsCount}</span> GRNs
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="p-2 rounded-xl border border-slate-300 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 10) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 4) {
+                    pageNum = totalPages - 9 + i;
+                  } else {
+                    pageNum = currentPage - 5 + i;
+                  }
+                  if (pageNum < 1 || pageNum > totalPages) return null;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-9 h-9 rounded-xl text-sm font-bold transition-all ${
+                        currentPage === pageNum
+                          ? 'bg-emerald-600 text-white shadow-md'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-xl border border-slate-300 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════
-          CREATE GRN / BILL MODAL FORM (WITH PAYMENT)
-          ═══════════════════════════════════════════════════════════ */}
+      {/* ── CREATE GRN MODAL ── */}
       {isModalOpen && (
         <div className="fixed inset-y-0 right-0 left-0 lg:left-64 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-5xl max-h-[92vh] flex flex-col shadow-2xl border border-emerald-200 overflow-hidden my-auto">
@@ -693,7 +888,7 @@ export default function GoodsReceivedNote() {
               </button>
             </div>
 
-            {/* Modal Body / Form */}
+            {/* Modal Body */}
             <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-6">
               
               {/* Section 1: PO Import, Supplier & Shipment */}
@@ -900,7 +1095,7 @@ export default function GoodsReceivedNote() {
                 </div>
               </div>
 
-              {/* Section 3: Payment Section (NEW) */}
+              {/* Section 3: Payment Section */}
               <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-200 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -986,40 +1181,125 @@ export default function GoodsReceivedNote() {
                   <div>
                     <label className="text-xs font-bold text-gray-700 mb-1.5 block">
                       Payment Account {paymentAmount > 0 && <span className="text-red-500">*</span>}
-                    </label>
-                    <ReactSelect
-                      value={form.paymentAccountId}
-                      onChange={(val) => {
-                        setForm(prev => ({ ...prev, paymentAccountId: val || '' }));
-                        if (errors.paymentAccount) {
-                          setErrors(prev => { const n = { ...prev }; delete n.paymentAccount; return n; });
-                        }
-                      }}
-                      options={[
-                        { value: '', label: '-- Select Account --' },
-                        ...accounts.map(acc => ({
-                          value: String(acc.id),
-                          label: `${acc.bankName} — ${acc.accountNumber} (Bal: ${formatCurrency(acc.currentBalance ?? acc.initialBalance)})`
-                        }))
-                      ]}
-                      placeholder="Select Account"
-                      isSearchable={true}
-                      isClearable={false}
-                    />
-                    {errors.paymentAccount && (
-                      <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.paymentAccount}</p>
-                    )}
-                    {selectedAccount && paymentAmount > 0 && (
-                      <div className="mt-1 flex items-center gap-2 text-xs">
-                        <span className="text-gray-500">Balance:</span>
-                        <span className="font-bold font-mono text-gray-700">
-                          {formatCurrency(selectedAccount.currentBalance ?? selectedAccount.initialBalance ?? 0)}
+                      {form.paymentMode && (
+                        <span className="ml-2 text-[10px] font-normal text-gray-500">
+                          ({form.paymentMode.replace(/_/g, ' ')} accounts only)
                         </span>
-                        {!hasSufficientBalance && (
-                          <span className="text-red-500 text-[10px] font-bold">⚠️ Insufficient Balance</span>
-                        )}
-                      </div>
-                    )}
+                      )}
+                    </label>
+                    
+                    {(() => {
+                      const requiredType = form.paymentMode ? PAYMENT_MODE_TO_ACCOUNT_TYPE[form.paymentMode] : null;
+                      const filtered = requiredType ? accounts.filter(acc => acc.accountType === requiredType) : accounts;
+                      const hasAccounts = filtered.length > 0;
+
+                      return (
+                        <>
+                          <ReactSelect
+                            value={form.paymentAccountId}
+                            onChange={(val) => {
+                              setForm(prev => ({ ...prev, paymentAccountId: val || '' }));
+                              if (errors.paymentAccount) {
+                                setErrors(prev => { const n = { ...prev }; delete n.paymentAccount; return n; });
+                              }
+                            }}
+                            options={[
+                              { value: '', label: !form.paymentMode 
+                                ? '⚠️ First select Payment Mode' 
+                                : !hasAccounts 
+                                  ? `❌ No ${form.paymentMode.replace(/_/g, ' ')} account found!` 
+                                  : '-- Select Account --'
+                              },
+                              ...filtered.map(acc => ({
+                                value: String(acc.id),
+                                label: `${acc.bankName || acc.accountName || 'Account'} — ${acc.accountNumber || 'N/A'} (Bal: ${formatCurrency(acc.currentBalance ?? acc.initialBalance ?? 0)})`
+                              }))
+                            ]}
+                            placeholder={!form.paymentMode ? 'Select Payment Mode first' : 'Select Account'}
+                            isSearchable={true}
+                            isClearable={false}
+                            isDisabled={!form.paymentMode || !hasAccounts}
+                          />
+
+                          {!form.paymentMode && (
+                            <div className="mt-2 p-2.5 rounded-lg border border-amber-200 bg-amber-50">
+                              <p className="text-xs text-amber-700 flex items-center gap-1.5">
+                                <AlertCircle size={14} />
+                                <span>Please select a <strong>Payment Mode</strong> first to see available accounts</span>
+                              </p>
+                            </div>
+                          )}
+
+                          {form.paymentMode && !hasAccounts && (
+                            <div className="mt-2 p-2.5 rounded-lg border border-red-200 bg-red-50">
+                              <p className="text-xs text-red-600 flex items-center gap-1.5">
+                                <AlertCircle size={14} />
+                                <span>No <strong>{form.paymentMode.replace(/_/g, ' ')}</strong> account found! Please create one in <strong>Settings → Chart of Accounts</strong></span>
+                              </p>
+                            </div>
+                          )}
+
+                          {errors.paymentAccount && (
+                            <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.paymentAccount}</p>
+                          )}
+
+                          {selectedAccount && form.paymentMode && paymentAmount > 0 && (
+                            <div className="mt-2.5 p-3 rounded-xl border border-green-200" style={{ backgroundColor: '#F0FDF4' }}>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-green-600 text-lg">✓</span>
+                                  <div>
+                                    <p className="text-sm font-bold text-gray-800">{selectedAccount.bankName || selectedAccount.accountName}</p>
+                                    <p className="text-xs text-gray-500 font-mono">{selectedAccount.accountNumber}</p>
+                                  </div>
+                                </div>
+                                <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase" style={{
+                                  backgroundColor: (() => {
+                                    const colors = {
+                                      'CASH': '#FEF3C7',
+                                      'BANK': '#DBEAFE',
+                                      'JAZZCASH': '#FCE7F3',
+                                      'EASYPAISA': '#D1FAE5',
+                                      'CREDIT': '#EDE9FE'
+                                    };
+                                    return colors[selectedAccount.accountType] || '#F3F4F6';
+                                  })(),
+                                  color: (() => {
+                                    const colors = {
+                                      'CASH': '#1E3A8A',
+                                      'BANK': '#1E40AF',
+                                      'JAZZCASH': '#9D174D',
+                                      'EASYPAISA': '#065F46',
+                                      'CREDIT': '#5B21B6'
+                                    };
+                                    return colors[selectedAccount.accountType] || '#374151';
+                                  })()
+                                }}>
+                                  {(() => {
+                                    const labels = {
+                                      'CASH': '💰 Cash',
+                                      'BANK': '🏦 Bank',
+                                      'JAZZCASH': '📱 JazzCash',
+                                      'EASYPAISA': '📱 EasyPaisa',
+                                      'CREDIT': '💳 Credit'
+                                    };
+                                    return labels[selectedAccount.accountType] || '📌 Other';
+                                  })()}
+                                </span>
+                              </div>
+                              {selectedAccount.currentBalance !== undefined && (
+                                <div className="mt-1.5 pt-1.5 border-t border-green-100 flex justify-between">
+                                  <span className="text-[10px] text-gray-500">Current Balance</span>
+                                  <span className="text-xs font-bold font-mono" style={{ color: '#2563EB' }}>
+                                    {formatCurrency(selectedAccount.currentBalance ?? selectedAccount.initialBalance ?? 0)}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
 
                   {/* Payment Date */}
@@ -1221,9 +1501,7 @@ export default function GoodsReceivedNote() {
         </div>
       )}
 
-      {/* ═══════════════════════════════════════════════════════════
-          VIEW GRN / BILL DETAIL MODAL
-          ═══════════════════════════════════════════════════════════ */}
+      {/* ── VIEW GRN MODAL ── */}
       {isViewModalOpen && (
         <div className="fixed inset-y-0 right-0 left-0 lg:left-64 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl border border-emerald-200 overflow-hidden my-auto">
@@ -1250,7 +1528,7 @@ export default function GoodsReceivedNote() {
             <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-6">
               {viewModalLoading ? (
                 <div className="text-center py-12">
-                  <div className="w-10 h-10 rounded-full border-4 border-t-emerald-600 animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#059669' }} />
+                  <div className="w-10 h-10 rounded-full border-4 border-t-emerald-600 animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#059669' }} />
                   <p className="mt-3 text-sm font-bold text-gray-600">Loading details...</p>
                 </div>
               ) : selectedBill ? (
@@ -1282,7 +1560,6 @@ export default function GoodsReceivedNote() {
                     </div>
                   </div>
 
-                  {/* Payment Info in View */}
                   {selectedBill.paymentAmount > 0 && (
                     <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
                       <h4 className="text-xs font-bold uppercase text-emerald-700 flex items-center gap-2 mb-2">

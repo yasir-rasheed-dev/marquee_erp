@@ -168,13 +168,13 @@ export default function PurchaseReturnList() {
   };
 
   return (
-    <div className="min-h-screen pb-12" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen pb-12" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <ToastContainer />
 
       {/* ═══════════════════════════════════════════════════════════
           STICKY HEADER
           ═══════════════════════════════════════════════════════════ */}
-      <div className="border-b backdrop-blur-xl bg-white/90 sticky top-0 z-30 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+      <div className="border-b backdrop-blur-xl bg-white/90 sticky top-0 z-30 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -208,7 +208,7 @@ export default function PurchaseReturnList() {
             STATS CARDS
             ═══════════════════════════════════════════════════════════ */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-red-50 text-red-600">
               <RotateCcw size={20} />
             </div>
@@ -217,7 +217,7 @@ export default function PurchaseReturnList() {
               <span className="text-2xl font-bold font-mono text-gray-800">{stats.totalReturns}</span>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-orange-50 text-orange-600">
               <TrendingDown size={20} />
             </div>
@@ -226,7 +226,7 @@ export default function PurchaseReturnList() {
               <span className="text-lg font-bold font-mono text-gray-800">{formatCurrency(stats.totalValue)}</span>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600">
               <Clock size={20} />
             </div>
@@ -235,7 +235,7 @@ export default function PurchaseReturnList() {
               <span className="text-2xl font-bold font-mono text-amber-700">{stats.pending}</span>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600">
               <CheckCircle2 size={20} />
             </div>
@@ -249,7 +249,7 @@ export default function PurchaseReturnList() {
         {/* ═══════════════════════════════════════════════════════════
             FILTERS BAR
             ═══════════════════════════════════════════════════════════ */}
-        <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="relative md:col-span-2">
             <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -283,17 +283,17 @@ export default function PurchaseReturnList() {
             ═══════════════════════════════════════════════════════════ */}
         {loading ? (
           <div className="text-center py-20">
-            <div className="w-12 h-12 rounded-full border-4 border-t-red-600 animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#DC2626' }} />
+            <div className="w-12 h-12 rounded-full border-4 border-t-red-600 animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#DC2626' }} />
             <p className="mt-4 text-sm font-bold text-gray-600">Loading purchase returns...</p>
           </div>
         ) : returns.length === 0 ? (
-          <div className="bg-white rounded-2xl p-12 text-center border border-[#E0D8CC] shadow-sm">
+          <div className="bg-white rounded-2xl p-12 text-center border border-slate-300 shadow-sm">
             <RotateCcw className="w-16 h-16 mx-auto mb-4 text-gray-300" />
             <h3 className="text-lg font-bold text-gray-800 mb-1">No Purchase Returns Found</h3>
             <p className="text-sm text-gray-500">There are no purchase returns recorded yet.</p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -310,7 +310,7 @@ export default function PurchaseReturnList() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {returns.map(ret => (
-                    <tr key={ret.id} className="hover:bg-[#FAF8F4]/60 transition-colors">
+                    <tr key={ret.id} className="hover:bg-slate-50/60 transition-colors">
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2">
                           <Hash size={14} className="text-red-600" />
@@ -405,7 +405,7 @@ export default function PurchaseReturnList() {
             <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-6">
               {modalLoading ? (
                 <div className="text-center py-12">
-                  <div className="w-10 h-10 rounded-full border-4 border-t-red-600 animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#DC2626' }} />
+                  <div className="w-10 h-10 rounded-full border-4 border-t-red-600 animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#DC2626' }} />
                   <p className="mt-3 text-sm font-bold text-gray-600">Loading details...</p>
                 </div>
               ) : selectedReturn ? (

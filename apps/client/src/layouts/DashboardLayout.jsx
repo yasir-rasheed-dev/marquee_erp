@@ -1,4 +1,4 @@
-﻿import { Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { useState } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
@@ -7,7 +7,7 @@ const DashboardLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F5F2EB] text-[#1A1A1A]">
+    <div className="min-h-screen bg-[#F1F5F9] text-[#0F172A]">
       {/* ── Sidebar ── */}
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 

@@ -104,7 +104,7 @@ export default function SupplierLedger() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-gray-800">{supplier.name}</h1>
-            <span className="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-[#A97A1F] rounded-full border border-amber-200">
+            <span className="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-[#2563EB] rounded-full border border-amber-200">
               {supplier.type}
             </span>
           </div>
@@ -135,32 +135,32 @@ export default function SupplierLedger() {
       <div className="flex border-b border-gray-200 mb-6 gap-6 overflow-x-auto">
         <button
           onClick={() => setActiveTab('bills')}
-          className={`pb-3 text-sm font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap ${activeTab === 'bills' ? 'border-[#A97A1F] text-[#A97A1F]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+          className={`pb-3 text-sm font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap ${activeTab === 'bills' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
         >
           <FileText className="w-4 h-4" /> Purchase Bills ({supplier.purchaseBills?.length || 0})
         </button>
         <button
           onClick={() => setActiveTab('orders')}
-          className={`pb-3 text-sm font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap ${activeTab === 'orders' ? 'border-[#A97A1F] text-[#A97A1F]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+          className={`pb-3 text-sm font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap ${activeTab === 'orders' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
         >
           <ShoppingBag className="w-4 h-4" /> Purchase Orders ({supplier.purchaseOrders?.length || 0})
         </button>
         <button
           onClick={() => setActiveTab('returns')}
-          className={`pb-3 text-sm font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap ${activeTab === 'returns' ? 'border-[#A97A1F] text-[#A97A1F]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+          className={`pb-3 text-sm font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap ${activeTab === 'returns' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
         >
           <RotateCcw className="w-4 h-4" /> Returns ({supplier.returns?.length || 0})
         </button>
         {/* ✅ PAYMENTS TAB */}
         <button
           onClick={() => setActiveTab('payments')}
-          className={`pb-3 text-sm font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap ${activeTab === 'payments' ? 'border-[#A97A1F] text-[#A97A1F]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+          className={`pb-3 text-sm font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap ${activeTab === 'payments' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
         >
           <Wallet className="w-4 h-4" /> Payments ({supplier.payments?.length || 0})
         </button>
         <button
           onClick={() => setActiveTab('ledger')}
-          className={`pb-3 text-sm font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap ${activeTab === 'ledger' ? 'border-[#A97A1F] text-[#A97A1F]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+          className={`pb-3 text-sm font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap ${activeTab === 'ledger' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
         >
           <History className="w-4 h-4" /> Complete Ledger ({supplier.supplierLedgers?.length || 0})
         </button>

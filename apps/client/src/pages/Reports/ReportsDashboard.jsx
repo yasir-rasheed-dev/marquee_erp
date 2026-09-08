@@ -130,7 +130,7 @@ const ReportsDashboard = () => {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[#A97A1F] border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="w-12 h-12 border-4 border-[#2563EB] border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading reports...</p>
         </div>
       </div>
@@ -143,7 +143,7 @@ const ReportsDashboard = () => {
       value: stats.bookings?.total || 0,
       subValue: `${stats.bookings?.confirmed || 0} Confirmed`,
       icon: Calendar,
-      color: '#A97A1F',
+      color: '#2563EB',
       bg: '#FEF3C7',
       path: '/reports/bookings'
     },
@@ -227,7 +227,7 @@ const ReportsDashboard = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <FileText className="w-7 h-7 text-[#A97A1F]" />
+            <FileText className="w-7 h-7 text-[#2563EB]" />
             Reports Dashboard
           </h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -236,7 +236,7 @@ const ReportsDashboard = () => {
         </div>
         <button
           onClick={fetchAllStats}
-          className="px-4 py-2 bg-[#A97A1F] text-white rounded-lg hover:bg-[#8A6A1F] transition-colors flex items-center gap-2 shadow-sm text-sm"
+          className="px-4 py-2 bg-[#2563EB] text-white rounded-lg hover:bg-[#8A6A1F] transition-colors flex items-center gap-2 shadow-sm text-sm"
         >
           <RefreshCw size={16} />
           Refresh
@@ -251,14 +251,14 @@ const ReportsDashboard = () => {
             <div
               key={index}
               onClick={() => navigate(card.path)}
-              className="bg-white rounded-xl border p-4 shadow-sm hover:shadow-md transition-all cursor-pointer hover:border-[#A97A1F] group"
-              style={{ borderColor: '#E0D8CC' }}
+              className="bg-white rounded-xl border p-4 shadow-sm hover:shadow-md transition-all cursor-pointer hover:border-[#2563EB] group"
+              style={{ borderColor: '#CBD5E1' }}
             >
               <div className="flex items-center justify-between mb-3">
                 <div className={`p-2.5 rounded-xl`} style={{ backgroundColor: card.bg }}>
                   <Icon size={20} style={{ color: card.color }} />
                 </div>
-                <ArrowUpRight size={16} className="text-gray-300 group-hover:text-[#A97A1F] transition-colors" />
+                <ArrowUpRight size={16} className="text-gray-300 group-hover:text-[#2563EB] transition-colors" />
               </div>
               <p className="text-2xl font-bold text-gray-800">{card.value}</p>
               <p className="text-sm font-medium text-gray-600 mt-0.5">{card.title}</p>

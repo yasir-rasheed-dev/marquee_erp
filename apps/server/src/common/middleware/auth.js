@@ -119,13 +119,13 @@ exports.authorize = (...roles) => {
 
 exports.hasPermission = async (userId, resource, action, branchId = null) => {
   try {
-    // Super Admin has all permissions
+    // Super Admin & Admin have all permissions
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { role: true }
+      select: { role: true, companyId: true }
     });
 
-    if (user?.role === 'super_admin') return true;
+    if (user?.role === 'super_admin' || user?.role === 'admin') return true;
 
     // Get user's active dynamic role assignment ID
     const assignment = await prisma.userRoleAssignment.findFirst({
@@ -136,12 +136,30 @@ exports.hasPermission = async (userId, resource, action, branchId = null) => {
       select: { roleId: true }
     });
 
-    if (!assignment) return false;
+    let roleId = assignment?.roleId;
+    if (!roleId && user?.role) {
+      const fallbackRole = await prisma.role.findFirst({
+        where: { slug: user.role }
+      });
+      if (fallbackRole) {
+        roleId = fallbackRole.id;
+      }
+    }
+
+    if (!roleId) return false;
+
+    // Expand resource aliases
+    const resourceList = [resource];
+    if (resource === 'bookings') resourceList.push('bookings_create', 'bookings_list');
+    if (resource === 'customers') resourceList.push('customers_add');
+    if (resource === 'menus') resourceList.push('menus_add', 'menus_items', 'menus_packages', 'menus_categories', 'menus_units');
+    if (resource === 'inventory') resourceList.push('inventory_item_master', 'inventory_stock_transfer', 'inventory_stock_adjustment');
+    if (resource === 'kitchen') resourceList.push('kitchen_sheet', 'production_plan', 'recipe_manager');
 
     // Check permission using dynamic roleId
     const where = {
-      roleId: assignment.roleId,
-      resource: resource,
+      roleId: roleId,
+      resource: { in: resourceList },
       action: action,
       allowed: true
     };

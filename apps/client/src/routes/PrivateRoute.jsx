@@ -1,11 +1,14 @@
-﻿import { Navigate, Outlet } from 'react-router-dom';
+﻿// routes/PrivateRoute.jsx
+// COMPLETE FIXED - With bookings fallback
+
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 const PrivateRoute = ({ allowedRoles, requiredResource }) => {
   const { isAuthenticated, isLoading, user, isTestMode } = useAuth();
-  const { can, userRole, loading: permLoading } = usePermissions();
+  const { can, userRole, loading: permLoading, permissions } = usePermissions();
 
   if (isLoading || permLoading) {
     return (
@@ -28,7 +31,7 @@ const PrivateRoute = ({ allowedRoles, requiredResource }) => {
     return <Outlet />;
   }
 
-  // 🔥 FIX: Agar koi restriction nahi di (jaise /dashboard), toh allow karo
+  // Agar koi restriction nahi di
   if (!allowedRoles && !requiredResource) {
     return <Outlet />;
   }
@@ -41,11 +44,24 @@ const PrivateRoute = ({ allowedRoles, requiredResource }) => {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Dynamic permission check
+  // ✅ FIX: Dynamic permission check with bookings fallback
   if (requiredResource) {
-    if (can(requiredResource, 'view')) {
+    let resourceToCheck = requiredResource;
+    let resourcesToCheck = [requiredResource];
+    
+    // ✅ BOOKINGS FALLBACK
+    if (requiredResource === 'bookings') {
+      resourcesToCheck = ['bookings', 'bookings_list', 'bookings_create', 'bookings_calendar'];
+    }
+    
+    // ✅ Check any of the resources
+    const hasAccess = resourcesToCheck.some(res => can(res, 'view'));
+    
+    if (hasAccess) {
       return <Outlet />;
     }
+    
+    console.log(`❌ Access denied for ${requiredResource}. Available perms:`, permissions.map(p => `${p.resource}:${p.action}`));
     return <Navigate to="/dashboard" replace />;
   }
 

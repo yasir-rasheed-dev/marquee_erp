@@ -13,19 +13,19 @@ const {
   deleteCustomer,
   getCustomersByBranch,
 } = require('../controllers/customer.controller');
-const { authMiddleware, authorize } = require('../common/middleware/auth');
+const { authMiddleware, permissionGuard } = require('../common/middleware/auth');
 
 // ── All routes require authentication ──
 router.use(authMiddleware);
 
 // ── Static routes first (no :id parameter) ──
-router.get('/branch/:branchId', authorize('admin', 'super_admin', 'manager'), getCustomersByBranch);
+router.get('/branch/:branchId', permissionGuard('customers', 'view'), getCustomersByBranch);
 
 // ── Then dynamic routes (with :id parameter) ──
-router.get('/', getCustomers);
-router.get('/:id', getCustomer);
-router.post('/', authorize('admin', 'super_admin', 'manager'), createCustomer);
-router.put('/:id', authorize('admin', 'super_admin', 'manager'), updateCustomer);
-router.delete('/:id', authorize('admin', 'super_admin'), deleteCustomer);
+router.get('/', permissionGuard('customers', 'view'), getCustomers);
+router.get('/:id', permissionGuard('customers', 'view'), getCustomer);
+router.post('/', permissionGuard('customers', 'create'), createCustomer);
+router.put('/:id', permissionGuard('customers', 'edit'), updateCustomer);
+router.delete('/:id', permissionGuard('customers', 'delete'), deleteCustomer);
 
 module.exports = router;

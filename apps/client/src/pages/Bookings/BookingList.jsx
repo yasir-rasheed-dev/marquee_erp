@@ -1,6 +1,6 @@
-﻿// src/pages/BookingList.jsx
+// src/pages/BookingList.jsx
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Search, Calendar, Clock, Users, MapPin, Phone, Eye, Edit2, Trash2, Plus,
@@ -9,7 +9,7 @@ import {
   CreditCard, TrendingUp, TrendingDown, History, Filter,
   User, Building2, Sparkles, Gem, Flame, Ban, RotateCcw,
   Banknote, Wallet, Landmark, MoreVertical, ArrowDownRight, LayoutGrid, Table as TableIcon,
-  UserPlus, Briefcase, DollarSign
+  UserPlus, Briefcase, DollarSign, AlertCircle, MessageCircle, Bell
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -21,6 +21,9 @@ import { useBranch } from '../../context/BranchContext';
 import useGlobalData from '../../hooks/useGlobalData';
 import ReactSelect from '../../components/ui/ReactSelect';
 import receiptSettingsApi from '../../services/receiptSettingsApi';
+import { usePermissions } from '../../hooks/usePermissions';
+import WhatsAppModal from '../../components/common/WhatsAppModal';
+import UpcomingRemindersDrawer from '../../components/bookings/UpcomingRemindersDrawer';
 
 // ── STATUS CONFIG ──
 const statusConfig = {
@@ -50,6 +53,7 @@ const formatDateTime = (d) => d ? new Date(d).toLocaleString('en-PK', { day: 'nu
 const ActionDropdown = ({ booking, onAction }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const { canEdit, canDelete, canPrint } = usePermissions();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -62,13 +66,14 @@ const ActionDropdown = ({ booking, onAction }) => {
   }, []);
 
   const actions = [
-    { key: 'view', label: 'View Details', icon: Eye, color: '#A97A1F' },
-    { key: 'assignStaff', label: '👤 Assign Staff', icon: UserPlus, color: '#6A1B9A' },
-    { key: 'status', label: 'Change Status', icon: CheckCircle, color: '#6A1B9A' },
+    { key: 'view', label: 'View Details', icon: Eye, color: '#2563EB' },
+    { key: 'whatsapp', label: '💬 Send WhatsApp', icon: MessageCircle, color: '#16a34a' },
+    { key: 'print', label: 'Print Receipt', icon: Printer, color: '#424242', condition: canPrint('bookings') },
+    { key: 'assignStaff', label: '👤 Assign Staff', icon: UserPlus, color: '#6A1B9A', condition: canEdit('bookings') },
+    { key: 'status', label: 'Change Status', icon: CheckCircle, color: '#6A1B9A', condition: canEdit('bookings') },
     { key: 'payment', label: 'Receive Payment', icon: CreditCard, color: '#1B5E20', condition: Number(booking.dueAmount) > 0 },
-    // { key: 'print', label: 'Print Receipt', icon: Printer, color: '#424242' },
-    { key: 'edit', label: 'Edit Booking', icon: Edit2, color: '#1565C0' },
-    { key: 'delete', label: 'Delete Booking', icon: Trash2, color: '#B71C1C' },
+    { key: 'edit', label: 'Edit Booking', icon: Edit2, color: '#1565C0', condition: canEdit('bookings') },
+    { key: 'delete', label: 'Delete Booking', icon: Trash2, color: '#B71C1C', condition: canDelete('bookings') },
   ];
 
   const handleAction = (key) => {
@@ -81,19 +86,19 @@ const ActionDropdown = ({ booking, onAction }) => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="p-1.5 rounded-lg hover:bg-gray-100 transition-all"
-        style={{ color: '#4A4A4A' }}
+        style={{ color: '#334155' }}
       >
         <MoreVertical size={18} />
       </button>
       
       {isOpen && (
-        <div className="absolute right-0 mt-1 w-52 bg-white rounded-xl shadow-lg border py-1 z-[99999] min-w-[180px]" style={{ borderColor: '#E0D8CC' }}>
+        <div className="absolute right-0 mt-1 w-52 bg-white rounded-xl shadow-lg border py-1 z-[99999] min-w-[180px]" style={{ borderColor: '#CBD5E1' }}>
           {actions.filter(a => a.condition !== false).map((action) => (
             <button
               key={action.key}
               onClick={() => handleAction(action.key)}
               className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 transition-all text-left"
-              style={{ color: '#1A1A1A' }}
+              style={{ color: '#0F172A' }}
             >
               <action.icon size={16} style={{ color: action.color }} />
               <span>{action.label}</span>
@@ -108,6 +113,7 @@ const ActionDropdown = ({ booking, onAction }) => {
 const BookingList = () => {
   const navigate = useNavigate();
   const { currentBranch } = useBranch();
+  const { canCreate } = usePermissions();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -153,7 +159,7 @@ const BookingList = () => {
     showCustomerDetails: true,
     showPaymentHistory: true,
     themeColor: '#1a1a2e',
-    accentColor: '#A97A1F',
+    accentColor: '#2563EB',
     thermalWidth: '80mm',
     thermalFontSize: '12px',
   });
@@ -174,6 +180,19 @@ const BookingList = () => {
     bankAccountId: ''
   });
 
+  // ── Complete & Settle Modal ──
+  const [settleModalOpen, setSettleModalOpen] = useState(false);
+  const [bookingForSettle, setBookingForSettle] = useState(null);
+  const [settlingBooking, setSettlingBooking] = useState(false);
+  const [settleForm, setSettleForm] = useState({
+    settleNow: true,
+    amount: '',
+    mode: 'cash',
+    bankAccountId: '',
+    notes: 'Final settlement on completion',
+    allowUnpaid: false
+  });
+
   // ── Assign Staff Modal ──
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [bookingForAssign, setBookingForAssign] = useState(null);
@@ -187,6 +206,24 @@ const BookingList = () => {
     notes: ''
   });
   const [assignLoading, setAssignLoading] = useState(false);
+  const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
+  const [bookingForWhatsApp, setBookingForWhatsApp] = useState(null);
+
+  // ── Upcoming Reminders Drawer States ──
+  const [remindersDrawerOpen, setRemindersDrawerOpen] = useState(false);
+  const [remindersData, setRemindersData] = useState({ total: 0, pendingCount: 0, sentCount: 0 });
+
+  const fetchRemindersCount = useCallback(async () => {
+    try {
+      const res = await bookingApi.getUpcomingReminders({ branchId: currentBranch?.id, days: 2, pastDays: 2 });
+      const resData = res?.data?.data || res?.data || res || {};
+      setRemindersData(resData);
+    } catch (e) {}
+  }, [currentBranch?.id]);
+
+  useEffect(() => {
+    fetchRemindersCount();
+  }, [fetchRemindersCount]);
 
   // ── Fetch Bookings ──
   const {
@@ -326,6 +363,10 @@ const BookingList = () => {
       case 'view': 
         navigate(`/bookings/${booking.id}`);
         break;
+      case 'whatsapp':
+        setBookingForWhatsApp(booking);
+        setWhatsAppModalOpen(true);
+        break;
       case 'assignStaff': 
         openAssignModal(booking);
         break;
@@ -369,8 +410,9 @@ const BookingList = () => {
 
   const handleStatusUpdate = async () => {
     if (!bookingToUpdate || !newStatus) return;
-    if (newStatus === 'completed' && Number(bookingToUpdate.dueAmount || 0) > 0) {
-      toast.error(`Cannot mark as Completed — ${formatCurrency(bookingToUpdate.dueAmount)} is still due!`);
+    if (newStatus === 'completed') {
+      setStatusModalOpen(false);
+      openSettleModal(bookingToUpdate);
       return;
     }
     try {
@@ -380,6 +422,65 @@ const BookingList = () => {
       refetch();
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Failed to update status');
+    }
+  };
+
+  const openSettleModal = (booking) => {
+    setBookingForSettle(booking);
+    const remainingDue = Math.max(0, Number(booking?.dueAmount || 0));
+    setSettleForm({
+      settleNow: remainingDue > 0,
+      amount: remainingDue > 0 ? remainingDue : '',
+      mode: 'cash',
+      bankAccountId: '',
+      notes: 'Final settlement on completion',
+      allowUnpaid: false
+    });
+    setSettleModalOpen(true);
+  };
+
+  const handleCompleteAndSettle = async (e) => {
+    e.preventDefault();
+    if (!bookingForSettle) return;
+    const remainingDue = Math.max(0, Number(bookingForSettle.dueAmount || 0));
+    const payload = {
+      allowUnpaid: !settleForm.settleNow || settleForm.allowUnpaid
+    };
+
+    if (settleForm.settleNow && remainingDue > 0) {
+      const amt = Number(settleForm.amount);
+      if (amt <= 0) {
+        toast.error('Payment amount must be greater than 0');
+        return;
+      }
+      if (!settleForm.bankAccountId) {
+        toast.error('Please select an account to receive payment');
+        return;
+      }
+      const paymentModeMap = {
+        'cash': 'Cash',
+        'bank_transfer': 'Bank Transfer',
+        'jazzcash': 'JazzCash / EasyPaisa',
+        'easypaisa': 'JazzCash / EasyPaisa',
+        'card': 'Credit Card',
+        'cheque': 'Cheque'
+      };
+      payload.amount = amt;
+      payload.paymentMode = paymentModeMap[settleForm.mode] || 'Cash';
+      payload.bankAccountId = parseInt(settleForm.bankAccountId);
+      payload.notes = settleForm.notes || 'Final settlement on completion';
+    }
+
+    try {
+      setSettlingBooking(true);
+      const res = await bookingApi.completeAndSettle(bookingForSettle.id, payload);
+      toast.success(res?.data?.message || 'Booking marked as Completed and accounts settled!');
+      setSettleModalOpen(false);
+      refetch();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to complete booking');
+    } finally {
+      setSettlingBooking(false);
     }
   };
 
@@ -397,44 +498,54 @@ const BookingList = () => {
   };
 
   const handleAddPayment = async (e) => {
-    e.preventDefault();
-    if (!bookingForPayment) return;
+  e.preventDefault();
+  if (!bookingForPayment) return;
+  
+  const amountNum = Number(paymentForm.amount);
+  if (amountNum <= 0) {
+    toast.error('Amount must be greater than 0');
+    return;
+  }
+  if (amountNum > Number(bookingForPayment.dueAmount || 0)) {
+    toast.error('Amount cannot exceed due balance');
+    return;
+  }
+  if (!paymentForm.bankAccountId) {
+    toast.error('Please select a bank account to receive payment');
+    return;
+  }
+  
+  try {
+    // 🔥 FIX: Payment mode ko API ke hisaab se bhejo
+    const paymentModeMap = {
+      'cash': 'Cash',
+      'bank_transfer': 'Bank Transfer',
+      'jazzcash': 'JazzCash / EasyPaisa',
+      'easypaisa': 'JazzCash / EasyPaisa',
+      'card': 'Credit Card',
+      'cheque': 'Cheque'
+    };
+
+    await bookingApi.addPayment(bookingForPayment.id, {
+      amount: amountNum,
+      paymentMode: paymentModeMap[paymentForm.mode] || 'Cash', // 🔥 paymentMode send karo
+      notes: paymentForm.description || 'Payment received',    // 🔥 notes send karo
+      date: paymentForm.date,
+      bankAccountId: parseInt(paymentForm.bankAccountId)
+    });
     
-    const amountNum = Number(paymentForm.amount);
-    if (amountNum <= 0) {
-      toast.error('Amount must be greater than 0');
-      return;
-    }
-    if (amountNum > Number(bookingForPayment.dueAmount || 0)) {
-      toast.error('Amount cannot exceed due balance');
-      return;
-    }
-    if (!paymentForm.bankAccountId) {
-      toast.error('Please select a bank account to receive payment');
-      return;
-    }
-    
-    try {
-      await bookingApi.addPayment(bookingForPayment.id, {
-        amount: amountNum,
-        mode: paymentForm.mode,
-        description: paymentForm.description,
-        date: paymentForm.date,
-        bankAccountId: parseInt(paymentForm.bankAccountId)
-      });
-      
-      toast.success('Payment recorded successfully!');
-      setPaymentModalOpen(false);
-      refetch();
-    } catch (err) {
-      console.error('Payment error:', err);
-      const msg = err?.response?.data?.message 
-        || err?.response?.data?.error 
-        || err?.message 
-        || 'Failed to record payment';
-      toast.error(msg);
-    }
-  };
+    toast.success('Payment recorded successfully!');
+    setPaymentModalOpen(false);
+    refetch();
+  } catch (err) {
+    console.error('Payment error:', err);
+    const msg = err?.response?.data?.message 
+      || err?.response?.data?.error 
+      || err?.message 
+      || 'Failed to record payment';
+    toast.error(msg);
+  }
+};
 
   // ── ASSIGN STAFF MODAL ──
   const openAssignModal = (booking) => {
@@ -833,55 +944,71 @@ const BookingList = () => {
 
   if (loading && bookingsList.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F5F2EB' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
         <div className="text-center">
-          <div className="w-16 h-16 rounded-full border-4 animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
-          <p className="mt-4 text-sm font-bold" style={{ color: '#4A4A4A' }}>Loading bookings...</p>
+          <div className="w-16 h-16 rounded-full border-4 animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
+          <p className="mt-4 text-sm font-bold" style={{ color: '#334155' }}>Loading bookings...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       {/* ═══ HEADER ═══ */}
-      <div className="sticky top-0 z-40 border-b backdrop-blur-xl" style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderColor: '#E0D8CC' }}>
+      <div className="sticky top-0 z-40 border-b backdrop-blur-xl" style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderColor: '#CBD5E1' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-[0_4px_12px_rgba(169,122,31,0.3)]">
+              <div className="p-2.5 rounded-2xl bg-gradient-to-br from-[#1E40AF] to-[#2563EB] shadow-[0_4px_16px_rgba(197,160,89,0.35)]">
                 <Calendar className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold" style={{ color: '#1A1A1A' }}>Event Bookings</h1>
-                <p className="text-xs font-medium" style={{ color: '#7A7A7A' }}>Manage live events, payments & history</p>
+                <h1 className="text-lg font-bold text-slate-900">Event Bookings</h1>
+                <p className="text-xs font-medium text-slate-500">Manage live events, payments & guest schedules</p>
               </div>
             </div>
             
             <div className="flex items-center gap-3">
-              <div className="bg-white p-1 rounded-xl border border-[#E0D8CC] flex items-center shadow-sm">
+              <div className="bg-white p-1 rounded-xl border border-slate-300 flex items-center shadow-xs">
                 <button 
                   onClick={() => setViewMode('grid')} 
                   title="Grid Card View"
-                  className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#2563EB] text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
                 >
                   <LayoutGrid size={18} />
                 </button>
                 <button 
                   onClick={() => setViewMode('table')} 
                   title="Table View"
-                  className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#2563EB] text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
                 >
                   <TableIcon size={18} />
                 </button>
               </div>
 
-              <Link to="/bookings/create">
-                <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-bold shadow-md transition-all hover:scale-105"
-                  style={{ background: 'linear-gradient(135deg, #A97A1F, #C89B3C)' }}>
-                  <Plus size={16} /> New Booking
-                </button>
-              </Link>
+              <button
+                type="button"
+                onClick={() => setRemindersDrawerOpen(true)}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:border-blue-600 text-slate-800 text-xs font-bold transition shadow-xs"
+                title="Upcoming Event WhatsApp Reminders (1-2 Days Ahead)"
+              >
+                <Bell className={`w-4 h-4 ${remindersData.pendingCount > 0 ? 'text-blue-600 animate-bounce' : 'text-slate-400'}`} />
+                <span className="hidden sm:inline">Reminders</span>
+                {remindersData.pendingCount > 0 && (
+                  <span className="px-1.5 py-0.2 bg-blue-600 text-white rounded-full text-[10px] font-extrabold">
+                    {remindersData.pendingCount}
+                  </span>
+                )}
+              </button>
+
+              {canCreate('bookings') && (
+                <Link to="/bookings/create">
+                  <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-bold shadow-xs transition-all bg-blue-600 hover:bg-blue-700 hover:scale-[1.01] active:scale-[0.99]">
+                    <Plus size={16} /> New Booking
+                  </button>
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -889,22 +1016,22 @@ const BookingList = () => {
 
       <div className="max-w-7xl mx-auto px-4 py-6 md:px-6 space-y-6">
 
-        {/* ═══ STATS CARDS ═══ */}
+        {/* ═══ STATS CARDS (Uniform Corporate Style) ═══ */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {[
-            { label: 'Total Bookings', value: stats.total, icon: Calendar, color: '#A97A1F', bg: '#FEF3C7' },
-            { label: 'Confirmed', value: stats.confirmed, icon: CheckCircle, color: '#1B5E20', bg: '#E8F5E9' },
-            { label: 'In Progress', value: stats.in_progress, icon: Clock4, color: '#6A1B9A', bg: '#F3E5F5' },
-            { label: 'Completed', value: stats.completed, icon: Sparkles, color: '#1565C0', bg: '#E3F2FD' },
+            { label: 'Total Bookings', value: stats.total, icon: Calendar },
+            { label: 'Confirmed', value: stats.confirmed, icon: CheckCircle },
+            { label: 'In Progress', value: stats.in_progress, icon: Clock4 },
+            { label: 'Completed', value: stats.completed, icon: Sparkles },
           ].map((stat, i) => (
-            <div key={i} className="bg-white rounded-2xl border p-4 shadow-sm transition-all hover:shadow-md" style={{ borderColor: '#E0D8CC' }}>
+            <div key={i} className="bg-white rounded-2xl border p-4 shadow-xs transition-all hover:shadow-md" style={{ borderColor: '#CBD5E1' }}>
               <div className="flex items-center justify-between mb-2">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: stat.bg }}>
-                  <stat.icon size={20} style={{ color: stat.color }} />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 text-blue-600 border border-blue-100">
+                  <stat.icon size={20} />
                 </div>
               </div>
-              <p className="text-2xl font-bold" style={{ color: '#1A1A1A' }}>{stat.value}</p>
-              <p className="text-xs font-medium mt-1" style={{ color: '#7A7A7A' }}>{stat.label}</p>
+              <p className="text-2xl font-extrabold text-slate-900">{stat.value}</p>
+              <p className="text-xs font-semibold text-slate-500 mt-1">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -916,59 +1043,59 @@ const BookingList = () => {
             { label: 'Cancelled', value: stats.cancelled, color: '#B71C1C', bg: '#FFEBEE' },
             { label: 'No Show', value: stats.no_show, color: '#424242', bg: '#F5F5F5' },
           ].map((stat, i) => (
-            <div key={i} className="bg-white rounded-xl border p-3 text-center shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+            <div key={i} className="bg-white rounded-xl border p-3 text-center shadow-sm" style={{ borderColor: '#CBD5E1' }}>
               <p className="text-lg font-bold" style={{ color: stat.color }}>{stat.value}</p>
-              <p className="text-[10px] font-bold uppercase tracking-wider mt-0.5" style={{ color: '#7A7A7A' }}>{stat.label}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider mt-0.5" style={{ color: '#475569' }}>{stat.label}</p>
             </div>
           ))}
         </div>
 
         {/* ═══ FINANCIAL STATS ═══ */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-          <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+          <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
             <div className="flex items-center gap-2 mb-1">
               <TrendingUp size={16} style={{ color: '#1B5E20' }} />
-              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#4A4A4A' }}>Total Revenue</span>
+              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#334155' }}>Total Revenue</span>
             </div>
             <p className="text-xl font-bold font-mono" style={{ color: '#1B5E20' }}>{formatCurrency(stats.totalRevenue)}</p>
           </div>
-          <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+          <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
             <div className="flex items-center gap-2 mb-1">
               <CreditCard size={16} style={{ color: '#1565C0' }} />
-              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#4A4A4A' }}>Total Collected</span>
+              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#334155' }}>Total Collected</span>
             </div>
             <p className="text-xl font-bold font-mono" style={{ color: '#1565C0' }}>{formatCurrency(stats.totalPaid)}</p>
           </div>
-          <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+          <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
             <div className="flex items-center gap-2 mb-1">
               <TrendingDown size={16} style={{ color: '#B71C1C' }} />
-              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#4A4A4A' }}>Total Due</span>
+              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#334155' }}>Total Due</span>
             </div>
             <p className="text-xl font-bold font-mono" style={{ color: '#B71C1C' }}>{formatCurrency(stats.totalDue)}</p>
           </div>
         </div>
 
         {/* ═══ FILTERS BAR ═══ */}
-        <div className="bg-white rounded-2xl border shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+        <div className="bg-white rounded-2xl border shadow-sm" style={{ borderColor: '#CBD5E1' }}>
           <div className="p-4">
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
                 <div className="min-w-0">
-                  <label className="text-xs font-bold uppercase tracking-wider mb-1 block" style={{ color: '#4A4A4A' }}>Search</label>
+                  <label className="text-xs font-bold uppercase tracking-wider mb-1 block" style={{ color: '#334155' }}>Search</label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: '#A97A1F' }} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: '#2563EB' }} />
                     <input 
                       type="text" 
                       placeholder="Customer, phone, booking #..." 
                       value={searchQuery} 
                       onChange={e => setSearchQuery(e.target.value)}
-                      className="w-full border rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20" 
-                      style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }} 
+                      className="w-full border rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" 
+                      style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }} 
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider mb-1 block" style={{ color: '#4A4A4A' }}>Status</label>
+                  <label className="text-xs font-bold uppercase tracking-wider mb-1 block" style={{ color: '#334155' }}>Status</label>
                   <ReactSelect
                     value={statusFilter}
                     onChange={(val) => { setStatusFilter(val || ''); setCurrentPage(1); }}
@@ -987,7 +1114,7 @@ const BookingList = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider mb-1 block" style={{ color: '#4A4A4A' }}>Payment</label>
+                  <label className="text-xs font-bold uppercase tracking-wider mb-1 block" style={{ color: '#334155' }}>Payment</label>
                   <ReactSelect
                     value={paymentStatusFilter}
                     onChange={(val) => { setPaymentStatusFilter(val || ''); setCurrentPage(1); }}
@@ -1005,7 +1132,7 @@ const BookingList = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider mb-1 block" style={{ color: '#4A4A4A' }}>Hall</label>
+                  <label className="text-xs font-bold uppercase tracking-wider mb-1 block" style={{ color: '#334155' }}>Hall</label>
                   <ReactSelect
                     value={hallFilter}
                     onChange={(val) => { setHallFilter(val || ''); setCurrentPage(1); }}
@@ -1019,23 +1146,23 @@ const BookingList = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider mb-1 block" style={{ color: '#4A4A4A' }}>From Date</label>
+                  <label className="text-xs font-bold uppercase tracking-wider mb-1 block" style={{ color: '#334155' }}>From Date</label>
                   <input 
                     type="date" 
                     value={dateFrom} 
                     onChange={e => { setDateFrom(e.target.value); setCurrentPage(1); }}
-                    className="w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20" 
-                    style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }} 
+                    className="w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" 
+                    style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }} 
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider mb-1 block" style={{ color: '#4A4A4A' }}>To Date</label>
+                  <label className="text-xs font-bold uppercase tracking-wider mb-1 block" style={{ color: '#334155' }}>To Date</label>
                   <input 
                     type="date" 
                     value={dateTo} 
                     onChange={e => { setDateTo(e.target.value); setCurrentPage(1); }}
-                    className="w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20" 
-                    style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }} 
+                    className="w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" 
+                    style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }} 
                   />
                 </div>
                 <button 
@@ -1049,7 +1176,7 @@ const BookingList = () => {
                     setCurrentPage(1);
                   }}
                   className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-bold border hover:bg-gray-50 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
-                  style={{ borderColor: '#E0D8CC', color: '#4A4A4A' }}
+                  style={{ borderColor: '#CBD5E1', color: '#334155' }}
                 >
                   <RotateCcw size={14} /> Clear Filters
                 </button>
@@ -1061,11 +1188,11 @@ const BookingList = () => {
         {/* ═══ CONTENT VIEW ═══ */}
         {loading ? (
           <div className="text-center py-20">
-            <div className="w-12 h-12 rounded-full border-4 border-t-[#A97A1F] animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
+            <div className="w-12 h-12 rounded-full border-4 border-t-[#2563EB] animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
             <p className="mt-4 text-sm font-bold text-gray-600">Loading bookings...</p>
           </div>
         ) : filteredBookings.length === 0 ? (
-          <div className="bg-white rounded-2xl p-12 text-center border shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+          <div className="bg-white rounded-2xl p-12 text-center border shadow-sm" style={{ borderColor: '#CBD5E1' }}>
             <Calendar size={48} className="mx-auto mb-3 opacity-30 text-gray-400" />
             <p className="font-bold text-gray-800">No bookings found</p>
             <p className="text-sm mt-1 text-gray-500">Try adjusting your filters or create a new booking.</p>
@@ -1076,15 +1203,23 @@ const BookingList = () => {
               const s = statusConfig[booking.status] || statusConfig.tentative;
               const ps = paymentStatusConfig[booking.paymentStatus] || paymentStatusConfig.pending;
               return (
-                <div key={booking.id} className="bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between" style={{ borderColor: '#E0D8CC' }}>
+                <div key={booking.id} className="bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between" style={{ borderColor: '#CBD5E1' }}>
                   <div>
                     <div className="flex items-start justify-between gap-2 mb-3">
                       <div className="min-w-0">
-                        <span className="font-mono font-bold text-base" style={{ color: '#A97A1F' }}>#{booking.bookingNo || booking.id}</span>
+                        <span className="font-mono font-bold text-base" style={{ color: '#2563EB' }}>#{booking.bookingNo || booking.id}</span>
                         <p className="text-xs font-semibold text-gray-800 truncate mt-0.5">{booking.title}</p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="text-xs px-2.5 py-1 rounded-lg font-bold" style={{ backgroundColor: s.bg, color: s.color }}>{s.label}</span>
+                        <button
+                          type="button"
+                          onClick={() => { setBookingForWhatsApp(booking); setWhatsAppModalOpen(true); }}
+                          className="p-1.5 rounded-lg hover:bg-emerald-50 text-emerald-600 border border-emerald-200 hover:border-emerald-400 transition-all shadow-xs"
+                          title="Send WhatsApp Message"
+                        >
+                          <MessageCircle size={15} />
+                        </button>
                         <ActionDropdown booking={booking} onAction={handleAction} />
                       </div>
                     </div>
@@ -1102,7 +1237,7 @@ const BookingList = () => {
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-[#F0ECE6] flex items-center justify-between">
+                  <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-between">
                     <div>
                       <span className="text-[10px] uppercase font-bold text-gray-400 block">Total / Due</span>
                       <span className="font-mono font-bold text-gray-800 text-sm">{formatCurrency(booking.totalAmount)}</span>
@@ -1117,22 +1252,22 @@ const BookingList = () => {
             })}
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border overflow-hidden shadow-sm hidden md:block" style={{ borderColor: '#E0D8CC' }}>
+          <div className="bg-white rounded-2xl border overflow-hidden shadow-sm hidden md:block" style={{ borderColor: '#CBD5E1' }}>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr style={{ backgroundColor: '#FAF8F4', borderBottom: '2px solid #E0D8CC' }}>
-                    <th className="text-left py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#4A4A4A' }}>Booking #</th>
-                    <th className="text-left py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#4A4A4A' }}>Customer</th>
-                    <th className="text-left py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#4A4A4A' }}>Event Date</th>
-                    <th className="text-left py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#4A4A4A' }}>Guests</th>
-                    <th className="text-left py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#4A4A4A' }}>Hall</th>
-                    <th className="text-right py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#4A4A4A' }}>Total</th>
-                    <th className="text-right py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#4A4A4A' }}>Paid</th>
-                    <th className="text-right py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#4A4A4A' }}>Due</th>
-                    <th className="text-center py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#4A4A4A' }}>Status</th>
-                    <th className="text-center py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#4A4A4A' }}>Payment</th>
-                    <th className="text-center py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#4A4A4A' }}>Actions</th>
+                  <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '2px solid #CBD5E1' }}>
+                    <th className="text-left py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#334155' }}>Booking #</th>
+                    <th className="text-left py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#334155' }}>Customer</th>
+                    <th className="text-left py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#334155' }}>Event Date</th>
+                    <th className="text-left py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#334155' }}>Guests</th>
+                    <th className="text-left py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#334155' }}>Hall</th>
+                    <th className="text-right py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#334155' }}>Total</th>
+                    <th className="text-right py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#334155' }}>Paid</th>
+                    <th className="text-right py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#334155' }}>Due</th>
+                    <th className="text-center py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#334155' }}>Status</th>
+                    <th className="text-center py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#334155' }}>Payment</th>
+                    <th className="text-center py-3.5 px-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: '#334155' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1142,9 +1277,9 @@ const BookingList = () => {
                     return (
                       <tr key={booking.id}
                         className="transition-colors hover:bg-amber-50/30 border-b"
-                        style={{ borderColor: '#F0ECE6', backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#FAFAF8' }}>
+                        style={{ borderColor: '#E2E8F0', backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#FAFAF8' }}>
                         <td className="py-3.5 px-4">
-                          <span className="font-mono font-bold" style={{ color: '#A97A1F' }}>#{booking.bookingNo || booking.id}</span>
+                          <span className="font-mono font-bold" style={{ color: '#2563EB' }}>#{booking.bookingNo || booking.id}</span>
                           <span className="block text-xs text-gray-400 truncate max-w-[120px]">{booking.title}</span>
                         </td>
                         <td className="py-3.5 px-4">
@@ -1202,7 +1337,17 @@ const BookingList = () => {
                           </span>
                         </td>
                         <td className="py-3.5 px-4 text-center">
-                          <ActionDropdown booking={booking} onAction={handleAction} />
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => { setBookingForWhatsApp(booking); setWhatsAppModalOpen(true); }}
+                              className="p-1.5 rounded-lg hover:bg-emerald-50 text-emerald-600 border border-transparent hover:border-emerald-200 transition-all"
+                              title="Send WhatsApp Message"
+                            >
+                              <MessageCircle size={15} />
+                            </button>
+                            <ActionDropdown booking={booking} onAction={handleAction} />
+                          </div>
                         </td>
                       </tr>
                     );
@@ -1215,8 +1360,8 @@ const BookingList = () => {
 
         {/* Pagination */}
         {!loading && filteredBookings.length > 0 && (
-          <div className="bg-white rounded-2xl border px-4 py-3 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3" style={{ borderColor: '#E0D8CC' }}>
-            <p className="text-sm" style={{ color: '#7A7A7A' }}>
+          <div className="bg-white rounded-2xl border px-4 py-3 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3" style={{ borderColor: '#CBD5E1' }}>
+            <p className="text-sm" style={{ color: '#475569' }}>
               Showing <strong>{startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredBookings.length)}</strong> of <strong>{filteredBookings.length}</strong> bookings
             </p>
             <div className="flex items-center gap-1.5">
@@ -1224,7 +1369,7 @@ const BookingList = () => {
                 onClick={() => setCurrentPage(1)} 
                 disabled={currentPage === 1}
                 className="px-2.5 py-1.5 rounded-lg border text-xs font-bold hover:bg-gray-50 disabled:opacity-30 transition-all" 
-                style={{ borderColor: '#E0D8CC', color: '#4A4A4A' }}
+                style={{ borderColor: '#CBD5E1', color: '#334155' }}
               >
                 First
               </button>
@@ -1232,18 +1377,18 @@ const BookingList = () => {
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
                 disabled={currentPage === 1}
                 className="p-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-30 transition-all" 
-                style={{ borderColor: '#E0D8CC' }}
+                style={{ borderColor: '#CBD5E1' }}
               >
                 <ChevronLeft size={16} />
               </button>
-              <span className="text-sm font-bold px-3" style={{ color: '#4A4A4A' }}>
+              <span className="text-sm font-bold px-3" style={{ color: '#334155' }}>
                 Page {currentPage} of {totalPages}
               </span>
               <button 
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
                 disabled={currentPage === totalPages}
                 className="p-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-30 transition-all" 
-                style={{ borderColor: '#E0D8CC' }}
+                style={{ borderColor: '#CBD5E1' }}
               >
                 <ChevronRight size={16} />
               </button>
@@ -1251,7 +1396,7 @@ const BookingList = () => {
                 onClick={() => setCurrentPage(totalPages)} 
                 disabled={currentPage === totalPages}
                 className="px-2.5 py-1.5 rounded-lg border text-xs font-bold hover:bg-gray-50 disabled:opacity-30 transition-all" 
-                style={{ borderColor: '#E0D8CC', color: '#4A4A4A' }}
+                style={{ borderColor: '#CBD5E1', color: '#334155' }}
               >
                 Last
               </button>
@@ -1263,30 +1408,30 @@ const BookingList = () => {
       {/* ═══════ STATUS UPDATE MODAL ═══════ */}
       {statusModalOpen && bookingToUpdate && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl border p-6" style={{ borderColor: '#E0D8CC' }}>
-            <h3 className="text-lg font-bold mb-1" style={{ color: '#1A1A1A' }}>Update Status</h3>
+          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl border p-6" style={{ borderColor: '#CBD5E1' }}>
+            <h3 className="text-lg font-bold mb-1" style={{ color: '#0F172A' }}>Update Status</h3>
             <p className="text-sm text-gray-500 mb-4">Booking #{bookingToUpdate.bookingNo}</p>
 
             <div className="space-y-2 mb-6">
               {Object.entries(statusConfig).map(([key, cfg]) => (
                 <button key={key} onClick={() => setNewStatus(key)}
                   className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all ${
-                    newStatus === key ? 'border-[#A97A1F] ring-2 ring-[#A97A1F]/20' : 'border-gray-200 hover:border-gray-300'
+                    newStatus === key ? 'border-[#2563EB] ring-2 ring-[#2563EB]/20' : 'border-gray-200 hover:border-gray-300'
                   }`}>
                   <span className="font-semibold text-sm" style={{ color: cfg.color }}>{cfg.label}</span>
-                  {newStatus === key && <CheckCircle size={16} style={{ color: '#A97A1F' }} />}
+                  {newStatus === key && <CheckCircle size={16} style={{ color: '#2563EB' }} />}
                 </button>
               ))}
             </div>
 
             <div className="flex gap-3">
               <button onClick={() => setStatusModalOpen(false)}
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold border hover:bg-gray-50" style={{ borderColor: '#E0D8CC' }}>
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold border hover:bg-gray-50" style={{ borderColor: '#CBD5E1' }}>
                 Cancel
               </button>
               <button onClick={handleStatusUpdate}
                 className="flex-1 px-4 py-2.5 rounded-xl text-white text-sm font-bold shadow-md"
-                style={{ background: 'linear-gradient(135deg, #A97A1F, #C89B3C)' }}>
+                style={{ background: 'linear-gradient(135deg, #1E40AF, #2563EB)' }}>
                 Update
               </button>
             </div>
@@ -1295,21 +1440,22 @@ const BookingList = () => {
       )}
 
       {/* ═══════ PAYMENT MODAL ═══════ */}
+           {/* ═══════ PAYMENT MODAL ═══════ */}
       {paymentModalOpen && bookingForPayment && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl border p-6" style={{ borderColor: '#E0D8CC' }}>
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl border p-6" style={{ borderColor: '#CBD5E1' }}>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-bold" style={{ color: '#1A1A1A' }}>Receive Payment</h3>
+                <h3 className="text-lg font-bold" style={{ color: '#0F172A' }}>Receive Payment</h3>
                 <p className="text-xs text-gray-500">Booking #{bookingForPayment.bookingNo}</p>
               </div>
               <button onClick={() => setPaymentModalOpen(false)} className="p-1.5 rounded-lg hover:bg-gray-100">
-                <X size={20} style={{ color: '#4A4A4A' }} />
+                <X size={20} style={{ color: '#334155' }} />
               </button>
             </div>
 
             <div className="grid grid-cols-3 gap-2 mb-4">
-              <div className="rounded-xl p-2 text-center border" style={{ backgroundColor: '#F5F5F5', borderColor: '#E0D8CC' }}>
+              <div className="rounded-xl p-2 text-center border" style={{ backgroundColor: '#F5F5F5', borderColor: '#CBD5E1' }}>
                 <span className="text-[10px] text-gray-500 block uppercase font-bold">Total</span>
                 <span className="font-bold font-mono text-sm">{formatCurrency(bookingForPayment.totalAmount)}</span>
               </div>
@@ -1326,71 +1472,234 @@ const BookingList = () => {
             <form onSubmit={handleAddPayment} className="space-y-4">
               <div>
                 <label className="text-xs font-bold uppercase mb-1 block text-gray-500">Amount (Rs) *</label>
-                <input type="number" min="1" max={bookingForPayment.dueAmount} required
+                <input 
+                  type="number" 
+                  min="1" 
+                  max={bookingForPayment.dueAmount} 
+                  required
                   value={paymentForm.amount}
                   onChange={e => setPaymentForm(prev => ({ ...prev, amount: e.target.value }))}
-                  className="w-full border rounded-xl px-3 py-2.5 text-sm font-mono"
-                  style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }} />
+                  className="w-full border rounded-xl px-3 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                  style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }} 
+                />
                 <p className="text-[10px] text-gray-400 mt-1">Max: {formatCurrency(bookingForPayment.dueAmount)}</p>
               </div>
+
+              {/* ── PAYMENT MODE ── */}
               <div>
                 <label className="text-xs font-bold uppercase mb-1 block text-gray-500">Payment Mode *</label>
-                <ReactSelect
-                  value={paymentForm.mode}
-                  onChange={(val) => setPaymentForm(prev => ({ ...prev, mode: val || 'cash' }))}
-                  options={[
-                    { value: 'cash', label: 'Cash' },
-                    { value: 'bank_transfer', label: 'Bank Transfer' },
-                    { value: 'card', label: 'Card' },
-                    { value: 'easypaisa', label: 'Easypaisa' },
-                    { value: 'jazzcash', label: 'JazzCash' },
-                    { value: 'cheque', label: 'Cheque' }
-                  ]}
-                  placeholder="Select Mode"
-                  isSearchable={true}
-                  isClearable={false}
-                />
+                <select 
+                  value={paymentForm.mode} 
+                  onChange={(e) => {
+                    setPaymentForm(prev => ({ 
+                      ...prev, 
+                      mode: e.target.value,
+                      bankAccountId: ''
+                    }));
+                  }}
+                  className="w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                  style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}
+                >
+                  <option value="cash">💵 Cash</option>
+                  <option value="bank_transfer">🏦 Bank Transfer</option>
+                  <option value="jazzcash">📱 JazzCash</option>
+                  <option value="easypaisa">📱 EasyPaisa</option>
+                  <option value="card">💳 Credit Card</option>
+                  <option value="cheque">📄 Cheque</option>
+                </select>
               </div>
+
+              {/* ── BANK ACCOUNT (Filtered by Payment Mode) ── */}
               <div>
-                <label className="text-xs font-bold uppercase mb-1 block text-gray-500">Receive In Account *</label>
-                <ReactSelect
-                  value={paymentForm.bankAccountId}
-                  onChange={(val) => setPaymentForm(prev => ({ ...prev, bankAccountId: val || '' }))}
-                  options={[{ value: '', label: '-- Select Bank Account --' }, ...bankAccounts.filter(Boolean).map(acc => ({
-                    value: String(acc.id),
-                    label: `${acc.bankName} — ${acc.accountNumber} (Bal: ${formatCurrency(acc.currentBalance)})`
-                  }))]}
-                  placeholder="Select Account"
-                  isSearchable={true}
-                  isClearable={false}
-                />
+                <label className="text-xs font-bold uppercase mb-1 block text-gray-500">
+                  Receive In Account *
+                  {paymentForm.mode && (
+                    <span className="ml-2 text-[10px] font-normal text-gray-500">
+                      ({paymentForm.mode.replace('_', ' ')} accounts only)
+                    </span>
+                  )}
+                </label>
+
+                {(() => {
+                  const modeToAccountType = {
+                    'cash': 'CASH',
+                    'bank_transfer': 'BANK',
+                    'jazzcash': 'JAZZCASH',
+                    'easypaisa': 'EASYPAISA',
+                    'card': 'CREDIT',
+                    'cheque': 'BANK'
+                  };
+
+                  const requiredType = paymentForm.mode ? modeToAccountType[paymentForm.mode] : null;
+                  let filteredAccounts = bankAccounts;
+                  if (requiredType) {
+                    filteredAccounts = bankAccounts.filter(acc => acc.accountType === requiredType);
+                  }
+                  const hasAccounts = filteredAccounts.length > 0;
+
+                  return (
+                    <>
+                      <select
+                        value={paymentForm.bankAccountId}
+                        onChange={e => setPaymentForm(prev => ({ ...prev, bankAccountId: e.target.value }))}
+                        required
+                        className="w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                        style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}
+                        disabled={!paymentForm.mode || !hasAccounts}
+                      >
+                        <option value="">
+                          {!paymentForm.mode 
+                            ? '⚠️ First select Payment Mode' 
+                            : !hasAccounts 
+                              ? `❌ No ${paymentForm.mode.replace('_', ' ')} account found!` 
+                              : `-- Select ${paymentForm.mode.replace('_', ' ')} Account --`
+                          }
+                        </option>
+                        {filteredAccounts.map(acc => (
+                          <option key={acc.id} value={acc.id}>
+                            {acc.bankName || acc.accountName || 'Account'} — {acc.accountNumber || 'N/A'} (Bal: {formatCurrency(acc.currentBalance || 0)})
+                          </option>
+                        ))}
+                      </select>
+
+                      {!paymentForm.mode && (
+                        <div className="mt-2 p-2.5 rounded-lg border border-amber-200 bg-amber-50">
+                          <p className="text-xs text-amber-700 flex items-center gap-1.5">
+                            <AlertCircle size={14} />
+                            <span>Please select a <strong>Payment Mode</strong> first to see available accounts</span>
+                          </p>
+                        </div>
+                      )}
+
+                      {paymentForm.mode && !hasAccounts && (
+                        <div className="mt-2 p-2.5 rounded-lg border border-red-200 bg-red-50">
+                          <p className="text-xs text-red-600 flex items-center gap-1.5">
+                            <AlertCircle size={14} />
+                            <span>No <strong>{paymentForm.mode.replace('_', ' ')}</strong> account found! Please create one in <strong>Settings → Chart of Accounts</strong></span>
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+
+                {/* ── SELECTED ACCOUNT BADGE ── */}
+                {paymentForm.bankAccountId && paymentForm.mode && (() => {
+                  const selectedAcc = bankAccounts.find(acc => String(acc.id) === String(paymentForm.bankAccountId));
+                  if (!selectedAcc) return null;
+
+                  const accountTypeColors = {
+                    'CASH': { bg: '#FEF3C7', text: '#1E3A8A', label: '💰 Cash' },
+                    'BANK': { bg: '#DBEAFE', text: '#1E40AF', label: '🏦 Bank' },
+                    'JAZZCASH': { bg: '#FCE7F3', text: '#9D174D', label: '📱 JazzCash' },
+                    'EASYPAISA': { bg: '#D1FAE5', text: '#065F46', label: '📱 EasyPaisa' },
+                    'CREDIT': { bg: '#EDE9FE', text: '#5B21B6', label: '💳 Credit' },
+                    'OTHER': { bg: '#F3F4F6', text: '#374151', label: '📌 Other' }
+                  };
+
+                  const colors = accountTypeColors[selectedAcc.accountType] || accountTypeColors['OTHER'];
+
+                  return (
+                    <div className="mt-2.5 p-3 rounded-xl border border-green-200" style={{ backgroundColor: '#F0FDF4' }}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-600 text-lg">✓</span>
+                          <div>
+                            <p className="text-sm font-bold text-gray-800">{selectedAcc.bankName || selectedAcc.accountName}</p>
+                            <p className="text-xs text-gray-500 font-mono">{selectedAcc.accountNumber}</p>
+                          </div>
+                        </div>
+                        <span
+                          className="px-3 py-1 rounded-full text-[10px] font-bold uppercase"
+                          style={{ backgroundColor: colors.bg, color: colors.text }}
+                        >
+                          {colors.label}
+                        </span>
+                      </div>
+                      {selectedAcc.currentBalance !== undefined && (
+                        <div className="mt-1.5 pt-1.5 border-t border-green-100 flex justify-between">
+                          <span className="text-[10px] text-gray-500">Current Balance</span>
+                          <span className="text-xs font-bold font-mono" style={{ color: '#2563EB' }}>
+                            {formatCurrency(selectedAcc.currentBalance || 0)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
+
               <div>
                 <label className="text-xs font-bold uppercase mb-1 block text-gray-500">Date *</label>
-                <input type="date" value={paymentForm.date} required
+                <input 
+                  type="date" 
+                  value={paymentForm.date} 
+                  required
                   onChange={e => setPaymentForm(prev => ({ ...prev, date: e.target.value }))}
-                  className="w-full border rounded-xl px-3 py-2.5 text-sm"
-                  style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }} />
+                  className="w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                  style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }} 
+                />
               </div>
+
               <div>
                 <label className="text-xs font-bold uppercase mb-1 block text-gray-500">Description</label>
-                <input type="text" placeholder="e.g. 2nd installment, final payment"
+                <input 
+                  type="text" 
+                  placeholder="e.g. 2nd installment, final payment"
                   value={paymentForm.description}
                   onChange={e => setPaymentForm(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full border rounded-xl px-3 py-2.5 text-sm"
-                  style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }} />
+                  className="w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                  style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }} 
+                />
               </div>
+
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setPaymentModalOpen(false)}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold border hover:bg-gray-50" style={{ borderColor: '#E0D8CC' }}>
+                <button 
+                  type="button" 
+                  onClick={() => setPaymentModalOpen(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold border hover:bg-gray-50 transition-all" 
+                  style={{ borderColor: '#CBD5E1' }}
+                >
                   Cancel
                 </button>
-                <button type="submit"
-                  className="flex-1 px-4 py-2.5 rounded-xl text-white text-sm font-bold shadow-md"
-                  style={{ background: 'linear-gradient(135deg, #1B5E20, #2E7D32)' }}>
+                <button 
+                  type="submit"
+                  disabled={!paymentForm.mode || !paymentForm.bankAccountId}
+                  className="flex-1 px-4 py-2.5 rounded-xl text-white text-sm font-bold shadow-md transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ background: 'linear-gradient(135deg, #1B5E20, #2E7D32)' }}
+                >
                   Record Payment
                 </button>
               </div>
+
+              {/* ── VALIDATION MESSAGES ── */}
+              {paymentForm.mode && !paymentForm.bankAccountId && (() => {
+                const modeToAccountType = {
+                  'cash': 'CASH',
+                  'bank_transfer': 'BANK',
+                  'jazzcash': 'JAZZCASH',
+                  'easypaisa': 'EASYPAISA',
+                  'card': 'CREDIT',
+                  'cheque': 'BANK'
+                };
+                const requiredType = paymentForm.mode ? modeToAccountType[paymentForm.mode] : null;
+                const hasAccounts = bankAccounts.some(acc => acc.accountType === requiredType);
+
+                if (!hasAccounts) {
+                  return (
+                    <p className="text-xs text-red-500 text-center mt-2 font-medium flex items-center justify-center gap-1.5">
+                      <AlertCircle size={14} /> 
+                      No {paymentForm.mode.replace('_', ' ')} account found! Please create one in Settings.
+                    </p>
+                  );
+                }
+                return (
+                  <p className="text-xs text-red-500 text-center mt-2 font-medium flex items-center justify-center gap-1.5">
+                    <AlertCircle size={14} /> 
+                    Please select a {paymentForm.mode.replace('_', ' ')} account to receive payment
+                  </p>
+                );
+              })()}
             </form>
           </div>
         </div>
@@ -1399,10 +1708,10 @@ const BookingList = () => {
       {/* ═══════ ASSIGN STAFF MODAL ═══════ */}
       {assignModalOpen && bookingForAssign && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl border p-6" style={{ borderColor: '#E0D8CC' }}>
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl border p-6" style={{ borderColor: '#CBD5E1' }}>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-bold flex items-center gap-2" style={{ color: '#1A1A1A' }}>
+                <h3 className="text-lg font-bold flex items-center gap-2" style={{ color: '#0F172A' }}>
                   <UserPlus size={20} className="text-purple-600" />
                   Assign Staff to Event
                 </h3>
@@ -1411,7 +1720,7 @@ const BookingList = () => {
                 </p>
               </div>
               <button onClick={() => setAssignModalOpen(false)} className="p-1.5 rounded-lg hover:bg-gray-100">
-                <X size={20} style={{ color: '#4A4A4A' }} />
+                <X size={20} style={{ color: '#334155' }} />
               </button>
             </div>
 
@@ -1441,7 +1750,7 @@ const BookingList = () => {
                     onChange={handleAssignChange}
                     placeholder="e.g., Chef, Waiter"
                     className="w-full border rounded-xl px-3 py-2.5 text-sm"
-                    style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }}
+                    style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}
                   />
                 </div>
                 <div>
@@ -1453,7 +1762,7 @@ const BookingList = () => {
                     onChange={handleAssignChange}
                     placeholder="5000"
                     className="w-full border rounded-xl px-3 py-2.5 text-sm font-mono"
-                    style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }}
+                    style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}
                     required
                     min="1"
                   />
@@ -1471,7 +1780,7 @@ const BookingList = () => {
                     placeholder="8.5"
                     step="0.5"
                     className="w-full border rounded-xl px-3 py-2.5 text-sm"
-                    style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }}
+                    style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}
                   />
                 </div>
                 <div>
@@ -1510,13 +1819,13 @@ const BookingList = () => {
                   rows="2"
                   placeholder="Additional notes..."
                   className="w-full border rounded-xl px-3 py-2.5 text-sm"
-                  style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }}
+                  style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}
                 />
               </div>
 
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setAssignModalOpen(false)}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold border hover:bg-gray-50" style={{ borderColor: '#E0D8CC' }}>
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold border hover:bg-gray-50" style={{ borderColor: '#CBD5E1' }}>
                   Cancel
                 </button>
                 <button type="submit" disabled={assignLoading}
@@ -1534,6 +1843,242 @@ const BookingList = () => {
           </div>
         </div>
       )}
+
+      {/* ═══════ COMPLETE & SETTLE MODAL ═══════ */}
+      {settleModalOpen && bookingForSettle && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl border p-6 max-h-[90vh] overflow-y-auto" style={{ borderColor: '#CBD5E1' }}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-bold flex items-center gap-2" style={{ color: '#0F172A' }}>
+                  <Sparkles size={20} style={{ color: '#2563EB' }} />
+                  Complete & Settle Event
+                </h3>
+                <p className="text-xs text-gray-500">Booking #{bookingForSettle.bookingNo || bookingForSettle.id} • {bookingForSettle.guestName}</p>
+              </div>
+              <button onClick={() => setSettleModalOpen(false)} className="p-1.5 rounded-lg hover:bg-gray-100">
+                <X size={20} style={{ color: '#334155' }} />
+              </button>
+            </div>
+
+            {/* Bill & Settlement Summary */}
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className="rounded-xl p-3 text-center border" style={{ backgroundColor: '#F8FAFC', borderColor: '#CBD5E1' }}>
+                <span className="text-[10px] text-gray-500 block uppercase font-bold">Total Bill</span>
+                <span className="font-bold font-mono text-sm" style={{ color: '#2563EB' }}>
+                  {formatCurrency(bookingForSettle.totalAmount)}
+                </span>
+              </div>
+              <div className="rounded-xl p-3 text-center border" style={{ backgroundColor: '#E8F5E9', borderColor: '#C8E6C9' }}>
+                <span className="text-[10px] text-green-700 block uppercase font-bold">Paid So Far</span>
+                <span className="font-bold font-mono text-sm text-green-700">
+                  {formatCurrency(bookingForSettle.paidAmount || bookingForSettle.advanceAmount || 0)}
+                </span>
+              </div>
+              <div className="rounded-xl p-3 text-center border" style={{ backgroundColor: '#FFEBEE', borderColor: '#EF9A9A' }}>
+                <span className="text-[10px] text-red-700 block uppercase font-bold">Remaining Due</span>
+                <span className="font-bold font-mono text-sm text-red-700">
+                  {formatCurrency(Math.max(0, Number(bookingForSettle.totalAmount || 0) - Number(bookingForSettle.paidAmount || bookingForSettle.advanceAmount || 0)))}
+                </span>
+              </div>
+            </div>
+
+            <form onSubmit={handleCompleteAndSettle} className="space-y-4">
+              {Number(bookingForSettle.dueAmount || 0) > 0 ? (
+                <>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase block text-gray-600">Settlement Option</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSettleForm(prev => ({ ...prev, settleNow: true, allowUnpaid: false }))}
+                        className={`p-3 rounded-xl border text-left transition ${
+                          settleForm.settleNow
+                            ? 'border-green-600 bg-green-50 ring-2 ring-green-600/20'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="font-bold text-xs text-green-900 flex items-center gap-1.5">
+                          <CheckCircle size={14} className="text-green-600" />
+                          Receive Balance
+                        </div>
+                        <div className="text-[11px] text-gray-500 mt-1">
+                          Receive {formatCurrency(bookingForSettle.dueAmount)} now & mark Completed.
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setSettleForm(prev => ({ ...prev, settleNow: false, allowUnpaid: true }))}
+                        className={`p-3 rounded-xl border text-left transition ${
+                          !settleForm.settleNow
+                            ? 'border-amber-600 bg-amber-50 ring-2 ring-amber-600/20'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="font-bold text-xs text-amber-900 flex items-center gap-1.5">
+                          <Clock4 size={14} className="text-amber-600" />
+                          Keep in Khata / Ledger
+                        </div>
+                        <div className="text-[11px] text-gray-500 mt-1">
+                          Mark Completed; customer will pay balance later.
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {settleForm.settleNow && (
+                    <div className="space-y-3 pt-2 border-t" style={{ borderColor: '#CBD5E1' }}>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-bold uppercase mb-1 block text-gray-600">Payment Amount (Rs) *</label>
+                          <input
+                            type="number"
+                            min="1"
+                            max={bookingForSettle.dueAmount}
+                            required
+                            value={settleForm.amount}
+                            onChange={e => setSettleForm(prev => ({ ...prev, amount: e.target.value }))}
+                            className="w-full border rounded-xl px-3 py-2 text-sm font-mono font-bold text-green-700 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                            style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold uppercase mb-1 block text-gray-600">Payment Mode *</label>
+                          <select
+                            value={settleForm.mode}
+                            onChange={e => setSettleForm(prev => ({ ...prev, mode: e.target.value, bankAccountId: '' }))}
+                            className="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                            style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}
+                          >
+                            <option value="cash">💵 Cash</option>
+                            <option value="bank_transfer">🏦 Bank Transfer</option>
+                            <option value="jazzcash">📱 JazzCash</option>
+                            <option value="easypaisa">📱 EasyPaisa</option>
+                            <option value="card">💳 Credit Card</option>
+                            <option value="cheque">📄 Cheque</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-bold uppercase mb-1 block text-gray-600">Deposit In Account *</label>
+                        {(() => {
+                          const modeToAccountType = {
+                            'cash': 'CASH',
+                            'bank_transfer': 'BANK',
+                            'jazzcash': 'JAZZCASH',
+                            'easypaisa': 'EASYPAISA',
+                            'card': 'CREDIT',
+                            'cheque': 'BANK'
+                          };
+                          const requiredType = settleForm.mode ? modeToAccountType[settleForm.mode] : null;
+                          let filteredAccounts = bankAccounts;
+                          if (requiredType) {
+                            filteredAccounts = bankAccounts.filter(acc => acc.accountType === requiredType);
+                          }
+                          return (
+                            <select
+                              value={settleForm.bankAccountId}
+                              onChange={e => setSettleForm(prev => ({ ...prev, bankAccountId: e.target.value }))}
+                              required={settleForm.settleNow}
+                              className="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                              style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}
+                            >
+                              <option value="">
+                                {filteredAccounts.length === 0
+                                  ? `❌ No ${settleForm.mode} accounts found`
+                                  : `-- Select ${settleForm.mode.replace('_', ' ')} Account --`}
+                              </option>
+                              {filteredAccounts.map(acc => (
+                                <option key={acc.id} value={acc.id}>
+                                  {acc.bankName || acc.accountName} — {acc.accountNumber || 'N/A'} (Bal: {formatCurrency(acc.currentBalance || 0)})
+                                </option>
+                              ))}
+                            </select>
+                          );
+                        })()}
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-bold uppercase mb-1 block text-gray-600">Settlement Notes</label>
+                        <input
+                          type="text"
+                          value={settleForm.notes}
+                          onChange={e => setSettleForm(prev => ({ ...prev, notes: e.target.value }))}
+                          className="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                          style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {!settleForm.settleNow && (
+                    <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
+                      <p className="font-bold flex items-center gap-1">
+                        <AlertCircle size={14} className="text-amber-700" />
+                        Customer Receivable Balance Notice
+                      </p>
+                      <p>
+                        The booking will be marked <strong>Completed</strong>, and the remaining <strong>{formatCurrency(bookingForSettle.dueAmount)}</strong> will stay on record as outstanding balance from <strong>{bookingForSettle.guestName}</strong>.
+                      </p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="p-4 rounded-xl bg-green-50 border border-green-200 text-center">
+                  <CheckCircle size={32} className="mx-auto text-green-600 mb-2" />
+                  <h4 className="font-bold text-green-900 text-sm">Full Bill Settled!</h4>
+                  <p className="text-xs text-green-700 mt-1">
+                    There is zero remaining balance for this booking. You can complete this event immediately.
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-3 border-t" style={{ borderColor: '#CBD5E1' }}>
+                <button
+                  type="button"
+                  onClick={() => setSettleModalOpen(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold border hover:bg-gray-50"
+                  style={{ borderColor: '#CBD5E1' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={settlingBooking || (settleForm.settleNow && Number(bookingForSettle.dueAmount || 0) > 0 && !settleForm.bankAccountId)}
+                  className="flex-1 px-4 py-2.5 rounded-xl text-white text-sm font-bold shadow-md disabled:opacity-50 transition hover:scale-[1.01]"
+                  style={{
+                    background: settleForm.settleNow
+                      ? 'linear-gradient(135deg, #1B5E20, #2E7D32)'
+                      : 'linear-gradient(135deg, #1E40AF, #2563EB)'
+                  }}
+                >
+                  {settlingBooking
+                    ? 'Processing...'
+                    : settleForm.settleNow && Number(bookingForSettle.dueAmount || 0) > 0
+                      ? `Receive ${formatCurrency(settleForm.amount || bookingForSettle.dueAmount)} & Complete`
+                      : 'Confirm & Mark Completed'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* WhatsApp Message Modal */}
+      <WhatsAppModal
+        isOpen={whatsAppModalOpen}
+        onClose={() => setWhatsAppModalOpen(false)}
+        booking={bookingForWhatsApp}
+      />
+
+      {/* Upcoming Reminders Drawer (1 & 2 Days Ahead) */}
+      <UpcomingRemindersDrawer
+        isOpen={remindersDrawerOpen}
+        onClose={() => setRemindersDrawerOpen(false)}
+        branchId={currentBranch?.id}
+        onReminderSent={fetchRemindersCount}
+      />
     </div>
   );
 };

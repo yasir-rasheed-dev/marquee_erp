@@ -132,7 +132,7 @@ const getProductionPlan = async (req, res) => {
         branch: { select: { id: true, name: true } },
         items: {
           include: {
-            menuItem: { select: { id: true, name: true, code: true, unit: true, salePrice: true } },
+            menuItem: { select: { id: true, name: true, code: true, unit: true, salePrice: true, quantityPerHead: true, conversionRate: true } },
             inventoryItem: {
               select: {
                 id: true,
@@ -272,71 +272,114 @@ const createProductionPlan = async (req, res) => {
           });
           createdItems.push(newItem);
         }
-      }
-
-      // If autoFillRecipes requested — fetch recipes for menu items in this booking
-      if (autoFillRecipes === true) {
-        const bookingMenus = await tx.bookingMenu.findMany({
-          where: { bookingId: parseInt(bookingId) },
+      } else if (autoFillRecipes === true) {
+        const bookingData = await tx.booking.findUnique({
+          where: { id: parseInt(bookingId) },
           include: {
-            menu: {
+            menus: {
               include: {
-                categories: {
+                menu: {
                   include: {
-                    items: true
+                    categories: {
+                      include: {
+                        items: {
+                          include: {
+                            item: {
+                              include: {
+                                recipeIngredients: true
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
-            }
+            },
+            customItems: true
           }
         });
 
-        // Get booking guest count for scaling
-        const bookingData = await tx.booking.findUnique({
-          where: { id: parseInt(bookingId) },
-          select: { guestCount: true }
-        });
-        const bookingGuestCount = Math.max(parseInt(bookingData?.guestCount) || 100, 1);
+        const bookingGuests = Math.max(parseInt(bookingData?.guestCount) || 100, 1);
 
-        for (const bm of bookingMenus) {
-          const menu = bm.menu;
-          if (!menu) continue;
+        // Process standard menus
+        for (const bm of bookingData?.menus || []) {
+          for (const cat of bm.menu?.categories || []) {
+            for (const mi of cat.items || []) {
+              const dish = mi.item;
+              const recipes = dish?.recipeIngredients || [];
+              if (recipes.length === 0) continue;
 
-          const menuQuantity = parseFloat(bm.quantity) || 1;
-          const menuGuestCount = Math.max(parseInt(menu.guestCount) || 100, 1);
-          const guestScaleFactor = bookingGuestCount / menuGuestCount;
+              const convRate = parseFloat(dish?.conversionRate || mi.conversionRate) || 50;
+              const isBulkOrDegh = (
+                (mi.unit && mi.unit.toLowerCase().includes('degh')) ||
+                (dish?.unit && dish.unit.toLowerCase().includes('degh')) ||
+                mi.isBulkUnit === true ||
+                dish?.isBulkUnit === true ||
+                convRate > 1
+              );
 
-          for (const category of menu.categories || []) {
-            for (const menuItem of category.items || []) {
-              const recipeIngredients = await tx.recipeIngredient.findMany({
-                where: { menuItemId: menuItem.id }
-              });
+              const qtyPerHead = parseFloat(mi.quantityPerHead) || 1;
+              const totalPlates = bookingGuests * qtyPerHead;
+              const totalDeghs = isBulkOrDegh && convRate > 1 
+                ? parseFloat((totalPlates / convRate).toFixed(2)) 
+                : (isBulkOrDegh ? parseFloat((totalPlates / 50).toFixed(2)) : totalPlates);
 
-              if (recipeIngredients.length === 0) continue;
-
-              const qtyPerHead = parseFloat(menuItem.quantityPerHead) || 1;
-              const totalDishUnits = menuQuantity * guestScaleFactor * qtyPerHead;
-
-              for (const ing of recipeIngredients) {
+              for (const ing of recipes) {
                 const baseQty = parseFloat(ing.quantity) || 0;
-                const totalQty = baseQty * totalDishUnits;
-
+                const totalQty = parseFloat((baseQty * totalDeghs).toFixed(3));
                 if (totalQty <= 0) continue;
 
                 const newItem = await tx.productionPlanItem.create({
                   data: {
                     productionPlanId: plan.id,
-                    menuItemId: menuItem.id,
+                    menuItemId: mi.id,
                     inventoryItemId: ing.inventoryItemId,
                     quantity: totalQty,
                     unit: ing.unit,
                     unitId: ing.unitId,
-                    notes: `Auto from recipe: ${ing.name} (${menuItem.name} × ${totalDishUnits.toFixed(2)})`
+                    notes: `Auto from recipe: ${ing.name} (${mi.name} × ${totalDeghs} Degh)`
                   }
                 });
                 createdItems.push(newItem);
               }
             }
+          }
+        }
+
+        // Process custom items
+        for (const ci of bookingData?.customItems || []) {
+          if (!ci.itemId) continue;
+          const dish = await tx.item.findUnique({
+            where: { id: ci.itemId },
+            include: { recipeIngredients: true }
+          });
+          if (!dish || !dish.recipeIngredients?.length) continue;
+
+          const convRate = parseFloat(dish.conversionRate) || 50;
+          let totalDeghs = parseFloat(ci.quantity) || 1;
+          if (ci.unit && (ci.unit.toLowerCase().includes('plate') || ci.unit.toLowerCase() === 'pcs')) {
+            totalDeghs = parseFloat((totalDeghs / convRate).toFixed(2));
+          }
+
+          for (const ing of dish.recipeIngredients) {
+            const baseQty = parseFloat(ing.quantity) || 0;
+            const totalQty = parseFloat((baseQty * totalDeghs).toFixed(3));
+            if (totalQty <= 0) continue;
+
+            const newItem = await tx.productionPlanItem.create({
+              data: {
+                productionPlanId: plan.id,
+                menuItemId: null,
+                inventoryItemId: ing.inventoryItemId,
+                quantity: totalQty,
+                unit: ing.unit,
+                unitId: ing.unitId,
+                notes: `Auto from recipe: ${ing.name} (${ci.itemName} × ${totalDeghs} Degh)`
+              }
+            });
+            createdItems.push(newItem);
           }
         }
       }
@@ -496,7 +539,7 @@ const getProductionPlanItems = async (req, res) => {
     const items = await prisma.productionPlanItem.findMany({
       where: { productionPlanId: planId },
       include: {
-        menuItem: { select: { id: true, name: true, code: true, unit: true } },
+        menuItem: { select: { id: true, name: true, code: true, unit: true, salePrice: true, quantityPerHead: true, conversionRate: true } },
         inventoryItem: {
           select: {
             id: true,
@@ -540,7 +583,18 @@ const addProductionPlanItem = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid production plan ID' });
     }
 
-    const { menuItemId, inventoryItemId, quantity, unit, unitId, notes } = req.body;
+    const {
+      menuItemId,
+      inventoryItemId,
+      isExternal,
+      externalItemName,
+      quantity,
+      unit,
+      unitId,
+      notes,
+      costPrice,
+      salePrice
+    } = req.body;
 
     if (quantity === undefined) {
       return res.status(400).json({ success: false, message: 'Quantity is required.' });
@@ -553,7 +607,7 @@ const addProductionPlanItem = async (req, res) => {
 
     const plan = await prisma.productionPlan.findUnique({
       where: { id: planId },
-      select: { id: true, branchId: true, status: true }
+      select: { id: true, branchId: true, companyId: true, status: true }
     });
 
     if (!plan) {
@@ -568,14 +622,81 @@ const addProductionPlanItem = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Cannot add items to a completed plan.' });
     }
 
-    // Verify inventory item if provided
-    if (inventoryItemId) {
+    let resolvedInvId = inventoryItemId ? parseInt(inventoryItemId) : null;
+
+    // Handle External Item (direct / market purchase)
+    if ((isExternal || externalItemName?.trim()) && !resolvedInvId) {
+      const trimmedName = (externalItemName || '').trim();
+      if (!trimmedName) {
+        return res.status(400).json({ success: false, message: 'External item name is required.' });
+      }
+
+      // Find existing item by name (case-insensitive) in branch or company
+      let existingItem = await prisma.inventoryItem.findFirst({
+        where: {
+          branchId: branchId,
+          name: { equals: trimmedName, mode: 'insensitive' }
+        }
+      });
+
+      if (!existingItem) {
+        // Auto-create external item in inventory
+        existingItem = await prisma.inventoryItem.create({
+          data: {
+            name: trimmedName,
+            category: 'Kitchen / External',
+            unit: unit?.trim() || 'kg',
+            unitId: unitId ? parseInt(unitId) : null,
+            avgCostPrice: parseFloat(costPrice) || 0,
+            lastCostPrice: parseFloat(costPrice) || 0,
+            salePrice: parseFloat(salePrice) || 0,
+            currentStock: 0,
+            manageStock: false, // External direct purchase; does not block warehouse stock
+            isActive: true,
+            companyId: plan.companyId,
+            branchId: branchId
+          }
+        });
+      } else {
+        // Optionally update prices
+        const updateData = {};
+        if (costPrice !== undefined && costPrice !== '' && !isNaN(parseFloat(costPrice))) {
+          updateData.avgCostPrice = parseFloat(costPrice);
+        }
+        if (salePrice !== undefined && salePrice !== '' && !isNaN(parseFloat(salePrice))) {
+          updateData.salePrice = parseFloat(salePrice);
+        }
+        if (Object.keys(updateData).length > 0) {
+          await prisma.inventoryItem.update({
+            where: { id: existingItem.id },
+            data: updateData
+          });
+        }
+      }
+      resolvedInvId = existingItem.id;
+    } else if (resolvedInvId) {
+      // Verify inventory item if provided and optionally update cost/sale price
       const inv = await prisma.inventoryItem.findUnique({
-        where: { id: parseInt(inventoryItemId) },
+        where: { id: resolvedInvId },
         select: { id: true, branchId: true, name: true }
       });
       if (!inv || inv.branchId !== branchId) {
         return res.status(404).json({ success: false, message: 'Inventory item not found or access denied.' });
+      }
+
+      // Update costPrice / salePrice if provided at runtime
+      const updateData = {};
+      if (costPrice !== undefined && costPrice !== '' && !isNaN(parseFloat(costPrice))) {
+        updateData.avgCostPrice = parseFloat(costPrice);
+      }
+      if (salePrice !== undefined && salePrice !== '' && !isNaN(parseFloat(salePrice))) {
+        updateData.salePrice = parseFloat(salePrice);
+      }
+      if (Object.keys(updateData).length > 0) {
+        await prisma.inventoryItem.update({
+          where: { id: resolvedInvId },
+          data: updateData
+        });
       }
     }
 
@@ -590,19 +711,23 @@ const addProductionPlanItem = async (req, res) => {
       }
     }
 
+    const itemNotes = isExternal
+      ? (notes ? `[External] ${notes}` : '[External Item]')
+      : (notes || null);
+
     const item = await prisma.productionPlanItem.create({
       data: {
         productionPlanId: planId,
         menuItemId: menuItemId ? parseInt(menuItemId) : null,
-        inventoryItemId: inventoryItemId ? parseInt(inventoryItemId) : null,
+        inventoryItemId: resolvedInvId,
         quantity: parseFloat(quantity) || 0,
         unit: unit?.trim() || '',
         unitId: unitId ? parseInt(unitId) : null,
-        notes: notes || null
+        notes: itemNotes
       },
       include: {
         menuItem: { select: { id: true, name: true } },
-        inventoryItem: { select: { id: true, name: true, currentStock: true, avgCostPrice: true } },
+        inventoryItem: { select: { id: true, name: true, category: true, currentStock: true, avgCostPrice: true } },
         unitRef: { select: { id: true, name: true } }
       }
     });
@@ -761,6 +886,9 @@ const executeProductionPlan = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Cannot execute a cancelled plan.' });
     }
 
+    // Check if force execute was requested
+    const force = req.body?.force === true || req.query?.force === 'true';
+
     // Stock availability check before deducting
     const shortageItems = [];
     for (const item of plan.items) {
@@ -780,11 +908,12 @@ const executeProductionPlan = async (req, res) => {
       }
     }
 
-    if (shortageItems.length > 0) {
+    if (shortageItems.length > 0 && !force) {
       return res.status(400).json({
         success: false,
-        message: 'Insufficient stock to execute plan.',
-        shortageItems
+        message: `Insufficient stock for ${shortageItems.length} item(s).`,
+        shortageItems,
+        canForce: true
       });
     }
 
@@ -806,20 +935,21 @@ const executeProductionPlan = async (req, res) => {
         const totalCost = costPrice * qty;
         totalDeductedCost += totalCost;
 
-        // Deduct stock
+        // Deduct stock (supports negative stock if force execution)
         await tx.inventoryItem.update({
           where: { id: item.inventoryItemId },
           data: { currentStock: newStock }
         });
 
         // Create stock transaction history
+        const isShortage = currentStock < qty;
         const stockTx = await tx.stockTransaction.create({
           data: {
             inventoryId: item.inventoryItemId,
             type: 'ADJUSTMENT',
             quantity: qty,
             costPrice: costPrice,
-            notes: `Production Plan #${plan.id} — Booking: ${plan.booking?.bookingNo || plan.bookingId}`,
+            notes: `Production Plan #${plan.id} — Booking: ${plan.booking?.bookingNo || plan.bookingId}${isShortage ? ` [Deficit/Shortage: -${(qty - currentStock).toFixed(2)}]` : ''}`,
             referenceType: 'PRODUCTION_PLAN',
             referenceId: plan.id,
             bookingId: plan.bookingId,
@@ -829,6 +959,25 @@ const executeProductionPlan = async (req, res) => {
           }
         });
         transactions.push(stockTx);
+
+        // Record EventInventoryConsumption directly for this booking
+        try {
+          await tx.eventInventoryConsumption.create({
+            data: {
+              bookingId: plan.bookingId,
+              inventoryItemId: item.inventoryItemId,
+              plannedQuantity: qty,
+              actualQuantity: qty,
+              unit: item.unit || item.inventoryItem.unit || 'kg',
+              unitId: item.unitId,
+              costPerUnit: costPrice,
+              totalCost: totalCost,
+              notes: `Production Plan #${plan.id} execution${isShortage ? ' (Forced)' : ''}`
+            }
+          });
+        } catch (cErr) {
+          // non-fatal consumption tracking
+        }
       }
 
       // Update plan status to completed
@@ -839,18 +988,6 @@ const executeProductionPlan = async (req, res) => {
 
       return { updatedPlan, transactions, totalDeductedCost };
     });
-
-    // ── Auto-create EventInventoryConsumption for tracking ──
-    try {
-      await deductInventoryForBooking(plan.bookingId, {
-        userId,
-        branchId,
-        triggerSource: 'production_plan',
-        referenceId: id
-      });
-    } catch (deductErr) {
-      console.warn('[ProductionPlan] Auto-deduct warning:', deductErr.message);
-    }
 
     res.status(200).json({
       success: true,

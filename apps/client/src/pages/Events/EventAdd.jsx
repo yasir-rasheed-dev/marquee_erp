@@ -114,13 +114,13 @@ export default function EventList() {
   };
 
   return (
-    <div className="min-h-screen p-6 relative" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen p-6 relative" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <div className="max-w-6xl mx-auto space-y-6">
         
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-md text-white">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-md text-white">
               <Calendar className="w-6 h-6" />
             </div>
             <div>
@@ -128,7 +128,7 @@ export default function EventList() {
               <p className="text-sm font-medium text-gray-600 flex items-center gap-2">
                 Manage event categories (e.g., Wedding, Valima, Birthday) 
                 {currentBranch && (
-                  <span className="px-2 py-0.5 rounded-full text-xs bg-[#F4E7C9] text-[#8B6914] font-bold">
+                  <span className="px-2 py-0.5 rounded-full text-xs bg-amber-100/80 text-[#8B6914] font-bold">
                     {currentBranch.name}
                   </span>
                 )}
@@ -138,18 +138,18 @@ export default function EventList() {
           
           <div className="flex items-center gap-3">
             {/* VIEW MODE TOGGLE BUTTONS */}
-            <div className="bg-white p-1 rounded-xl border border-[#E0D8CC] flex items-center shadow-sm">
+            <div className="bg-white p-1 rounded-xl border border-slate-300 flex items-center shadow-sm">
               <button 
                 onClick={() => setViewMode('grid')} 
                 title="Grid Card View"
-                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
               >
                 <LayoutGrid size={18} />
               </button>
               <button 
                 onClick={() => setViewMode('table')} 
                 title="Table View"
-                className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
               >
                 <TableIcon size={18} />
               </button>
@@ -161,7 +161,7 @@ export default function EventList() {
                 setEditingId(null); 
                 setForm({ name: '', code: '', description: '', isActive: true }); 
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white shadow-md hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white shadow-md hover:scale-[1.02]"
             >
               <Plus size={18} /> Add Event Type
             </button>
@@ -169,7 +169,7 @@ export default function EventList() {
         </div>
 
         {/* Search */}
-        <div className="bg-white rounded-2xl shadow-sm border border-[#E0D8CC] p-4">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-300 p-4">
           <div className="relative">
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input 
@@ -185,11 +185,11 @@ export default function EventList() {
         {/* Form Modal */}
         {showModal && (
           <div className="fixed inset-y-0 right-0 left-0 lg:left-64 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-lg shadow-2xl border border-[#E0D8CC] overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
-              <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b bg-[#FAF8F4] flex items-center justify-between border-[#E0D8CC]">
+            <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-lg shadow-2xl border border-slate-300 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+              <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b bg-slate-50 flex items-center justify-between border-slate-300">
                 <div>
                   <h3 className="font-bold text-base sm:text-lg text-gray-800">{editingId ? 'Edit Event Type' : 'New Event Type'}</h3>
-                  <p className="text-xs text-[#A97A1F] mt-0.5 font-medium">📍 Branch: <strong>{currentBranch?.name}</strong></p>
+                  <p className="text-xs text-[#2563EB] mt-0.5 font-medium">📍 Branch: <strong>{currentBranch?.name}</strong></p>
                 </div>
                 <button onClick={() => setShowModal(false)} className="p-2 rounded-xl hover:bg-gray-200 text-gray-500">
                   <X className="w-5 h-5" />
@@ -205,7 +205,7 @@ export default function EventList() {
                       value={form.name} 
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       placeholder="e.g., Wedding, Walima, Corporate Event"
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -214,7 +214,7 @@ export default function EventList() {
                       value={form.code} 
                       onChange={(e) => setForm({ ...form, code: e.target.value })}
                       placeholder="e.g., EVT-01"
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -224,14 +224,14 @@ export default function EventList() {
                       onChange={(e) => setForm({ ...form, description: e.target.value })}
                       rows={3}
                       placeholder="Optional details..."
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                     />
                   </div>
                 </div>
 
                 <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                   <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2.5 border rounded-xl font-bold text-sm text-gray-600 hover:bg-gray-50">Cancel</button>
-                  <button type="submit" className="px-6 py-2.5 rounded-xl font-bold text-white text-sm bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] shadow-sm hover:opacity-95">
+                  <button type="submit" className="px-6 py-2.5 rounded-xl font-bold text-white text-sm bg-gradient-to-r from-[#2563EB] to-[#2563EB] shadow-sm hover:opacity-95">
                     {editingId ? 'Update Event Type' : 'Create Event Type'}
                   </button>
                 </div>
@@ -243,11 +243,11 @@ export default function EventList() {
         {/* Content View: Grid or Table */}
         {loading ? (
           <div className="text-center py-20">
-            <div className="w-12 h-12 rounded-full border-4 border-t-[#A97A1F] animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
+            <div className="w-12 h-12 rounded-full border-4 border-t-[#2563EB] animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
             <p className="mt-4 text-sm font-bold text-gray-600">Loading events...</p>
           </div>
         ) : eventList.length === 0 ? (
-          <div className="bg-white rounded-2xl p-12 text-center border border-[#E0D8CC] shadow-sm">
+          <div className="bg-white rounded-2xl p-12 text-center border border-slate-300 shadow-sm">
             <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-400" />
             <h3 className="text-lg font-bold text-gray-800 mb-1">No Event Types Found</h3>
             <p className="text-sm text-gray-500">Create event categories to use in your marquee bookings.</p>
@@ -258,12 +258,12 @@ export default function EventList() {
               /* ── GRID CARD VIEW ── */
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {paginatedEvents.map(event => (
-                  <div key={event.id} className="bg-white rounded-2xl border border-[#E0D8CC] p-4 flex items-center justify-between shadow-sm hover:shadow-md transition-all">
+                  <div key={event.id} className="bg-white rounded-2xl border border-slate-300 p-4 flex items-center justify-between shadow-sm hover:shadow-md transition-all">
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="font-bold text-base text-gray-900">{event.name}</h3>
                         {event.code && (
-                          <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-[#F4E7C9] text-[#8B6914]">
+                          <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-amber-100/80 text-[#8B6914]">
                             {event.code}
                           </span>
                         )}
@@ -271,7 +271,7 @@ export default function EventList() {
                       {event.description && <p className="text-xs text-gray-500 mt-1">{event.description}</p>}
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => handleEdit(event)} title="Edit Event" className="p-2 rounded-xl hover:bg-amber-50 text-gray-600 hover:text-[#A97A1F] transition-all">
+                      <button onClick={() => handleEdit(event)} title="Edit Event" className="p-2 rounded-xl hover:bg-amber-50 text-gray-600 hover:text-[#2563EB] transition-all">
                         <Edit2 size={16} />
                       </button>
                       <button onClick={() => handleDelete(event.id)} title="Delete Event" className="p-2 rounded-xl hover:bg-red-50 text-gray-600 hover:text-[#B71C1C] transition-all">
@@ -283,11 +283,11 @@ export default function EventList() {
               </div>
             ) : (
               /* ── TABLE VIEW ── */
-              <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-sm overflow-hidden hidden sm:block">
+              <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden hidden sm:block">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-[#FAF8F4] border-b border-[#E0D8CC] text-xs font-bold text-gray-600 uppercase tracking-wider">
+                      <tr className="bg-slate-50 border-b border-slate-300 text-xs font-bold text-gray-600 uppercase tracking-wider">
                         <th className="py-3.5 px-4">Event Name</th>
                         <th className="py-3.5 px-4">Code</th>
                         <th className="py-3.5 px-4">Description</th>
@@ -302,7 +302,7 @@ export default function EventList() {
                           </td>
                           <td className="py-3.5 px-4">
                             {event.code ? (
-                              <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-[#F4E7C9] text-[#8B6914]">
+                              <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-amber-100/80 text-[#8B6914]">
                                 {event.code}
                               </span>
                             ) : (
@@ -314,7 +314,7 @@ export default function EventList() {
                           </td>
                           <td className="py-3.5 px-4 text-right">
                             <div className="flex items-center justify-end gap-1">
-                              <button onClick={() => handleEdit(event)} title="Edit Event" className="p-1.5 rounded-lg hover:bg-amber-50 text-gray-600 hover:text-[#A97A1F] transition-all">
+                              <button onClick={() => handleEdit(event)} title="Edit Event" className="p-1.5 rounded-lg hover:bg-amber-50 text-gray-600 hover:text-[#2563EB] transition-all">
                                 <Edit2 size={15} />
                               </button>
                               <button onClick={() => handleDelete(event.id)} title="Delete Event" className="p-1.5 rounded-lg hover:bg-red-50 text-gray-600 hover:text-[#B71C1C] transition-all">
@@ -332,7 +332,7 @@ export default function EventList() {
 
             {/* ── PAGINATION CONTROLS ── */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between bg-white px-4 py-3 rounded-2xl border border-[#E0D8CC] shadow-sm">
+              <div className="flex items-center justify-between bg-white px-4 py-3 rounded-2xl border border-slate-300 shadow-sm">
                 <span className="text-xs text-gray-500 font-medium">
                   Showing <strong className="text-gray-800">{((currentPage - 1) * itemsPerPage) + 1}</strong> to{' '}
                   <strong className="text-gray-800">{Math.min(currentPage * itemsPerPage, eventList.length)}</strong> of{' '}

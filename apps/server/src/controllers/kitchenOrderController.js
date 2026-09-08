@@ -271,38 +271,112 @@ const createKitchenOrder = async (req, res) => {
 
       // If autoFillRecipes requested
       if (autoFillRecipes === true) {
-        const bookingMenus = await tx.bookingMenu.findMany({
-          where: { bookingId: parseInt(bookingId) },
-          select: { menuId: true, quantity: true }
+        const bookingData = await tx.booking.findUnique({
+          where: { id: parseInt(bookingId) },
+          include: {
+            menus: {
+              include: {
+                menu: {
+                  include: {
+                    categories: {
+                      include: {
+                        items: {
+                          include: {
+                            item: {
+                              include: {
+                                recipeIngredients: true
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            customItems: true
+          }
         });
 
-        for (const bm of bookingMenus) {
-          const menuItem = await tx.menuItem.findUnique({
-            where: { id: bm.menuId },
-            select: { id: true, name: true, unit: true }
+        const bookingGuests = Math.max(parseInt(bookingData?.guestCount) || 100, 1);
+
+        // Process standard menus
+        for (const bm of bookingData?.menus || []) {
+          for (const cat of bm.menu?.categories || []) {
+            for (const mi of cat.items || []) {
+              const dish = mi.item;
+              const recipes = dish?.recipeIngredients || [];
+              if (recipes.length === 0) continue;
+
+              const convRate = parseFloat(dish?.conversionRate || mi.conversionRate) || 50;
+              const isBulkOrDegh = (
+                (mi.unit && mi.unit.toLowerCase().includes('degh')) ||
+                (dish?.unit && dish.unit.toLowerCase().includes('degh')) ||
+                mi.isBulkUnit === true ||
+                dish?.isBulkUnit === true ||
+                convRate > 1
+              );
+
+              const qtyPerHead = parseFloat(mi.quantityPerHead) || 1;
+              const totalPlates = bookingGuests * qtyPerHead;
+              const totalDeghs = isBulkOrDegh && convRate > 1 
+                ? parseFloat((totalPlates / convRate).toFixed(2)) 
+                : (isBulkOrDegh ? parseFloat((totalPlates / 50).toFixed(2)) : totalPlates);
+
+              for (const ing of recipes) {
+                const baseQty = parseFloat(ing.quantity) || 0;
+                const totalQty = parseFloat((baseQty * totalDeghs).toFixed(3));
+                if (totalQty <= 0) continue;
+
+                const newItem = await tx.kitchenOrderItem.create({
+                  data: {
+                    kitchenOrderId: order.id,
+                    menuItemId: mi.id,
+                    inventoryItemId: ing.inventoryItemId,
+                    quantity: totalQty,
+                    unit: ing.unit,
+                    unitId: ing.unitId,
+                    status: 'pending',
+                    notes: `Auto from recipe: ${ing.name} (${mi.name} × ${totalDeghs} Degh)`
+                  }
+                });
+                createdItems.push(newItem);
+              }
+            }
+          }
+        }
+
+        // Process custom items
+        for (const ci of bookingData?.customItems || []) {
+          if (!ci.itemId) continue;
+          const dish = await tx.item.findUnique({
+            where: { id: ci.itemId },
+            include: { recipeIngredients: true }
           });
+          if (!dish || !dish.recipeIngredients?.length) continue;
 
-          if (!menuItem) continue;
+          const convRate = parseFloat(dish.conversionRate) || 50;
+          let totalDeghs = parseFloat(ci.quantity) || 1;
+          if (ci.unit && (ci.unit.toLowerCase().includes('plate') || ci.unit.toLowerCase() === 'pcs')) {
+            totalDeghs = parseFloat((totalDeghs / convRate).toFixed(2));
+          }
 
-          const recipeIngredients = await tx.recipeIngredient.findMany({
-            where: { menuItemId: bm.menuId }
-          });
-
-          for (const ing of recipeIngredients) {
-            const multiplier = parseFloat(bm.quantity) || 1;
+          for (const ing of dish.recipeIngredients) {
             const baseQty = parseFloat(ing.quantity) || 0;
-            const totalQty = baseQty * multiplier;
+            const totalQty = parseFloat((baseQty * totalDeghs).toFixed(3));
+            if (totalQty <= 0) continue;
 
             const newItem = await tx.kitchenOrderItem.create({
               data: {
                 kitchenOrderId: order.id,
-                menuItemId: menuItem.id,
+                menuItemId: null,
                 inventoryItemId: ing.inventoryItemId,
                 quantity: totalQty,
                 unit: ing.unit,
                 unitId: ing.unitId,
                 status: 'pending',
-                notes: `Auto from recipe: ${ing.name}`
+                notes: `Auto from recipe: ${ing.name} (${ci.itemName} × ${totalDeghs} Degh)`
               }
             });
             createdItems.push(newItem);

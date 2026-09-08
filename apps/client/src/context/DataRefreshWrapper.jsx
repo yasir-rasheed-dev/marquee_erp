@@ -151,7 +151,7 @@ const DataRefreshWrapper = ({ children }) => {
             left: 0,
             right: 0,
             height: '3px',
-            background: 'linear-gradient(90deg, #f59e0b, #d97706)',
+            background: 'linear-gradient(90deg, #f59e0b, #1E40AF)',
             zIndex: 9999,
             animation: 'dataRefreshPulse 1.5s ease-in-out infinite',
           }}

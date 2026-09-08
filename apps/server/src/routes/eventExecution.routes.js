@@ -14,6 +14,7 @@ const {
   getInventoryConsumptions,
   createEventDamage,
   getEventDamages,
+  deleteEventDamage,
   getEventReport
 } = require('../controllers/eventExecutionController');
 const { authMiddleware, authorize } = require('../common/middleware/auth');
@@ -32,7 +33,8 @@ router.get('/inventory-consumptions', getInventoryConsumptions);
 router.post('/inventory-consumptions', authorize('admin', 'super_admin', 'manager', 'cashier'), createInventoryConsumption);
 
 router.get('/damages', getEventDamages);
-router.post('/damages', authorize('admin', 'super_admin', 'manager'), createEventDamage);
+router.post('/damages', authorize('admin', 'super_admin', 'manager', 'cashier'), createEventDamage);
+router.delete('/damages/:id', authorize('admin', 'super_admin', 'manager'), deleteEventDamage);
 
 // ── Main Event Execution CRUD & Finalization ──
 router.get('/', getEventExecutions);

@@ -152,7 +152,7 @@ const BranchSettings = () => {
   if (viewMode === 'add' || viewMode === 'edit') {
     const isEdit = viewMode === 'edit';
     return (
-      <div className="min-h-screen p-6" style={{ backgroundColor: '#F5F2EB' }}>
+      <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="flex items-center gap-4 mb-6">
@@ -161,17 +161,17 @@ const BranchSettings = () => {
               className="p-2 rounded-xl transition-all hover:scale-105"
               style={{ backgroundColor: '#F8F5F0' }}
             >
-              <ArrowLeft size={20} style={{ color: '#4A4A4A' }} />
+              <ArrowLeft size={20} style={{ color: '#334155' }} />
             </button>
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-[0_4px_12px_rgba(169,122,31,0.3)]">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.3)]">
                 <Building2 className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#1A1A1A' }}>
+                <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>
                   {isEdit ? 'Edit Branch' : 'Add Branch'}
                 </h1>
-                <p className="text-sm font-medium" style={{ color: '#4A4A4A' }}>
+                <p className="text-sm font-medium" style={{ color: '#334155' }}>
                   {isEdit ? 'Update branch information' : 'Create a new branch location'}
                 </p>
               </div>
@@ -179,14 +179,14 @@ const BranchSettings = () => {
           </div>
 
           {/* Form Card */}
-          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] border border-[#E0D8CC] p-6">
+          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] border border-slate-300 p-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                   Branch Name <span style={{ color: '#B71C1C' }}>*</span>
                 </label>
                 <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7A7A7A' }} />
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
                   <input
                     type="text"
                     name="name"
@@ -195,15 +195,15 @@ const BranchSettings = () => {
                     placeholder="Enter branch name"
                     required
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
-                    style={{ backgroundColor: '#FFFFFF', borderColor: '#E0D8CC', color: '#1A1A1A' }}
+                    style={{ backgroundColor: '#FFFFFF', borderColor: '#CBD5E1', color: '#0F172A' }}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>Address</label>
+                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>Address</label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7A7A7A' }} />
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
                   <input
                     type="text"
                     name="address"
@@ -211,15 +211,15 @@ const BranchSettings = () => {
                     onChange={handleChange}
                     placeholder="Enter branch address"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
-                    style={{ backgroundColor: '#FFFFFF', borderColor: '#E0D8CC', color: '#1A1A1A' }}
+                    style={{ backgroundColor: '#FFFFFF', borderColor: '#CBD5E1', color: '#0F172A' }}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>Phone Number</label>
+                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>Phone Number</label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7A7A7A' }} />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
                   <input
                     type="tel"
                     name="phone"
@@ -227,15 +227,15 @@ const BranchSettings = () => {
                     onChange={handleChange}
                     placeholder="Enter phone number"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
-                    style={{ backgroundColor: '#FFFFFF', borderColor: '#E0D8CC', color: '#1A1A1A' }}
+                    style={{ backgroundColor: '#FFFFFF', borderColor: '#CBD5E1', color: '#0F172A' }}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>Email Address</label>
+                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>Email Address</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7A7A7A' }} />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
                   <input
                     type="email"
                     name="email"
@@ -243,44 +243,44 @@ const BranchSettings = () => {
                     onChange={handleChange}
                     placeholder="Enter email address"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
-                    style={{ backgroundColor: '#FFFFFF', borderColor: '#E0D8CC', color: '#1A1A1A' }}
+                    style={{ backgroundColor: '#FFFFFF', borderColor: '#CBD5E1', color: '#0F172A' }}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>Status</label>
+                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>Status</label>
                 <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2 text-sm font-medium" style={{ color: '#4A4A4A' }}>
+                  <label className="flex items-center gap-2 text-sm font-medium" style={{ color: '#334155' }}>
                     <input
                       type="checkbox"
                       name="isActive"
                       checked={formData.isActive}
                       onChange={handleChange}
                       className="w-4 h-4 rounded border focus:ring-2"
-                      style={{ borderColor: '#E0D8CC', accentColor: '#A97A1F' }}
+                      style={{ borderColor: '#CBD5E1', accentColor: '#2563EB' }}
                     />
                     Active
                   </label>
-                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${formData.isActive ? 'bg-[#E8F5E9] text-[#1B5E20]' : 'bg-[#F5F2EB] text-[#7A7A7A]'}`}>
+                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${formData.isActive ? 'bg-[#E8F5E9] text-[#1B5E20]' : 'bg-[#F1F5F9] text-slate-400'}`}>
                     {formData.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4 border-t" style={{ borderColor: '#F0ECE6' }}>
+              <div className="flex gap-3 pt-4 border-t" style={{ borderColor: '#E2E8F0' }}>
                 <button
                   type="button"
                   onClick={() => setViewMode('list')}
-                  className="flex-1 px-4 py-2.5 rounded-xl font-bold text-sm transition-all hover:bg-[#F5F2EB]"
-                  style={{ border: '1px solid #E0D8CC', color: '#4A4A4A' }}
+                  className="flex-1 px-4 py-2.5 rounded-xl font-bold text-sm transition-all hover:bg-[#F1F5F9]"
+                  style={{ border: '1px solid #CBD5E1', color: '#334155' }}
                 >
                   <X className="w-4 h-4 inline mr-2" /> Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={formLoading}
-                  className="flex-1 px-4 py-2.5 rounded-xl font-bold text-white text-sm transition-all bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] shadow-[0_4px_12px_rgba(169,122,31,0.3)] hover:scale-[1.02] disabled:opacity-70"
+                  className="flex-1 px-4 py-2.5 rounded-xl font-bold text-white text-sm transition-all bg-gradient-to-r from-[#2563EB] to-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.3)] hover:scale-[1.02] disabled:opacity-70"
                 >
                   {formLoading ? 'Saving...' : <><Save className="w-4 h-4 inline mr-2" /> {isEdit ? 'Update Branch' : 'Create Branch'}</>}
                 </button>
@@ -296,17 +296,17 @@ const BranchSettings = () => {
   // RENDER: BRANCH LIST VIEW
   // ══════════════════════════════════════════════════════════
   return (
-    <div className="min-h-screen p-6" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-[0_4px_12px_rgba(169,122,31,0.3)]">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.3)]">
               <Building2 className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold" style={{ color: '#1A1A1A' }}>Branches</h1>
-              <p className="text-sm font-medium" style={{ color: '#4A4A4A' }}>Manage your business locations</p>
+              <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>Branches</h1>
+              <p className="text-sm font-medium" style={{ color: '#334155' }}>Manage your business locations</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -316,11 +316,11 @@ const BranchSettings = () => {
               style={{ backgroundColor: '#F8F5F0' }}
               title="Refresh"
             >
-              <RefreshCw className="w-5 h-5" style={{ color: '#4A4A4A' }} />
+              <RefreshCw className="w-5 h-5" style={{ color: '#334155' }} />
             </button>
             <button
               onClick={handleOpenAdd}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white shadow-[0_4px_12px_rgba(169,122,31,0.3)] hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white shadow-[0_4px_12px_rgba(37,99,235,0.3)] hover:scale-[1.02]"
             >
               <Plus className="w-4 h-4" /> Add Branch
             </button>
@@ -329,93 +329,93 @@ const BranchSettings = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-2xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-[#E0D8CC]">
-            <p className="text-2xl font-bold" style={{ color: '#1A1A1A' }}>{branches.length}</p>
-            <p className="text-xs font-medium" style={{ color: '#4A4A4A' }}>Total Branches</p>
+          <div className="bg-white rounded-2xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-slate-300">
+            <p className="text-2xl font-bold" style={{ color: '#0F172A' }}>{branches.length}</p>
+            <p className="text-xs font-medium" style={{ color: '#334155' }}>Total Branches</p>
           </div>
-          <div className="bg-white rounded-2xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-[#E0D8CC]">
+          <div className="bg-white rounded-2xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-slate-300">
             <p className="text-2xl font-bold" style={{ color: '#1B5E20' }}>{branches.filter(b => b.isActive).length}</p>
-            <p className="text-xs font-medium" style={{ color: '#4A4A4A' }}>Active</p>
+            <p className="text-xs font-medium" style={{ color: '#334155' }}>Active</p>
           </div>
-          <div className="bg-white rounded-2xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-[#E0D8CC]">
-            <p className="text-2xl font-bold" style={{ color: '#7A7A7A' }}>{branches.filter(b => !b.isActive).length}</p>
-            <p className="text-xs font-medium" style={{ color: '#4A4A4A' }}>Inactive</p>
+          <div className="bg-white rounded-2xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-slate-300">
+            <p className="text-2xl font-bold" style={{ color: '#475569' }}>{branches.filter(b => !b.isActive).length}</p>
+            <p className="text-xs font-medium" style={{ color: '#334155' }}>Inactive</p>
           </div>
-          <div className="bg-white rounded-2xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-[#E0D8CC]">
-            <p className="text-2xl font-bold" style={{ color: '#A97A1F' }}>
+          <div className="bg-white rounded-2xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-slate-300">
+            <p className="text-2xl font-bold" style={{ color: '#2563EB' }}>
               {branches.reduce((sum, b) => sum + (b._count?.users || 0), 0)}
             </p>
-            <p className="text-xs font-medium" style={{ color: '#4A4A4A' }}>Total Users</p>
+            <p className="text-xs font-medium" style={{ color: '#334155' }}>Total Users</p>
           </div>
         </div>
 
         {/* Search */}
-        <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-[#E0D8CC] p-4 mb-4">
+        <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-slate-300 p-4 mb-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7A7A7A' }} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
             <input
               type="text"
               placeholder="Search branches by name, email or address..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none text-sm font-medium"
-              style={{ backgroundColor: '#FFFFFF', borderColor: '#E0D8CC', color: '#1A1A1A' }}
+              style={{ backgroundColor: '#FFFFFF', borderColor: '#CBD5E1', color: '#0F172A' }}
             />
           </div>
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-[#E0D8CC] overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-slate-300 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr style={{ backgroundColor: '#FAF8F4', borderBottom: '1px solid #E0D8CC' }}>
-                  <th className="text-left px-6 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Branch</th>
-                  <th className="text-left px-6 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Contact</th>
-                  <th className="text-center px-6 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Users</th>
-                  <th className="text-center px-6 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Status</th>
-                  <th className="text-center px-6 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Actions</th>
+                <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #CBD5E1' }}>
+                  <th className="text-left px-6 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Branch</th>
+                  <th className="text-left px-6 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Contact</th>
+                  <th className="text-center px-6 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Users</th>
+                  <th className="text-center px-6 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Status</th>
+                  <th className="text-center px-6 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y" style={{ borderColor: '#F0ECE6' }}>
+              <tbody className="divide-y" style={{ borderColor: '#E2E8F0' }}>
                 {loading ? (
                   <tr>
-                    <td colSpan="5" className="px-6 py-12 text-center text-sm font-medium" style={{ color: '#7A7A7A' }}>Loading branches...</td>
+                    <td colSpan="5" className="px-6 py-12 text-center text-sm font-medium" style={{ color: '#475569' }}>Loading branches...</td>
                   </tr>
                 ) : filteredBranches.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="px-6 py-12 text-center">
                       <Building2 className="w-12 h-12 mx-auto mb-3" style={{ color: '#B0A89C' }} />
-                      <p className="text-sm font-medium" style={{ color: '#7A7A7A' }}>No branches found</p>
+                      <p className="text-sm font-medium" style={{ color: '#475569' }}>No branches found</p>
                     </td>
                   </tr>
                 ) : (
                   filteredBranches.map((branch) => (
-                    <tr key={branch.id} className="hover:bg-[#FAF8F4] transition-colors">
+                    <tr key={branch.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4">
-                        <p className="font-bold flex items-center gap-2" style={{ color: '#1A1A1A' }}>
+                        <p className="font-bold flex items-center gap-2" style={{ color: '#0F172A' }}>
                           {branch.name}
                           {branch.id === 1 && (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold" style={{ backgroundColor: '#F4E7C9', color: '#8B6914' }}>Main</span>
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold" style={{ backgroundColor: '#FEF3C7', color: '#8B6914' }}>Main</span>
                           )}
                         </p>
                         {branch.address && (
-                          <p className="text-xs font-medium flex items-center gap-1 mt-0.5" style={{ color: '#7A7A7A' }}>
+                          <p className="text-xs font-medium flex items-center gap-1 mt-0.5" style={{ color: '#475569' }}>
                             <MapPin className="w-3 h-3" /> {branch.address}
                           </p>
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        {branch.email && <p className="text-sm font-medium flex items-center gap-1" style={{ color: '#4A4A4A' }}><Mail className="w-3 h-3" /> {branch.email}</p>}
-                        {branch.phone && <p className="text-sm font-medium flex items-center gap-1 mt-0.5" style={{ color: '#4A4A4A' }}><Phone className="w-3 h-3" /> {branch.phone}</p>}
+                        {branch.email && <p className="text-sm font-medium flex items-center gap-1" style={{ color: '#334155' }}><Mail className="w-3 h-3" /> {branch.email}</p>}
+                        {branch.phone && <p className="text-sm font-medium flex items-center gap-1 mt-0.5" style={{ color: '#334155' }}><Phone className="w-3 h-3" /> {branch.phone}</p>}
                       </td>
-                      <td className="px-6 py-4 text-center font-bold" style={{ color: '#1A1A1A' }}>{branch._count?.users || 0}</td>
+                      <td className="px-6 py-4 text-center font-bold" style={{ color: '#0F172A' }}>{branch._count?.users || 0}</td>
                       <td className="px-6 py-4 text-center">
                         <button
                           onClick={() => toggleStatus(branch.id, branch.isActive)}
                           disabled={branch.id === 1}
                           className={`inline-flex px-3 py-1 rounded-full text-xs font-bold transition-all ${
-                            branch.isActive ? 'bg-[#E8F5E9] text-[#1B5E20]' : 'bg-[#F5F2EB] text-[#7A7A7A]'
+                            branch.isActive ? 'bg-[#E8F5E9] text-[#1B5E20]' : 'bg-[#F1F5F9] text-slate-400'
                           } ${branch.id === 1 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                         >
                           {branch.isActive ? 'Active' : 'Inactive'}
@@ -423,10 +423,10 @@ const BranchSettings = () => {
                       </td>
                       <td className="px-6 py-4 text-center">
                         <div className="flex items-center justify-center gap-1">
-                          <button onClick={() => setViewBranch(branch)} className="p-1.5 rounded-lg hover:bg-[#F4E7C9] hover:text-[#A97A1F] transition-all" title="View Details">
+                          <button onClick={() => setViewBranch(branch)} className="p-1.5 rounded-lg hover:bg-amber-100/80 hover:text-[#2563EB] transition-all" title="View Details">
                             <Eye className="w-4 h-4" />
                           </button>
-                          <button onClick={() => handleOpenEdit(branch)} className="p-1.5 rounded-lg hover:bg-[#F4E7C9] hover:text-[#A97A1F] transition-all" title="Edit Branch">
+                          <button onClick={() => handleOpenEdit(branch)} className="p-1.5 rounded-lg hover:bg-amber-100/80 hover:text-[#2563EB] transition-all" title="Edit Branch">
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button onClick={() => setDeleteId(branch.id)} disabled={branch.id === 1} className={`p-1.5 rounded-lg transition-all ${branch.id === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#FFEBEE] hover:text-[#B71C1C]'}`} title="Delete Branch">
@@ -446,9 +446,9 @@ const BranchSettings = () => {
         {viewBranch && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4">
-              <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: '#E0D8CC' }}>
-                <h3 className="text-lg font-bold" style={{ color: '#1A1A1A' }}>{viewBranch.name}</h3>
-                <button onClick={() => setViewBranch(null)} className="p-1 rounded-lg hover:bg-[#F5F2EB]"><X className="w-5 h-5" /></button>
+              <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: '#CBD5E1' }}>
+                <h3 className="text-lg font-bold" style={{ color: '#0F172A' }}>{viewBranch.name}</h3>
+                <button onClick={() => setViewBranch(null)} className="p-1 rounded-lg hover:bg-[#F1F5F9]"><X className="w-5 h-5" /></button>
               </div>
               <div className="space-y-3">
                 <p className="text-sm"><strong>Address:</strong> {viewBranch.address || 'N/A'}</p>
@@ -456,7 +456,7 @@ const BranchSettings = () => {
                 <p className="text-sm"><strong>Email:</strong> {viewBranch.email || 'N/A'}</p>
                 <p className="text-sm"><strong>Status:</strong> {viewBranch.isActive ? 'Active' : 'Inactive'}</p>
               </div>
-              <button onClick={() => { setViewBranch(null); handleOpenEdit(viewBranch); }} className="w-full py-2.5 rounded-xl font-bold text-white bg-gradient-to-r from-[#A97A1F] to-[#C89B3C]">
+              <button onClick={() => { setViewBranch(null); handleOpenEdit(viewBranch); }} className="w-full py-2.5 rounded-xl font-bold text-white bg-gradient-to-r from-[#2563EB] to-[#2563EB]">
                 Edit Branch
               </button>
             </div>

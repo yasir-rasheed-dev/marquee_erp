@@ -1,27 +1,118 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
+﻿// src/pages/Security/RolePermissionManager.jsx
+// COMPLETE FIXED - With proper response handling
+
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Shield, Users, Plus, X, RefreshCw, Search, Check, ChevronDown,
   Eye, Edit3, Trash2, PlusCircle, Lock, Unlock, Crown, UserCheck,
-  LayoutGrid, Save, AlertCircle
+  LayoutGrid, Save, AlertCircle, Coffee, Utensils, Package,
+  ChefHat, Truck, Briefcase, BookOpen, Activity, Settings,
+  Calendar, LayoutDashboard
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import roleApi from '../../services/rolePermissionApi';
 import employeeApi from '../../services/employeeApi';
 
-// ── Module Definitions with Icons ──
+// ── Module Definitions (Without Icons - SAFE) ──
 const ALL_MODULES = [
-  { key: 'dashboard', label: 'Dashboard', icon: '', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-  { key: 'bookings', label: 'Bookings', icon: '', color: 'bg-purple-50 text-purple-700 border-purple-200' },
-  { key: 'customers', label: 'Guests', icon: '', color: 'bg-pink-50 text-pink-700 border-pink-200' },
-  { key: 'events', label: 'Events', icon: '', color: 'bg-orange-50 text-orange-700 border-orange-200' },
-  { key: 'pos', label: 'POS Terminal', icon: '', color: 'bg-green-50 text-green-700 border-green-200' },
-  { key: 'inventory', label: 'Inventory', icon: '', color: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
-  { key: 'kitchen', label: 'Kitchen', icon: '', color: 'bg-red-50 text-red-700 border-red-200' },
-  { key: 'kds', label: 'KDS', icon: '', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
-  { key: 'accounts', label: 'Accounts', icon: '', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  { key: 'hr', label: 'HRM', icon: '', color: 'bg-amber-50 text-amber-700 border-amber-200' },
-  { key: 'reports', label: 'Reports', icon: '', color: 'bg-teal-50 text-teal-700 border-teal-200' },
-  { key: 'settings', label: 'Settings', icon: '', color: 'bg-gray-50 text-gray-700 border-gray-200' }
+  // Dashboard
+  { key: 'dashboard', label: 'Dashboard', color: 'bg-blue-50 text-blue-700 border-blue-200' },
+  
+  // Bookings
+  { key: 'bookings_list', label: 'All Bookings', color: 'bg-purple-50 text-purple-700 border-purple-200' },
+  { key: 'bookings_create', label: 'Create Booking', color: 'bg-purple-50 text-purple-700 border-purple-200' },
+  { key: 'bookings_calendar', label: 'Booking Calendar', color: 'bg-purple-50 text-purple-700 border-purple-200' },
+  
+  // Customers
+  { key: 'customers', label: 'Guests', color: 'bg-pink-50 text-pink-700 border-pink-200' },
+  { key: 'customers_add', label: 'Add Guest', color: 'bg-pink-50 text-pink-700 border-pink-200' },
+  
+  // Events
+  { key: 'events', label: 'Events', color: 'bg-orange-50 text-orange-700 border-orange-200' },
+  { key: 'events_add', label: 'Add Event', color: 'bg-orange-50 text-orange-700 border-orange-200' },
+  
+  // Services
+  { key: 'services', label: 'Services', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+  { key: 'services_list', label: 'Services List', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+  
+  // Menu & Packages
+  { key: 'menus', label: 'Menu', color: 'bg-rose-50 text-rose-700 border-rose-200' },
+  { key: 'menus_add', label: 'Add Menu', color: 'bg-rose-50 text-rose-700 border-rose-200' },
+  { key: 'menu_packages', label: 'Packages', color: 'bg-rose-50 text-rose-700 border-rose-200' },
+  { key: 'menu_items', label: 'Menu Items', color: 'bg-rose-50 text-rose-700 border-rose-200' },
+  { key: 'menu_categories', label: 'Categories', color: 'bg-rose-50 text-rose-700 border-rose-200' },
+  { key: 'menu_units', label: 'Units', color: 'bg-rose-50 text-rose-700 border-rose-200' },
+  
+  // POS
+  { key: 'pos', label: 'POS Terminal', color: 'bg-green-50 text-green-700 border-green-200' },
+  
+  // Inventory
+  { key: 'inventory', label: 'Inventory', color: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
+  { key: 'inventory_item_master', label: 'Item Master', color: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
+  { key: 'inventory_stock_transfer', label: 'Stock Transfer', color: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
+  { key: 'inventory_stock_adjustment', label: 'Stock Adjustment', color: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
+  
+  // Kitchen
+  { key: 'kitchen', label: 'Kitchen', color: 'bg-red-50 text-red-700 border-red-200' },
+  { key: 'kitchen_sheet', label: 'Kitchen Sheet', color: 'bg-red-50 text-red-700 border-red-200' },
+  { key: 'kds', label: 'KDS', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+  { key: 'production_plan', label: 'Production Plan', color: 'bg-red-50 text-red-700 border-red-200' },
+  { key: 'recipe_manager', label: 'Recipe Manager', color: 'bg-red-50 text-red-700 border-red-200' },
+  { key: 'wastage_log', label: 'Wastage Log', color: 'bg-red-50 text-red-700 border-red-200' },
+  
+  // Accounts
+  { key: 'accounts', label: 'Accounts', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  { key: 'accounts_list', label: 'Accounts List', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  { key: 'payment_voucher', label: 'Payment Voucher', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  { key: 'expense_voucher', label: 'Expense Voucher', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  { key: 'voucher_list', label: 'Voucher List', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  { key: 'ledger', label: 'Ledger', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  { key: 'day_book', label: 'Day Book', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  
+  // Fixed Assets
+  { key: 'fixed_assets', label: 'Fixed Assets', color: 'bg-blue-50 text-blue-700 border-blue-200' },
+  { key: 'fixed_assets_add', label: 'Add Asset', color: 'bg-blue-50 text-blue-700 border-blue-200' },
+  { key: 'fixed_assets_adjustments', label: 'Asset Adjustments', color: 'bg-blue-50 text-blue-700 border-blue-200' },
+  
+  // Procurement
+  { key: 'procurement', label: 'Procurement', color: 'bg-slate-50 text-slate-700 border-slate-300' },
+  { key: 'suppliers', label: 'Suppliers', color: 'bg-slate-50 text-slate-700 border-slate-300' },
+  { key: 'purchase_orders', label: 'Purchase Orders', color: 'bg-slate-50 text-slate-700 border-slate-300' },
+  { key: 'purchase_orders_create', label: 'Create PO', color: 'bg-slate-50 text-slate-700 border-slate-300' },
+  { key: 'grn', label: 'GRN (Bills)', color: 'bg-slate-50 text-slate-700 border-slate-300' },
+  { key: 'purchase_return', label: 'Purchase Return', color: 'bg-slate-50 text-slate-700 border-slate-300' },
+  
+  // HR
+  { key: 'hr', label: 'HRM', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  { key: 'staff_list', label: 'Staff List', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  { key: 'employees_add', label: 'Add Employee', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  { key: 'attendance', label: 'Attendance', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  { key: 'payroll', label: 'Payroll', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  { key: 'leave', label: 'Leave', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  { key: 'advance_loan', label: 'Advance & Loan', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  { key: 'event_staff', label: 'Event Staff', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  { key: 'hr_setup', label: 'HR Setup', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  
+  // Reports
+  { key: 'reports', label: 'Reports', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+  { key: 'reports_dashboard', label: 'Reports Dashboard', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+  { key: 'profit_loss', label: 'Profit & Loss', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+  { key: 'reports_bookings', label: 'Booking & Event Reports', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+  { key: 'reports_inventory', label: 'Inventory & Stock Reports', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+  { key: 'reports_hr', label: 'HR & Payroll Reports', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+  { key: 'reports_finance', label: 'Financial Reports', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+  { key: 'reports_kitchen', label: 'Kitchen & Production Reports', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+  { key: 'reports_purchases', label: 'Supplier & Purchase Reports', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+  { key: 'reports_customers', label: 'Customer & Sale Reports', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+  
+  // Settings
+  { key: 'settings', label: 'Settings', color: 'bg-gray-50 text-gray-700 border-gray-200' },
+  { key: 'settings_branches', label: 'Branch Settings', color: 'bg-gray-50 text-gray-700 border-gray-200' },
+  { key: 'settings_halls', label: 'Hall Settings', color: 'bg-gray-50 text-gray-700 border-gray-200' },
+  { key: 'settings_receipt', label: 'Receipt Settings', color: 'bg-gray-50 text-gray-700 border-gray-200' },
+  { key: 'settings_tax', label: 'Tax Config', color: 'bg-gray-50 text-gray-700 border-gray-200' },
+  { key: 'settings_roles', label: 'Roles', color: 'bg-gray-50 text-gray-700 border-gray-200' },
+  { key: 'settings_backup', label: 'Backup', color: 'bg-gray-50 text-gray-700 border-gray-200' },
 ];
 
 const ACTION_DEFS = [
@@ -33,7 +124,7 @@ const ACTION_DEFS = [
   { key: 'print', label: 'Print', icon: Eye, color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-200' }
 ];
 
-// FIX: Helper to safely extract array from any API response shape
+// ── Helper to safely extract array ──
 const safeArray = (res) => {
   if (!res) return [];
   if (Array.isArray(res)) return res;
@@ -41,6 +132,24 @@ const safeArray = (res) => {
   if (res.data && Array.isArray(res.data.data)) return res.data.data;
   return [];
 };
+
+// ✅ Helper to check if response is success
+const isSuccessResponse = (response) => {
+  if (!response) return false;
+  
+  return (
+    response?.success === true ||
+    response?.status === 'success' ||
+    response?.status === 200 ||
+    response?.status === 201 ||
+    response?.data?.id !== undefined ||
+    response?.data?.data?.id !== undefined
+  );
+};
+
+// ═══════════════════════════════════════════════════════════
+// ── MAIN COMPONENT ──
+// ═══════════════════════════════════════════════════════════
 
 const RolePermissionManager = () => {
   const [roles, setRoles] = useState([]);
@@ -66,6 +175,7 @@ const RolePermissionManager = () => {
   const [selectedEmpId, setSelectedEmpId] = useState('');
   const [selectedRoleId, setSelectedRoleId] = useState('');
 
+  // ── Fetch Data ──
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -75,7 +185,6 @@ const RolePermissionManager = () => {
         employeeApi.getAll().catch(() => ({ data: [] }))
       ]);
 
-      // FIX: Use safeArray for all responses to handle nested { data: { data: [] } } shapes
       const roleList = safeArray(roleRes);
       setRoles(roleList);
       if (roleList.length > 0 && !activeRoleTab) setActiveRoleTab(roleList[0].id);
@@ -167,17 +276,27 @@ const RolePermissionManager = () => {
         return toast.error('Select at least one permission');
       }
 
-      await roleApi.createRoleWithPermissions({
+      const result = await roleApi.createRoleWithPermissions({
         name: newRoleName,
         description: newRoleDesc,
         permissions: permissionsToSave
       });
 
-      toast.success('Role created successfully!');
-      setShowRoleModal(false);
-      fetchData();
+      console.log('📦 Create Role Response:', result);
+
+      // ✅ FIX: Use isSuccessResponse helper
+      if (isSuccessResponse(result)) {
+        toast.success('✅ Role created successfully!');
+        setShowRoleModal(false);
+        fetchData();
+      } else {
+        const errorMsg = result?.message || result?.error || 'Failed to create role';
+        toast.error('❌ ' + errorMsg);
+      }
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Failed to create role');
+      console.error('❌ Create role error:', err);
+      const errorMsg = err?.response?.data?.message || err?.message || 'Failed to create role';
+      toast.error('❌ ' + errorMsg);
     } finally {
       setIsSaving(false);
     }
@@ -204,11 +323,12 @@ const RolePermissionManager = () => {
         });
       });
       await Promise.all(promises);
-      toast.success('Permissions updated!');
+      toast.success('✅ Permissions updated!');
       setShowDetailModal(false);
       fetchData();
     } catch (err) {
-      toast.error('Failed to update permissions');
+      console.error('❌ Update permissions error:', err);
+      toast.error('❌ Failed to update permissions');
     } finally {
       setIsSaving(false);
     }
@@ -224,14 +344,20 @@ const RolePermissionManager = () => {
     if (!userId) return toast.error('Employee has no login account!');
 
     try {
-      await roleApi.assignRole(userId, selectedRoleId);
-      toast.success('Role assigned successfully!');
-      setShowAssignModal(false);
-      setSelectedEmpId('');
-      setSelectedRoleId('');
-      fetchData();
+      const result = await roleApi.assignRole(userId, selectedRoleId);
+      
+      if (isSuccessResponse(result)) {
+        toast.success('✅ Role assigned successfully!');
+        setShowAssignModal(false);
+        setSelectedEmpId('');
+        setSelectedRoleId('');
+        fetchData();
+      } else {
+        toast.error('❌ ' + (result?.message || 'Failed to assign role'));
+      }
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Failed to assign role');
+      console.error('❌ Assign role error:', err);
+      toast.error('❌ ' + (err?.response?.data?.message || err?.message || 'Failed to assign role'));
     }
   };
 
@@ -246,16 +372,15 @@ const RolePermissionManager = () => {
 
   const filteredModules = ALL_MODULES.filter(m => m.label.toLowerCase().includes(searchTerm.toLowerCase()));
 
+  // ── Render ──
   return (
-    <div className="min-h-screen p-4 md:p-6" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen p-4 md:p-6" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <div className="max-w-7xl mx-auto space-y-6">
 
-        {/* ════════════════════════════════════════
-            HEADER
-        ════════════════════════════════════════ */}
+        {/* ── HEADER ── */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-md text-white">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-md text-white">
               <Shield className="w-6 h-6" />
             </div>
             <div>
@@ -266,36 +391,34 @@ const RolePermissionManager = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowAssignModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm bg-white border border-[#E0D8CC] text-gray-700 hover:bg-gray-50 shadow-sm transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm bg-white border border-slate-300 text-gray-700 hover:bg-gray-50 shadow-sm transition-all"
             >
               <UserCheck size={16} /> Assign to Employee
             </button>
             <button
               onClick={openCreateModal}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white shadow-md hover:scale-[1.02] transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white shadow-md hover:scale-[1.02] transition-all"
             >
               <Plus size={16} /> Create Role
             </button>
             <button
               onClick={fetchData}
-              className="p-2.5 rounded-xl bg-white border border-[#E0D8CC] text-gray-500 hover:text-[#A97A1F] shadow-sm transition-all"
+              className="p-2.5 rounded-xl bg-white border border-slate-300 text-gray-500 hover:text-[#2563EB] shadow-sm transition-all"
             >
               <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
             </button>
           </div>
         </div>
 
-        {/* ════════════════════════════════════════
-            STATS CARDS
-        ════════════════════════════════════════ */}
+        {/* ── STATS CARDS ── */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[
-            { label: 'Total Roles', value: roles.length, icon: Shield, color: 'from-[#A97A1F] to-[#C89B3C]' },
+            { label: 'Total Roles', value: roles.length, icon: Shield, color: 'from-[#2563EB] to-[#2563EB]' },
             { label: 'Active Permissions', value: permissions.filter(p => p.allowed).length, icon: Lock, color: 'from-emerald-500 to-emerald-600' },
             { label: 'Staff with Roles', value: employees.length, icon: Users, color: 'from-blue-500 to-blue-600' },
             { label: 'Modules', value: ALL_MODULES.length, icon: LayoutGrid, color: 'from-purple-500 to-purple-600' }
           ].map((stat, i) => (
-            <div key={i} className="bg-white rounded-2xl p-4 border border-[#E0D8CC] shadow-sm flex items-center gap-4">
+            <div key={i} className="bg-white rounded-2xl p-4 border border-slate-300 shadow-sm flex items-center gap-4">
               <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-sm`}>
                 <stat.icon size={20} />
               </div>
@@ -307,17 +430,15 @@ const RolePermissionManager = () => {
           ))}
         </div>
 
-        {/* ════════════════════════════════════════
-            ROLES LIST
-        ════════════════════════════════════════ */}
+        {/* ── ROLES LIST ── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left: Role Cards */}
           <div className="lg:col-span-1 space-y-3">
             <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Crown size={16} className="text-[#A97A1F]" /> Available Roles
+              <Crown size={16} className="text-[#2563EB]" /> Available Roles
             </h3>
             {roles.length === 0 ? (
-              <div className="bg-white rounded-2xl p-8 text-center border border-[#E0D8CC]">
+              <div className="bg-white rounded-2xl p-8 text-center border border-slate-300">
                 <Shield className="w-12 h-12 mx-auto text-gray-300 mb-2" />
                 <p className="text-sm text-gray-500">No custom roles found</p>
               </div>
@@ -331,14 +452,14 @@ const RolePermissionManager = () => {
                     onClick={() => setActiveRoleTab(role.id)}
                     className={`cursor-pointer rounded-2xl p-4 border transition-all ${
                       isActive
-                        ? 'bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white border-[#A97A1F] shadow-md'
-                        : 'bg-white border-[#E0D8CC] hover:border-[#A97A1F] hover:shadow-sm'
+                        ? 'bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white border-[#2563EB] shadow-md'
+                        : 'bg-white border-slate-300 hover:border-[#2563EB] hover:shadow-sm'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${isActive ? 'bg-white/20' : 'bg-[#F4E7C9]'}`}>
-                          <Shield size={18} className={isActive ? 'text-white' : 'text-[#A97A1F]'} />
+                        <div className={`p-2 rounded-lg ${isActive ? 'bg-white/20' : 'bg-amber-100/80'}`}>
+                          <Shield size={18} className={isActive ? 'text-white' : 'text-[#2563EB]'} />
                         </div>
                         <div>
                           <h4 className="font-bold text-sm">{role.name}</h4>
@@ -347,7 +468,7 @@ const RolePermissionManager = () => {
                       </div>
                       <div className="text-right">
                         <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                          isActive ? 'bg-white/20' : 'bg-[#F4E7C9] text-[#8B6914]'
+                          isActive ? 'bg-white/20' : 'bg-amber-100/80 text-[#8B6914]'
                         }`}>
                           {permCount} perms
                         </span>
@@ -362,7 +483,7 @@ const RolePermissionManager = () => {
                       <button
                         onClick={(e) => { e.stopPropagation(); openDetailModal(role); }}
                         className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
-                          isActive ? 'bg-white text-[#A97A1F]' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                          isActive ? 'bg-white text-[#2563EB]' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                         }`}
                       >
                         Edit Matrix
@@ -376,10 +497,10 @@ const RolePermissionManager = () => {
 
           {/* Right: Permission Matrix */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-sm overflow-hidden">
-              <div className="p-4 border-b border-[#E0D8CC] bg-[#FAF8F4] flex items-center justify-between">
+            <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
+              <div className="p-4 border-b border-slate-300 bg-slate-50 flex items-center justify-between">
                 <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                  <Lock size={18} className="text-[#A97A1F]" />
+                  <Lock size={18} className="text-[#2563EB]" />
                   {activeRoleTab ? `Permissions: ${roles.find(r => r.id === activeRoleTab)?.name}` : 'Permission Matrix'}
                 </h3>
                 <div className="relative">
@@ -389,7 +510,7 @@ const RolePermissionManager = () => {
                     placeholder="Search modules..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9 pr-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F] w-48"
+                    className="pl-9 pr-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] w-48"
                   />
                 </div>
               </div>
@@ -403,10 +524,10 @@ const RolePermissionManager = () => {
                     });
 
                     return (
-                      <div key={mod.key} className="border border-[#E0D8CC] rounded-xl p-4 bg-white hover:shadow-sm transition-all">
+                      <div key={mod.key} className="border border-slate-300 rounded-xl p-4 bg-white hover:shadow-sm transition-all">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-3">
-                            <span className="text-xl">{mod.icon}</span>
+                            <span className="text-xl font-bold text-gray-500">{mod.label.charAt(0)}</span>
                             <div>
                               <h4 className="font-bold text-gray-800 text-sm">{mod.label}</h4>
                               <p className="text-[10px] text-gray-400 uppercase tracking-wider">{mod.key}</p>
@@ -417,7 +538,6 @@ const RolePermissionManager = () => {
                               type="checkbox"
                               checked={perms.view}
                               onChange={async () => {
-                                // FIX: Batch all updates in a single Promise.all and call fetchData once
                                 const newVal = !perms.view;
                                 try {
                                   if (!newVal) {
@@ -450,7 +570,7 @@ const RolePermissionManager = () => {
                                   console.error(err);
                                 }
                               }}
-                              className="w-4 h-4 rounded border-gray-300 text-[#A97A1F] focus:ring-[#A97A1F]"
+                              className="w-4 h-4 rounded border-gray-300 text-[#2563EB] focus:ring-[#2563EB]"
                             />
                             <span className="text-xs font-semibold text-gray-600">Access</span>
                           </label>
@@ -505,17 +625,14 @@ const RolePermissionManager = () => {
           </div>
         </div>
 
-        {/* ════════════════════════════════════════
-            MODAL: Create Role
-            FIX: items-start instead of items-center to prevent scroll jump on re-render
-        ════════════════════════════════════════ */}
+        {/* ── CREATE ROLE MODAL ── */}
         {showRoleModal && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl border border-[#E0D8CC] overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200">
-              <div className="px-6 py-4 border-b bg-[#FAF8F4] flex items-center justify-between">
+            <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl border border-slate-300 overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200">
+              <div className="px-6 py-4 border-b bg-slate-50 flex items-center justify-between">
                 <div>
                   <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                    <Crown size={20} className="text-[#A97A1F]" /> Create New Role
+                    <Crown size={20} className="text-[#2563EB]" /> Create New Role
                   </h3>
                   <p className="text-xs text-gray-500 mt-0.5">Define role name and configure module permissions</p>
                 </div>
@@ -534,7 +651,7 @@ const RolePermissionManager = () => {
                       onChange={e => setNewRoleName(e.target.value)}
                       placeholder="e.g. Senior Receptionist"
                       required
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                     />
                   </div>
                   <div>
@@ -544,7 +661,7 @@ const RolePermissionManager = () => {
                       value={newRoleDesc}
                       onChange={e => setNewRoleDesc(e.target.value)}
                       placeholder="Brief description..."
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                     />
                   </div>
                 </div>
@@ -552,7 +669,7 @@ const RolePermissionManager = () => {
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-bold text-gray-800">Module Permissions</h4>
                   <div className="flex gap-2">
-                    <button type="button" onClick={() => handleSelectAllGlobal(true)} className="text-xs font-bold text-[#A97A1F] hover:text-[#8B6914]">
+                    <button type="button" onClick={() => handleSelectAllGlobal(true)} className="text-xs font-bold text-[#2563EB] hover:text-[#8B6914]">
                       Select All
                     </button>
                     <span className="text-gray-300">|</span>
@@ -569,10 +686,10 @@ const RolePermissionManager = () => {
                     const someSelected = Object.values(modPerms).some(Boolean) && !allSelected;
 
                     return (
-                      <div key={mod.key} className="border border-[#E0D8CC] rounded-xl p-4 bg-[#FAF8F4]/50">
+                      <div key={mod.key} className="border border-slate-300 rounded-xl p-4 bg-slate-50/50">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-3">
-                            <span className="text-lg">{mod.icon}</span>
+                            <span className="text-lg font-bold text-gray-500">{mod.label.charAt(0)}</span>
                             <div>
                               <h5 className="font-bold text-sm text-gray-800">{mod.label}</h5>
                               <p className="text-[10px] text-gray-400 uppercase">{mod.key}</p>
@@ -582,7 +699,7 @@ const RolePermissionManager = () => {
                             type="button"
                             onClick={() => handleSelectAllModule(mod.key, !allSelected)}
                             className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
-                              allSelected ? 'bg-[#A97A1F] text-white' : someSelected ? 'bg-[#F4E7C9] text-[#8B6914]' : 'bg-gray-100 text-gray-500'
+                              allSelected ? 'bg-[#2563EB] text-white' : someSelected ? 'bg-amber-100/80 text-[#8B6914]' : 'bg-gray-100 text-gray-500'
                             }`}
                           >
                             {allSelected ? 'All Granted' : someSelected ? 'Partial' : 'Grant All'}
@@ -591,7 +708,6 @@ const RolePermissionManager = () => {
 
                         <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                           {ACTION_DEFS.map(action => (
-                            // FIX: Use button instead of label+hidden checkbox to prevent scroll jump
                             <button
                               type="button"
                               key={action.key}
@@ -612,7 +728,7 @@ const RolePermissionManager = () => {
                   })}
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-[#E0D8CC]">
+                <div className="flex justify-end gap-3 pt-4 border-t border-slate-300">
                   <button
                     type="button"
                     onClick={() => setShowRoleModal(false)}
@@ -623,7 +739,7 @@ const RolePermissionManager = () => {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="px-6 py-2.5 rounded-xl font-bold text-white text-sm bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] shadow-sm hover:opacity-95 disabled:opacity-50 flex items-center gap-2"
+                    className="px-6 py-2.5 rounded-xl font-bold text-white text-sm bg-gradient-to-r from-[#2563EB] to-[#2563EB] shadow-sm hover:opacity-95 disabled:opacity-50 flex items-center gap-2"
                   >
                     {isSaving ? <RefreshCw size={16} className="animate-spin" /> : <Save size={16} />}
                     {isSaving ? 'Creating...' : 'Create Role'}
@@ -634,14 +750,11 @@ const RolePermissionManager = () => {
           </div>
         )}
 
-        {/* ════════════════════════════════════════
-            MODAL: Assign Role to Employee
-            FIX: items-start instead of items-center
-        ════════════════════════════════════════ */}
+        {/* ── ASSIGN ROLE MODAL ── */}
         {showAssignModal && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl border border-[#E0D8CC] overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200">
-              <div className="px-6 py-4 border-b bg-[#FAF8F4] flex items-center justify-between">
+            <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl border border-slate-300 overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200">
+              <div className="px-6 py-4 border-b bg-slate-50 flex items-center justify-between">
                 <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
                   <UserCheck size={20} className="text-emerald-600" /> Assign Role
                 </h3>
@@ -659,7 +772,7 @@ const RolePermissionManager = () => {
                       value={selectedEmpId}
                       onChange={e => setSelectedEmpId(e.target.value)}
                       required
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F] appearance-none bg-white"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] appearance-none bg-white"
                     >
                       <option value="">-- Select Employee --</option>
                       {employees.map(emp => (
@@ -685,7 +798,7 @@ const RolePermissionManager = () => {
                       value={selectedRoleId}
                       onChange={e => setSelectedRoleId(e.target.value)}
                       required
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F] appearance-none bg-white"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] appearance-none bg-white"
                     >
                       <option value="">-- Select Role --</option>
                       {roles.map(r => (
@@ -696,7 +809,7 @@ const RolePermissionManager = () => {
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-[#E0D8CC]">
+                <div className="flex justify-end gap-3 pt-4 border-t border-slate-300">
                   <button
                     type="button"
                     onClick={() => setShowAssignModal(false)}
@@ -716,14 +829,11 @@ const RolePermissionManager = () => {
           </div>
         )}
 
-        {/* ════════════════════════════════════════
-            MODAL: Edit Role Detail
-            FIX: items-start instead of items-center
-        ════════════════════════════════════════ */}
+        {/* ── EDIT ROLE DETAIL MODAL ── */}
         {showDetailModal && selectedRole && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl border border-[#E0D8CC] overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200">
-              <div className="px-6 py-4 border-b bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] flex items-center justify-between text-white">
+            <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl border border-slate-300 overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200">
+              <div className="px-6 py-4 border-b bg-gradient-to-r from-[#2563EB] to-[#2563EB] flex items-center justify-between text-white">
                 <div>
                   <h3 className="font-bold text-lg flex items-center gap-2">
                     <Shield size={20} /> {selectedRole.name}
@@ -739,16 +849,16 @@ const RolePermissionManager = () => {
                 {ALL_MODULES.map(mod => {
                   const modPerms = roleMatrix[mod.key] || {};
                   return (
-                    <div key={mod.key} className="border border-[#E0D8CC] rounded-xl p-4 bg-[#FAF8F4]/30">
+                    <div key={mod.key} className="border border-slate-300 rounded-xl p-4 bg-slate-50/30">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <span className="text-lg">{mod.icon}</span>
+                          <span className="text-xl font-bold text-gray-500">{mod.label.charAt(0)}</span>
                           <h5 className="font-bold text-sm text-gray-800">{mod.label}</h5>
                         </div>
                         <button
                           type="button"
                           onClick={() => handleSelectAllModule(mod.key, !Object.values(modPerms).every(Boolean))}
-                          className="text-xs font-bold px-3 py-1 rounded-lg bg-white border border-[#E0D8CC] text-gray-600 hover:border-[#A97A1F]"
+                          className="text-xs font-bold px-3 py-1 rounded-lg bg-white border border-slate-300 text-gray-600 hover:border-[#2563EB]"
                         >
                           Toggle All
                         </button>
@@ -775,7 +885,7 @@ const RolePermissionManager = () => {
                 })}
               </div>
 
-              <div className="p-4 border-t border-[#E0D8CC] bg-[#FAF8F4] flex justify-end gap-3">
+              <div className="p-4 border-t border-slate-300 bg-slate-50 flex justify-end gap-3">
                 <button
                   onClick={() => setShowDetailModal(false)}
                   className="px-5 py-2.5 border border-gray-300 rounded-xl font-bold text-sm text-gray-600 hover:bg-white"
@@ -785,7 +895,7 @@ const RolePermissionManager = () => {
                 <button
                   onClick={handleUpdateRolePerms}
                   disabled={isSaving}
-                  className="px-6 py-2.5 rounded-xl font-bold text-white text-sm bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] shadow-sm hover:opacity-95 disabled:opacity-50 flex items-center gap-2"
+                  className="px-6 py-2.5 rounded-xl font-bold text-white text-sm bg-gradient-to-r from-[#2563EB] to-[#2563EB] shadow-sm hover:opacity-95 disabled:opacity-50 flex items-center gap-2"
                 >
                   {isSaving ? <RefreshCw size={16} className="animate-spin" /> : <Save size={16} />}
                   {isSaving ? 'Saving...' : 'Save Changes'}

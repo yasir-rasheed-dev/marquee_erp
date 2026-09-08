@@ -400,9 +400,9 @@ const PermissionMatrix = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="bg-[#F5F2EB] text-gray-700 font-semibold border-b sticky top-0 z-10">
+              <thead className="bg-[#F1F5F9] text-gray-700 font-semibold border-b sticky top-0 z-10">
                 <tr>
-                  <th className="p-4 min-w-[200px] sticky left-0 bg-[#F5F2EB]">Resource</th>
+                  <th className="p-4 min-w-[200px] sticky left-0 bg-[#F1F5F9]">Resource</th>
                   <th className="p-4 min-w-[120px]">Category</th>
                   {ROLES.map(role => (
                     <th key={role} className={`p-3 text-center min-w-[120px] ${ROLE_COLORS[role]}`}>

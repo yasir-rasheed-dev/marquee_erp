@@ -225,7 +225,7 @@ const ServiceList = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto p-6 relative pb-12" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="space-y-6 max-w-7xl mx-auto p-6 relative pb-12" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       
       {/* TOP HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -234,7 +234,7 @@ const ServiceList = () => {
           <p className="text-sm font-medium text-gray-600 flex items-center gap-2">
             Manage DJ, Photography, Decoration & view event usage history
             {currentBranch && (
-              <span className="px-2 py-0.5 rounded-full text-xs bg-[#F4E7C9] text-[#8B6914] font-bold">
+              <span className="px-2 py-0.5 rounded-full text-xs bg-amber-100/80 text-[#8B6914] font-bold">
                 📍 {currentBranch.name}
               </span>
             )}
@@ -242,24 +242,24 @@ const ServiceList = () => {
         </div>
         
         <div className="flex items-center gap-3">
-          <div className="bg-white p-1 rounded-xl border border-[#E0D8CC] flex items-center shadow-sm">
+          <div className="bg-white p-1 rounded-xl border border-slate-300 flex items-center shadow-sm">
             <button 
               onClick={() => setViewMode('grid')} 
               title="Grid Card View"
-              className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+              className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
             >
               <LayoutGrid size={18} />
             </button>
             <button 
               onClick={() => setViewMode('table')} 
               title="Table View"
-              className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+              className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
             >
               <TableIcon size={18} />
             </button>
           </div>
 
-          <Button onClick={handleOpenCreate} className="bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white flex items-center gap-2 shadow-md">
+          <Button onClick={handleOpenCreate} className="bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white flex items-center gap-2 shadow-md">
             <Plus className="w-4 h-4" /> Add New Service
           </Button>
         </div>
@@ -267,8 +267,8 @@ const ServiceList = () => {
 
       {/* SUMMARY CARDS / TOTAL STATS */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl p-4 border border-[#E0D8CC] shadow-sm flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-amber-50 text-[#A97A1F]">
+        <div className="bg-white rounded-2xl p-4 border border-slate-300 shadow-sm flex items-center gap-4">
+          <div className="p-3 rounded-xl bg-amber-50 text-[#2563EB]">
             <Layers size={22} />
           </div>
           <div>
@@ -277,7 +277,7 @@ const ServiceList = () => {
           </div>
         </div>
         
-        <div className="bg-white rounded-2xl p-4 border border-[#E0D8CC] shadow-sm flex items-center gap-4">
+        <div className="bg-white rounded-2xl p-4 border border-slate-300 shadow-sm flex items-center gap-4">
           <div className="p-3 rounded-xl bg-green-50 text-green-700">
             <BookmarkCheck size={22} />
           </div>
@@ -287,7 +287,7 @@ const ServiceList = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 border border-[#E0D8CC] shadow-sm flex items-center gap-4">
+        <div className="bg-white rounded-2xl p-4 border border-slate-300 shadow-sm flex items-center gap-4">
           <div className="p-3 rounded-xl bg-blue-50 text-blue-700">
             <Clock size={22} />
           </div>
@@ -297,7 +297,7 @@ const ServiceList = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 border border-[#E0D8CC] shadow-sm flex items-center gap-4">
+        <div className="bg-white rounded-2xl p-4 border border-slate-300 shadow-sm flex items-center gap-4">
           <div className="p-3 rounded-xl bg-purple-50 text-purple-700">
             <DollarSign size={22} />
           </div>
@@ -309,7 +309,7 @@ const ServiceList = () => {
       </div>
 
       {/* SEARCH & FILTERS BAR */}
-      <div className="bg-white rounded-2xl shadow-sm border border-[#E0D8CC] p-4 flex flex-col sm:flex-row items-center gap-3">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-300 p-4 flex flex-col sm:flex-row items-center gap-3">
         {/* SEARCH INPUT */}
         <div className="relative flex-1 w-full">
           <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -318,7 +318,7 @@ const ServiceList = () => {
             value={searchTerm} 
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search services by name or code..." 
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#A97A1F] text-sm"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2563EB] text-sm"
           />
         </div>
 
@@ -358,15 +358,15 @@ const ServiceList = () => {
       {/* CONTENT VIEW: GRID OR TABLE */}
       {loading ? (
         <div className="text-center py-20">
-          <div className="w-12 h-12 rounded-full border-4 border-t-[#A97A1F] animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
+          <div className="w-12 h-12 rounded-full border-4 border-t-[#2563EB] animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
           <p className="mt-4 text-sm font-bold text-gray-600">Loading services...</p>
         </div>
       ) : filteredServices.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 text-center border border-[#E0D8CC] shadow-sm">
+        <div className="bg-white rounded-3xl p-12 text-center border border-slate-300 shadow-sm">
           <Layers className="w-16 h-16 mx-auto mb-4 text-gray-300" />
           <h3 className="text-lg font-bold text-gray-800 mb-1">No Services Found</h3>
           <p className="text-sm text-gray-500">Try adjusting your search or filter options.</p>
-          <Button onClick={handleOpenCreate} className="mt-4 bg-[#A97A1F] text-white">
+          <Button onClick={handleOpenCreate} className="mt-4 bg-[#2563EB] text-white">
             <Plus className="w-4 h-4 inline mr-1" /> Add New Service
           </Button>
         </div>
@@ -376,18 +376,18 @@ const ServiceList = () => {
             /* ── GRID CARD VIEW ── */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {paginatedServices.map(s => (
-                <div key={s.id} className="bg-white rounded-2xl border border-[#E0D8CC] p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                <div key={s.id} className="bg-white rounded-2xl border border-slate-300 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
                   <div>
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="flex-1 min-w-0">
                         {s.code && (
-                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 text-[#A97A1F] border border-amber-200">
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 text-[#2563EB] border border-amber-200">
                             {s.code}
                           </span>
                         )}
                         <h3 className="font-bold text-base text-gray-900 mt-1 truncate">{s.name}</h3>
                       </div>
-                      <span className="px-2.5 py-1 bg-amber-50 text-[#A97A1F] font-bold rounded-full text-xs whitespace-nowrap">
+                      <span className="px-2.5 py-1 bg-amber-50 text-[#2563EB] font-bold rounded-full text-xs whitespace-nowrap">
                         {s._count?.bookings || 0} Bookings
                       </span>
                     </div>
@@ -403,19 +403,19 @@ const ServiceList = () => {
                       <PriceBadge service={s} />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 bg-[#FAF8F4] p-3 rounded-xl border border-[#E0D8CC] mb-4">
+                    <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-300 mb-4">
                       <div>
                         <span className="text-[10px] font-bold uppercase text-gray-400 block">Cost Price</span>
                         <span className="text-xs font-mono font-bold text-gray-700">{Number(s.costPrice || 0).toLocaleString()} PKR</span>
                       </div>
                       <div>
                         <span className="text-[10px] font-bold uppercase text-gray-400 block">Sale Price</span>
-                        <span className="text-xs font-mono font-bold text-[#A97A1F]">{Number(s.salePrice || 0).toLocaleString()} PKR</span>
+                        <span className="text-xs font-mono font-bold text-[#2563EB]">{Number(s.salePrice || 0).toLocaleString()} PKR</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-[#F0ECE6] flex items-center justify-between">
+                  <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-between">
                     <div className="flex items-center gap-1">
                       <button onClick={() => handleOpenHistory(s)} title="View Usage History" className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-all">
                         <History className="w-4 h-4" />
@@ -427,7 +427,7 @@ const ServiceList = () => {
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => handleOpenHistory(s)} className="border-[#E0D8CC] text-xs">
+                    <Button variant="outline" size="sm" onClick={() => handleOpenHistory(s)} className="border-slate-300 text-xs">
                       View History
                     </Button>
                   </div>
@@ -436,11 +436,11 @@ const ServiceList = () => {
             </div>
           ) : (
             /* ── TABLE VIEW ── */
-            <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-sm overflow-hidden hidden sm:block">
+            <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden hidden sm:block">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-[#FAF8F4] border-b border-[#E0D8CC] text-xs font-bold text-gray-600 uppercase tracking-wider">
+                    <tr className="bg-slate-50 border-b border-slate-300 text-xs font-bold text-gray-600 uppercase tracking-wider">
                       <th className="py-3.5 px-4">Service Details</th>
                       <th className="py-3.5 px-4">Category</th>
                       <th className="py-3.5 px-4">Pricing</th>
@@ -455,7 +455,7 @@ const ServiceList = () => {
                       <tr key={s.id} className="hover:bg-amber-50/30 transition-all">
                         <td className="py-3.5 px-4">
                           <div className="font-bold text-gray-900">{s.name}</div>
-                          {s.code && <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#A97A1F]">{s.code}</span>}
+                          {s.code && <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#2563EB]">{s.code}</span>}
                         </td>
                         <td className="py-3.5 px-4 text-xs font-semibold text-gray-600">
                           <span className="px-2.5 py-1 rounded-lg bg-gray-100 text-gray-700">{s.category || 'General'}</span>
@@ -466,11 +466,11 @@ const ServiceList = () => {
                         <td className="py-3.5 px-4 text-right font-mono text-xs text-gray-600">
                           {Number(s.costPrice || 0).toLocaleString()} PKR
                         </td>
-                        <td className="py-3.5 px-4 text-right font-mono text-xs font-bold text-[#A97A1F]">
+                        <td className="py-3.5 px-4 text-right font-mono text-xs font-bold text-[#2563EB]">
                           {Number(s.salePrice || 0).toLocaleString()} PKR
                         </td>
                         <td className="py-3.5 px-4 text-center">
-                          <span className="px-2.5 py-1 bg-amber-50 text-[#A97A1F] font-bold rounded-full text-xs">
+                          <span className="px-2.5 py-1 bg-amber-50 text-[#2563EB] font-bold rounded-full text-xs">
                             {s._count?.bookings || 0}
                           </span>
                         </td>
@@ -497,7 +497,7 @@ const ServiceList = () => {
 
           {/* ── PAGINATION CONTROLS ── */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between bg-white px-4 py-3 rounded-2xl border border-[#E0D8CC] shadow-sm">
+            <div className="flex items-center justify-between bg-white px-4 py-3 rounded-2xl border border-slate-300 shadow-sm">
               <span className="text-xs text-gray-500 font-medium">
                 Showing <strong className="text-gray-800">{((currentPage - 1) * itemsPerPage) + 1}</strong> to{' '}
                 <strong className="text-gray-800">{Math.min(currentPage * itemsPerPage, filteredServices.length)}</strong> of{' '}
@@ -532,11 +532,11 @@ const ServiceList = () => {
       {/* CREATE / EDIT MODAL & HISTORY MODAL SAME AS BEFORE */}
       {showModal && (
         <div className="fixed inset-y-0 right-0 left-0 lg:left-64 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 max-w-md w-full space-y-4 shadow-2xl border border-[#E0D8CC] my-auto animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center border-b pb-3 bg-[#FAF8F4] -mx-5 -mt-5 p-4 rounded-t-2xl sm:rounded-t-3xl border-[#E0D8CC]">
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 max-w-md w-full space-y-4 shadow-2xl border border-slate-300 my-auto animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center border-b pb-3 bg-slate-50 -mx-5 -mt-5 p-4 rounded-t-2xl sm:rounded-t-3xl border-slate-300">
               <div>
                 <h2 className="text-base sm:text-lg font-bold text-gray-800">{isEditing ? 'Edit Service' : 'Add New Service'}</h2>
-                <p className="text-xs text-[#A97A1F] font-medium mt-0.5">📍 Branch: <strong>{currentBranch?.name}</strong></p>
+                <p className="text-xs text-[#2563EB] font-medium mt-0.5">📍 Branch: <strong>{currentBranch?.name}</strong></p>
               </div>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 p-1.5 rounded-xl hover:bg-gray-200"><X className="w-5 h-5" /></button>
             </div>
@@ -635,14 +635,14 @@ const ServiceList = () => {
                 <textarea 
                   value={formData.description} 
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })} 
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+                  className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                   rows="2"
                 />
               </div>
 
               <div className="flex justify-end gap-2 pt-3 border-t">
                 <Button type="button" variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
-                <Button type="submit" className="bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white shadow-sm">
+                <Button type="submit" className="bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white shadow-sm">
                   {isEditing ? 'Update Service' : 'Save Service'}
                 </Button>
               </div>
@@ -653,11 +653,11 @@ const ServiceList = () => {
 
       {showHistoryModal && (
         <div className="fixed inset-y-0 right-0 left-0 lg:left-64 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 max-w-2xl w-full space-y-4 shadow-2xl border border-[#E0D8CC] my-auto animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center border-b pb-3 bg-[#FAF8F4] -mx-5 -mt-5 p-4 rounded-t-2xl sm:rounded-t-3xl border-[#E0D8CC]">
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 max-w-2xl w-full space-y-4 shadow-2xl border border-slate-300 my-auto animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center border-b pb-3 bg-slate-50 -mx-5 -mt-5 p-4 rounded-t-2xl sm:rounded-t-3xl border-slate-300">
               <div>
                 <h2 className="text-base sm:text-lg font-bold text-gray-800">Service Usage History</h2>
-                <p className="text-xs text-gray-500">Bookings utilizing: <span className="font-bold text-[#A97A1F]">{selectedServiceHistory?.name}</span></p>
+                <p className="text-xs text-gray-500">Bookings utilizing: <span className="font-bold text-[#2563EB]">{selectedServiceHistory?.name}</span></p>
               </div>
               <button onClick={() => setShowHistoryModal(false)} className="text-[#999] hover:text-gray-600 p-1.5 rounded-xl hover:bg-gray-200"><X className="w-5 h-5" /></button>
             </div>

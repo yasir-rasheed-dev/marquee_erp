@@ -5,19 +5,19 @@ const customStyles = {
   control: (base, state) => ({
     ...base,
     backgroundColor: 'var(--theme-bg-input, #fff)',
-    borderColor: state.isFocused ? 'var(--theme-primary, #A97A1F)' : 'var(--theme-border-default, #E0D8CC)',
+    borderColor: state.isFocused ? 'var(--theme-primary, #2563EB)' : 'var(--theme-border-default, #CBD5E1)',
     borderRadius: '0.75rem',
     padding: '2px 8px',
     minHeight: '42px',
-    boxShadow: state.isFocused ? '0 0 0 3px var(--theme-primary-light, rgba(169,122,31,0.2))' : 'none',
-    '&:hover': { borderColor: 'var(--theme-border-focus, #A97A1F)' }
+    boxShadow: state.isFocused ? '0 0 0 3px var(--theme-primary-light, rgba(37,99,235,0.2))' : 'none',
+    '&:hover': { borderColor: 'var(--theme-border-focus, #2563EB)' }
   }),
   option: (base, state) => ({
     ...base,
     backgroundColor: state.isSelected 
-      ? 'var(--theme-primary, #A97A1F)' 
+      ? 'var(--theme-primary, #2563EB)' 
       : state.isFocused 
-        ? 'var(--theme-bg-hover, #FAF8F4)' 
+        ? 'var(--theme-bg-hover, #F1F5F9)' 
         : 'transparent',
     color: state.isSelected ? 'var(--theme-text-inverse, #fff)' : 'var(--theme-text-primary, #1A1A1A)',
     padding: '10px 16px',
@@ -28,7 +28,7 @@ const customStyles = {
     ...base,
     backgroundColor: 'var(--theme-bg-card, #fff)',
     borderRadius: '0.75rem',
-    border: '1px solid var(--theme-border-default, #E0D8CC)',
+    border: '1px solid var(--theme-border-default, #CBD5E1)',
     boxShadow: 'var(--theme-shadow-dropdown, 0 4px 20px rgba(0,0,0,0.1))',
     zIndex: 100
   }),
@@ -46,8 +46,8 @@ const customStyles = {
   indicatorSeparator: () => ({ display: 'none' }),
   dropdownIndicator: (base, state) => ({
     ...base,
-    color: state.isFocused ? 'var(--theme-primary, #A97A1F)' : 'var(--theme-text-muted, #9CA3AF)',
-    '&:hover': { color: 'var(--theme-primary, #A97A1F)' }
+    color: state.isFocused ? 'var(--theme-primary, #2563EB)' : 'var(--theme-text-muted, #9CA3AF)',
+    '&:hover': { color: 'var(--theme-primary, #2563EB)' }
   }),
   clearIndicator: (base) => ({
     ...base,

@@ -206,11 +206,11 @@ export default {
   },
 
   // ── EXECUTE PRODUCTION PLAN (Stock Deduct + History) ──
-  execute: (id) => {
+  execute: (id, payload = {}) => {
     try {
       const branchId = getSelectedBranchId();
-      console.log('▶️ productionPlanApi.execute - id:', id, 'branchId:', branchId);
-      return apiClient.post(`/production-plans/${id}/execute`, { branchId })
+      console.log('▶️ productionPlanApi.execute - id:', id, 'branchId:', branchId, 'payload:', payload);
+      return apiClient.post(`/production-plans/${id}/execute`, { branchId, ...payload })
         .then(response => {
           console.log('✅ productionPlanApi.execute - response:', response);
           return response;
@@ -221,7 +221,7 @@ export default {
         });
     } catch (e) {
       console.error('❌ productionPlanApi error:', e);
-      return apiClient.post(`/production-plans/${id}/execute`, {});
+      return apiClient.post(`/production-plans/${id}/execute`, { ...payload });
     }
   },
 

@@ -168,24 +168,24 @@ export default function VoucherList() {
   };
 
   return (
-    <div className="min-h-screen pb-12" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen pb-12" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       {/* Top Header */}
-      <div className="sticky top-0 z-40 border-b backdrop-blur-xl" style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderColor: '#E0D8CC' }}>
+      <div className="sticky top-0 z-40 border-b backdrop-blur-xl" style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderColor: '#CBD5E1' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <button onClick={() => navigate(-1)} className="p-2 rounded-xl transition-all hover:scale-105" style={{ backgroundColor: '#F8F5F0' }}>
-                <ChevronLeft size={20} style={{ color: '#4A4A4A' }} />
+                <ChevronLeft size={20} style={{ color: '#334155' }} />
               </button>
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-md">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-md">
                   <FileText className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold" style={{ color: '#1A1A1A' }}>Voucher List</h1>
-                  <p className="text-xs font-medium" style={{ color: '#7A7A7A' }}>
+                  <h1 className="text-lg font-bold" style={{ color: '#0F172A' }}>Voucher List</h1>
+                  <p className="text-xs font-medium" style={{ color: '#475569' }}>
                     {allTxns.length} vouchers recorded
-                    {currentBranch && <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] bg-[#F4E7C9] text-[#8B6914] font-bold">{currentBranch.name}</span>}
+                    {currentBranch && <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] bg-amber-100/80 text-[#8B6914] font-bold">{currentBranch.name}</span>}
                   </p>
                 </div>
               </div>
@@ -193,27 +193,27 @@ export default function VoucherList() {
 
             <div className="flex items-center gap-3">
               {/* View Toggle */}
-              <div className="bg-white p-1 rounded-xl border border-[#E0D8CC] flex items-center shadow-sm">
+              <div className="bg-white p-1 rounded-xl border border-slate-300 flex items-center shadow-sm">
                 <button 
                   onClick={() => setViewMode('grid')} 
                   title="Grid Card View"
-                  className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                   <LayoutGrid size={18} />
                 </button>
                 <button 
                   onClick={() => setViewMode('table')} 
                   title="Table View"
-                  className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                   <TableIcon size={18} />
                 </button>
               </div>
 
-              <button onClick={handleExport} className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-bold hover:bg-amber-50 transition-all bg-white" style={{ borderColor: '#E0D8CC', color: '#A97A1F' }}>
+              <button onClick={handleExport} className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-bold hover:bg-amber-50 transition-all bg-white" style={{ borderColor: '#CBD5E1', color: '#2563EB' }}>
                 <Download size={14} /> Export CSV
               </button>
-              <button onClick={fetchVouchers} className="p-2 rounded-xl border hover:bg-amber-50 bg-white transition-all" style={{ borderColor: '#E0D8CC', color: '#A97A1F' }}>
+              <button onClick={fetchVouchers} className="p-2 rounded-xl border hover:bg-amber-50 bg-white transition-all" style={{ borderColor: '#CBD5E1', color: '#2563EB' }}>
                 <RefreshCw size={16} />
               </button>
             </div>
@@ -223,17 +223,17 @@ export default function VoucherList() {
 
       <div className="max-w-7xl mx-auto px-4 py-4 md:px-6 space-y-4">
         {/* Filters */}
-        <div className="bg-white p-4 rounded-2xl border shadow-sm space-y-3" style={{ borderColor: '#E0D8CC' }}>
+        <div className="bg-white p-4 rounded-2xl border shadow-sm space-y-3" style={{ borderColor: '#CBD5E1' }}>
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative flex-1 min-w-[220px]">
-              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: '#A97A1F' }} />
+              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: '#2563EB' }} />
               <input 
                 type="text" 
                 value={filters.search} 
                 onChange={e => setFilters({ ...filters, search: e.target.value })} 
                 placeholder="Search description, paid to, or ref #..."
-                className="w-full border rounded-xl pl-10 pr-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20"
-                style={{ borderColor: '#E0D8CC' }}
+                className="w-full border rounded-xl pl-10 pr-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                style={{ borderColor: '#CBD5E1' }}
               />
             </div>
 
@@ -262,10 +262,10 @@ export default function VoucherList() {
           <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-gray-100">
             <span className="text-xs font-bold text-gray-500 flex items-center gap-1"><Calendar size={14} /> Date Range:</span>
             <input type="date" value={filters.from} onChange={e => setFilters({ ...filters, from: e.target.value })}
-              className="border rounded-xl px-3 py-1.5 text-xs bg-white" style={{ borderColor: '#E0D8CC' }} />
+              className="border rounded-xl px-3 py-1.5 text-xs bg-white" style={{ borderColor: '#CBD5E1' }} />
             <span className="text-xs text-gray-400">to</span>
             <input type="date" value={filters.to} onChange={e => setFilters({ ...filters, to: e.target.value })}
-              className="border rounded-xl px-3 py-1.5 text-xs bg-white" style={{ borderColor: '#E0D8CC' }} />
+              className="border rounded-xl px-3 py-1.5 text-xs bg-white" style={{ borderColor: '#CBD5E1' }} />
 
             {(filters.from || filters.to || filters.type || filters.category || filters.accountId || filters.search) && (
               <button onClick={() => setFilters({ search: '', from: '', to: '', category: '', type: '', accountId: '' })}
@@ -276,15 +276,15 @@ export default function VoucherList() {
 
         {/* Summary Statistics Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+          <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
             <p className="text-xs font-bold uppercase text-gray-500">Total Credit (In)</p>
             <p className="text-2xl font-bold font-mono text-green-600 mt-1">+{formatCurrency(totalCredit)}</p>
           </div>
-          <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+          <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
             <p className="text-xs font-bold uppercase text-gray-500">Total Debit (Out)</p>
             <p className="text-2xl font-bold font-mono text-red-600 mt-1">-{formatCurrency(totalDebit)}</p>
           </div>
-          <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+          <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
             <p className="text-xs font-bold uppercase text-gray-500">Net Balance Flow</p>
             <p className={`text-2xl font-bold font-mono mt-1 ${totalCredit >= totalDebit ? 'text-green-600' : 'text-red-600'}`}>
               {totalCredit >= totalDebit ? '+' : ''}{formatCurrency(totalCredit - totalDebit)}
@@ -295,18 +295,18 @@ export default function VoucherList() {
         {/* Main Data Container */}
         {loading ? (
           <div className="text-center py-16">
-            <div className="w-10 h-10 rounded-full border-4 animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
+            <div className="w-10 h-10 rounded-full border-4 animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
           </div>
         ) : allTxns.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border" style={{ borderColor: '#E0D8CC' }}>
-            <FileText size={48} className="mx-auto mb-4" style={{ color: '#E0D8CC' }} />
-            <p className="text-sm font-medium" style={{ color: '#7A7A7A' }}>No vouchers found matching your query</p>
+          <div className="text-center py-16 bg-white rounded-2xl border" style={{ borderColor: '#CBD5E1' }}>
+            <FileText size={48} className="mx-auto mb-4" style={{ color: '#CBD5E1' }} />
+            <p className="text-sm font-medium" style={{ color: '#475569' }}>No vouchers found matching your query</p>
           </div>
         ) : viewMode === 'grid' ? (
           /* Grid View */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {allTxns.map(txn => (
-              <div key={txn.id} className="bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between" style={{ borderColor: '#E0D8CC' }}>
+              <div key={txn.id} className="bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between" style={{ borderColor: '#CBD5E1' }}>
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${CATEGORY_COLORS[txn.category] || 'bg-gray-100 text-gray-700'}`}>
@@ -328,18 +328,18 @@ export default function VoucherList() {
           </div>
         ) : (
           /* Table View */
-          <div className="bg-white rounded-2xl border overflow-hidden shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+          <div className="bg-white rounded-2xl border overflow-hidden shadow-sm" style={{ borderColor: '#CBD5E1' }}>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr style={{ backgroundColor: '#FAF8F4' }}>
-                    <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Date & Time</th>
-                    <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Account</th>
-                    <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Description</th>
-                    <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Category</th>
-                    <th className="text-right px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>In (Credit)</th>
-                    <th className="text-right px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Out (Debit)</th>
-                    <th className="text-right px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Balance After</th>
+                  <tr style={{ backgroundColor: '#F8FAFC' }}>
+                    <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Date & Time</th>
+                    <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Account</th>
+                    <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Description</th>
+                    <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Category</th>
+                    <th className="text-right px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>In (Credit)</th>
+                    <th className="text-right px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Out (Debit)</th>
+                    <th className="text-right px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Balance After</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">

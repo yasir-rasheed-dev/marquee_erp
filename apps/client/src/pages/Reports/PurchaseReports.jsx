@@ -154,7 +154,7 @@ const FilterCard = ({ title, icon: Icon, children, onClear, hasFilters, onApply,
   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4 print:hidden">
     <div className="flex items-center justify-between mb-3">
       <div className="flex items-center gap-2 text-gray-700">
-        {Icon && <Icon size={18} className="text-[#C89B3C]" />}
+        {Icon && <Icon size={18} className="text-[#2563EB]" />}
         <span className="font-semibold text-sm">{title}</span>
       </div>
       <div className="flex items-center gap-2">
@@ -169,7 +169,7 @@ const FilterCard = ({ title, icon: Icon, children, onClear, hasFilters, onApply,
         <button
           onClick={onApply}
           disabled={loading}
-          className="px-4 py-1.5 text-sm bg-[#C89B3C] text-white rounded-lg hover:bg-[#A97A1F] transition flex items-center gap-1 disabled:opacity-50 shadow-sm"
+          className="px-4 py-1.5 text-sm bg-[#2563EB] text-white rounded-lg hover:bg-[#2563EB] transition flex items-center gap-1 disabled:opacity-50 shadow-sm"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
           Apply
@@ -191,7 +191,7 @@ const FilterField = ({ label, children }) => (
 
 const SummaryCard = ({ title, value, subtext, icon: Icon, trend, trendUp, color = 'gold' }) => {
   const colors = {
-    gold: 'bg-[#C89B3C]/10',
+    gold: 'bg-[#2563EB]/10',
     green: 'bg-green-50',
     red: 'bg-red-50',
     blue: 'bg-blue-50',
@@ -207,7 +207,7 @@ const SummaryCard = ({ title, value, subtext, icon: Icon, trend, trendUp, color 
           {subtext && <p className="text-xs text-gray-400 mt-0.5">{subtext}</p>}
         </div>
         <div className={`p-2 rounded-lg ${colors[color] || colors.gold}`}>
-          {Icon && <Icon size={20} className="text-[#C89B3C]" />}
+          {Icon && <Icon size={20} className="text-[#2563EB]" />}
         </div>
       </div>
       {trend && (
@@ -235,13 +235,13 @@ const ExportToolbar = ({ onExportCSV, onExportPDF, onPrint, dataCount, title }) 
       </button>
       <button
         onClick={onExportCSV}
-        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#C89B3C] transition-all"
+        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#2563EB] transition-all"
       >
         <Download size={16} /> CSV
       </button>
       <button
         onClick={onPrint}
-        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-[#C89B3C] rounded-lg hover:bg-[#A97A1F] transition-colors"
+        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-[#2563EB] rounded-lg hover:bg-[#2563EB] transition-colors"
       >
         <Printer size={16} /> Print
       </button>
@@ -253,7 +253,7 @@ const DataTable = ({ columns, data, keyExtractor, emptyMessage = "No data found"
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-        <Loader2 size={32} className="mx-auto text-[#C89B3C] animate-spin mb-3" />
+        <Loader2 size={32} className="mx-auto text-[#2563EB] animate-spin mb-3" />
         <p className="text-gray-500">Loading data...</p>
       </div>
     );
@@ -496,7 +496,7 @@ export default function PurchaseSupplierReports() {
             console.log('PO data loaded:', result.length);
           } catch (e) {
             console.warn('PO API failed, using mock:', e.message);
-            result = genMockPOs(filters);
+            result = [];
           }
           break;
         }
@@ -508,7 +508,7 @@ export default function PurchaseSupplierReports() {
             console.log('Bills data loaded:', result.length);
           } catch (e) {
             console.warn('Bills API failed, using mock:', e.message);
-            result = genMockBills(filters);
+            result = [];
           }
           break;
         }
@@ -597,7 +597,7 @@ export default function PurchaseSupplierReports() {
             console.log('Ledger data loaded:', result.length);
           } catch (e) {
             console.warn('Ledger API failed, using mock:', e.message);
-            result = genMockLedger(filters);
+            result = [];
           }
           break;
         }
@@ -610,7 +610,7 @@ export default function PurchaseSupplierReports() {
             console.log('Payments data loaded:', result.length);
           } catch (e) {
             console.warn('Payments API failed, using mock:', e.message);
-            result = genMockPayments(filters);
+            result = [];
           }
           break;
         }
@@ -622,7 +622,7 @@ export default function PurchaseSupplierReports() {
             console.log('Returns data loaded:', result.length);
           } catch (e) {
             console.warn('Returns API failed, using mock:', e.message);
-            result = genMockReturns(filters);
+            result = [];
           }
           break;
         }
@@ -929,14 +929,14 @@ export default function PurchaseSupplierReports() {
               placeholder="PO # or supplier..." 
               value={search} 
               onChange={e => setSearch(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
             />
           </FilterField>
           <FilterField label="Status">
             <select 
               value={poStatus} 
               onChange={e => setPoStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
             >
               <option value="">All Status</option>
               <option value="pending">Pending</option>
@@ -951,7 +951,7 @@ export default function PurchaseSupplierReports() {
             <select 
               value={supplierFilter} 
               onChange={e => setSupplierFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
             >
               <option value="">All Suppliers</option>
               {suppliers.map(s => (
@@ -966,7 +966,7 @@ export default function PurchaseSupplierReports() {
               type="date" 
               value={dateFrom} 
               onChange={e => setDateFrom(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
             />
           </FilterField>
           <FilterField label="To Date">
@@ -974,7 +974,7 @@ export default function PurchaseSupplierReports() {
               type="date" 
               value={dateTo} 
               onChange={e => setDateTo(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
             />
           </FilterField>
           <FilterField label="Amount Range">
@@ -984,14 +984,14 @@ export default function PurchaseSupplierReports() {
                 placeholder="Min" 
                 value={minAmount} 
                 onChange={e => setMinAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
               />
               <input 
                 type="number" 
                 placeholder="Max" 
                 value={maxAmount} 
                 onChange={e => setMaxAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
               />
             </div>
           </FilterField>
@@ -1060,14 +1060,14 @@ export default function PurchaseSupplierReports() {
               placeholder="Bill, GRN or supplier..." 
               value={search} 
               onChange={e => setSearch(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
             />
           </FilterField>
           <FilterField label="Status">
             <select 
               value={billStatus} 
               onChange={e => setBillStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
             >
               <option value="">All Status</option>
               <option value="paid">Paid</option>
@@ -1080,7 +1080,7 @@ export default function PurchaseSupplierReports() {
             <select 
               value={supplierFilter} 
               onChange={e => setSupplierFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
             >
               <option value="">All Suppliers</option>
               {suppliers.map(s => (
@@ -1095,7 +1095,7 @@ export default function PurchaseSupplierReports() {
               type="date" 
               value={dateFrom} 
               onChange={e => setDateFrom(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
             />
           </FilterField>
           <FilterField label="To Date">
@@ -1103,7 +1103,7 @@ export default function PurchaseSupplierReports() {
               type="date" 
               value={dateTo} 
               onChange={e => setDateTo(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
             />
           </FilterField>
           <FilterField label="Amount Range">
@@ -1113,14 +1113,14 @@ export default function PurchaseSupplierReports() {
                 placeholder="Min" 
                 value={minAmount} 
                 onChange={e => setMinAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
               />
               <input 
                 type="number" 
                 placeholder="Max" 
                 value={maxAmount} 
                 onChange={e => setMaxAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
               />
             </div>
           </FilterField>
@@ -1196,14 +1196,14 @@ export default function PurchaseSupplierReports() {
               placeholder="Search supplier..." 
               value={search} 
               onChange={e => setSearch(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
             />
           </FilterField>
           <FilterField label="Supplier">
             <select 
               value={supplierFilter} 
               onChange={e => setSupplierFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
             >
               <option value="">All Suppliers</option>
               {suppliers.map(s => (
@@ -1218,7 +1218,7 @@ export default function PurchaseSupplierReports() {
               type="date" 
               value={dateFrom} 
               onChange={e => setDateFrom(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
             />
           </FilterField>
           <FilterField label="To Date">
@@ -1226,7 +1226,7 @@ export default function PurchaseSupplierReports() {
               type="date" 
               value={dateTo} 
               onChange={e => setDateTo(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
             />
           </FilterField>
           <FilterField label="Balance Range">
@@ -1236,14 +1236,14 @@ export default function PurchaseSupplierReports() {
                 placeholder="Min" 
                 value={minAmount} 
                 onChange={e => setMinAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
               />
               <input 
                 type="number" 
                 placeholder="Max" 
                 value={maxAmount} 
                 onChange={e => setMaxAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
               />
             </div>
           </FilterField>
@@ -1311,14 +1311,14 @@ export default function PurchaseSupplierReports() {
               placeholder="Supplier or reference..." 
               value={search} 
               onChange={e => setSearch(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
             />
           </FilterField>
           <FilterField label="Supplier">
             <select 
               value={supplierFilter} 
               onChange={e => setSupplierFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
             >
               <option value="">All Suppliers</option>
               {suppliers.map(s => (
@@ -1332,7 +1332,7 @@ export default function PurchaseSupplierReports() {
             <select 
               value={paymentMethod} 
               onChange={e => setPaymentMethod(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
             >
               <option value="">All Methods</option>
               <option value="cash">Cash</option>
@@ -1346,7 +1346,7 @@ export default function PurchaseSupplierReports() {
               type="date" 
               value={dateFrom} 
               onChange={e => setDateFrom(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
             />
           </FilterField>
           <FilterField label="To Date">
@@ -1354,7 +1354,7 @@ export default function PurchaseSupplierReports() {
               type="date" 
               value={dateTo} 
               onChange={e => setDateTo(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
             />
           </FilterField>
           <FilterField label="Amount Range">
@@ -1364,14 +1364,14 @@ export default function PurchaseSupplierReports() {
                 placeholder="Min" 
                 value={minAmount} 
                 onChange={e => setMinAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
               />
               <input 
                 type="number" 
                 placeholder="Max" 
                 value={maxAmount} 
                 onChange={e => setMaxAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
               />
             </div>
           </FilterField>
@@ -1433,14 +1433,14 @@ export default function PurchaseSupplierReports() {
               placeholder="Return #, bill or supplier..." 
               value={search} 
               onChange={e => setSearch(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
             />
           </FilterField>
           <FilterField label="Status">
             <select 
               value={status} 
               onChange={e => setStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
             >
               <option value="">All Status</option>
               <option value="pending">Pending</option>
@@ -1453,7 +1453,7 @@ export default function PurchaseSupplierReports() {
             <select 
               value={supplierFilter} 
               onChange={e => setSupplierFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
             >
               <option value="">All Suppliers</option>
               {suppliers.map(s => (
@@ -1468,7 +1468,7 @@ export default function PurchaseSupplierReports() {
               type="date" 
               value={dateFrom} 
               onChange={e => setDateFrom(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
             />
           </FilterField>
           <FilterField label="To Date">
@@ -1476,7 +1476,7 @@ export default function PurchaseSupplierReports() {
               type="date" 
               value={dateTo} 
               onChange={e => setDateTo(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
             />
           </FilterField>
           <FilterField label="Amount Range">
@@ -1486,14 +1486,14 @@ export default function PurchaseSupplierReports() {
                 placeholder="Min" 
                 value={minAmount} 
                 onChange={e => setMinAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
               />
               <input 
                 type="number" 
                 placeholder="Max" 
                 value={maxAmount} 
                 onChange={e => setMaxAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" 
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" 
               />
             </div>
           </FilterField>
@@ -1585,7 +1585,7 @@ export default function PurchaseSupplierReports() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
                   isActive
-                    ? 'bg-[#C89B3C] text-white shadow-sm'
+                    ? 'bg-[#2563EB] text-white shadow-sm'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
@@ -1613,12 +1613,12 @@ export default function PurchaseSupplierReports() {
 
       {/* Footer */}
       <div className="mt-8 text-center text-xs text-gray-400 print:hidden">
-        <p>UniSoft Enterprise ERP &mdash; Purchase & Supplier Reports Module</p>
+        <p>Marquee ERP Management System &mdash; Purchase & Supplier Reports Module</p>
       </div>
 
       {/* Print Footer */}
       <div className="hidden print:block mt-8 pt-4 border-t border-gray-300 text-sm text-gray-500 text-center">
-        <p>UniSoft Enterprise ERP | {activeTabLabel} | Page 1</p>
+        <p>Marquee ERP Management System | {activeTabLabel} | Page 1</p>
         <p>Generated: {new Date().toLocaleString('en-PK')}</p>
       </div>
     </div>

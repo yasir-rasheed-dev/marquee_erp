@@ -12,24 +12,38 @@ const {
   updateBooking,
   deleteBooking,
   getBookingsByBranch,
-  addPayment        // ← YEH ADD KIYA
+  addPayment,        // ← YEH ADD KIYA
+  getBookingDamages,
+  addBookingDamage,
+  removeBookingDamage,
+  completeAndSettleBooking,
+  logWhatsAppMessage,
+  getWhatsAppMessages,
+  getUpcomingReminders
 } = require('../controllers/bookingController');
-const { authMiddleware, authorize } = require('../common/middleware/auth');
+const { authMiddleware, permissionGuard } = require('../common/middleware/auth');
 
 // ── All routes require authentication ──
 router.use(authMiddleware);
 
 // ── Static routes first (no :id parameter) ──
-router.get('/branch/:branchId', authorize('admin', 'super_admin', 'manager'), getBookingsByBranch);
+router.get('/upcoming-reminders', permissionGuard('bookings', 'view'), getUpcomingReminders);
+router.get('/branch/:branchId', permissionGuard('bookings', 'view'), getBookingsByBranch);
 
-// ── Payment route (STATIC route — :id se pehle hona chahiye) ──
-router.post('/:id/payments', authorize('admin', 'super_admin', 'manager'), addPayment);  // ← YEH ADD KIYA
+// ── Sub-resource routes (:id/payments, :id/damages, :id/complete-settle, :id/whatsapp) ──
+router.post('/:id/payments', permissionGuard('bookings', 'edit'), addPayment);
+router.get('/:id/damages', permissionGuard('bookings', 'view'), getBookingDamages);
+router.post('/:id/damages', permissionGuard('bookings', 'edit'), addBookingDamage);
+router.delete('/:id/damages/:damageId', permissionGuard('bookings', 'edit'), removeBookingDamage);
+router.post('/:id/complete-settle', permissionGuard('bookings', 'edit'), completeAndSettleBooking);
+router.post('/:id/whatsapp', permissionGuard('bookings', 'view'), logWhatsAppMessage);
+router.get('/:id/whatsapp', permissionGuard('bookings', 'view'), getWhatsAppMessages);
 
 // ── Main Booking CRUD Routes ──
-router.get('/', getBookings);
-router.get('/:id', getBooking);
-router.post('/', authorize('admin', 'super_admin', 'manager'), createBooking);
-router.put('/:id', authorize('admin', 'super_admin', 'manager'), updateBooking);
-router.delete('/:id', authorize('admin', 'super_admin'), deleteBooking);
+router.get('/', permissionGuard('bookings', 'view'), getBookings);
+router.get('/:id', permissionGuard('bookings', 'view'), getBooking);
+router.post('/', permissionGuard('bookings', 'create'), createBooking);
+router.put('/:id', permissionGuard('bookings', 'edit'), updateBooking);
+router.delete('/:id', permissionGuard('bookings', 'delete'), deleteBooking);
 
 module.exports = router;

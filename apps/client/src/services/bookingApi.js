@@ -64,4 +64,33 @@ export default {
     console.log('💰 bookingApi.addPayment - payload:', payload);
     return apiClient.post(`/bookings/${id}/payments`, payload);
   },
+
+  // ════════════════════════════════════════
+  // 💥 Extra Charges & Damages / Penalties
+  // ════════════════════════════════════════
+  getDamages: (id) => apiClient.get(`/bookings/${id}/damages`),
+
+  addDamage: (id, data) => apiClient.post(`/bookings/${id}/damages`, data),
+
+  deleteDamage: (id, damageId) => apiClient.delete(`/bookings/${id}/damages/${damageId}`),
+
+  // ════════════════════════════════════════
+  // 🏁 Complete & Settle Event
+  // ════════════════════════════════════════
+  completeAndSettle: (id, data = {}) => apiClient.post(`/bookings/${id}/complete-settle`, data),
+
+  // ════════════════════════════════════════
+  // 💬 WhatsApp Messages Logging & Reminders
+  // ════════════════════════════════════════
+  logWhatsApp: (id, data) => apiClient.post(`/bookings/${id}/whatsapp`, data),
+  getWhatsAppLogs: (id) => apiClient.get(`/bookings/${id}/whatsapp`),
+  getUpcomingReminders: (params = {}) => {
+    try {
+      const { branchId } = getTenantContext();
+      const finalParams = { ...params, branchId: params.branchId || branchId };
+      return apiClient.get('/bookings/upcoming-reminders', { params: finalParams });
+    } catch (e) {
+      return apiClient.get('/bookings/upcoming-reminders', { params });
+    }
+  },
 };

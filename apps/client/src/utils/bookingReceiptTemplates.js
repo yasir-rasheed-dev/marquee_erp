@@ -30,7 +30,7 @@ const defaultSettings = {
   showCustomerDetails: true,
   showPaymentHistory: true,
   themeColor: '#1a1a2e',
-  accentColor: '#A97A1F',
+  accentColor: '#2563EB',
   thermalWidth: '80mm',
   thermalFontSize: '12px',
 };

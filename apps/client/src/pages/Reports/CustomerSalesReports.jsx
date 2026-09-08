@@ -130,7 +130,7 @@ const FilterCard = ({ title, icon: Icon, children, onClear, hasFilters }) => (
   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4 print:hidden">
     <div className="flex items-center justify-between mb-3">
       <div className="flex items-center gap-2 text-gray-700">
-        {Icon && <Icon size={18} className="text-[#C89B3C]" />}
+        {Icon && <Icon size={18} className="text-[#2563EB]" />}
         <span className="font-semibold text-sm">{title}</span>
       </div>
       {hasFilters && (
@@ -156,8 +156,8 @@ const SummaryCard = ({ title, value, subtext, icon: Icon, trend, trendUp }) => (
         <p className="text-xl font-bold text-gray-800 mt-1">{value}</p>
         {subtext && <p className="text-xs text-gray-400 mt-0.5">{subtext}</p>}
       </div>
-      <div className="p-2 bg-[#C89B3C]/10 rounded-lg">
-        {Icon && <Icon size={20} className="text-[#C89B3C]" />}
+      <div className="p-2 bg-[#2563EB]/10 rounded-lg">
+        {Icon && <Icon size={20} className="text-[#2563EB]" />}
       </div>
     </div>
     {trend && (
@@ -183,13 +183,13 @@ const ExportToolbar = ({ onExportCSV, onExportPDF, onPrint, dataCount }) => (
       </button>
       <button
         onClick={onExportCSV}
-        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#C89B3C] transition-all"
+        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#2563EB] transition-all"
       >
         <Download size={16} /> CSV
       </button>
       <button
         onClick={onPrint}
-        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-[#C89B3C] rounded-lg hover:bg-[#A97A1F] transition-colors"
+        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-[#2563EB] rounded-lg hover:bg-[#2563EB] transition-colors"
       >
         <Printer size={16} /> Print
       </button>
@@ -201,7 +201,7 @@ const DataTable = ({ columns, data, keyExtractor, emptyMessage = "No data found"
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-        <RefreshCw size={32} className="mx-auto text-[#C89B3C] animate-spin mb-3" />
+        <RefreshCw size={32} className="mx-auto text-[#2563EB] animate-spin mb-3" />
         <p className="text-gray-500">Loading data...</p>
       </div>
     );
@@ -469,7 +469,7 @@ export default function CustomerSalesReports() {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(18);
     doc.setTextColor(...primaryColor);
-    doc.text('UniSoft ERP', 14, 14);
+    doc.text('Marquee ERP', 14, 14);
     doc.setFontSize(9);
     doc.setTextColor(120, 120, 120);
     doc.text('Marquee Management System', 14, 21);
@@ -574,7 +574,7 @@ export default function CustomerSalesReports() {
       doc.setPage(i);
       doc.setFontSize(8);
       doc.setTextColor(150, 150, 150);
-      doc.text(`© 2026 UniSoft ERP — Page ${i} of ${totalPages}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
+      doc.text(`© 2026 Marquee ERP — Page ${i} of ${totalPages}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
     }
 
     doc.save(`CustomerSales_${activeTab}_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -630,7 +630,7 @@ export default function CustomerSalesReports() {
     }
 
     const csvContent = [
-      ['UniSoft ERP - Customer & Sales Report'],
+      ['Marquee ERP - Customer & Sales Report'],
       [`Report: ${TABS.find(t => t.id === activeTab)?.label}`],
       [`Generated: ${new Date().toLocaleString('en-GB')}`],
       dateFrom && dateTo ? [`Period: ${dateFrom} to ${dateTo}`] : [],
@@ -680,7 +680,7 @@ export default function CustomerSalesReports() {
 
         <FilterCard title="Filters" icon={Filter} onClear={clearFilters} hasFilters={hasActiveFilters}>
           <input type="text" placeholder="Search name or phone..." value={search} onChange={e => setSearch(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
           <ReactSelect
             value={status}
             onChange={(val) => setStatus(val || '')}
@@ -696,9 +696,9 @@ export default function CustomerSalesReports() {
             isClearable={false}
           />
           <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
           <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </FilterCard>
 
         <ExportToolbar onExportCSV={downloadCSV} onExportPDF={downloadPDF} onPrint={handlePrint} dataCount={filtered.length} />
@@ -746,7 +746,7 @@ export default function CustomerSalesReports() {
 
         <FilterCard title="Filters" icon={Filter} onClear={clearFilters} hasFilters={hasActiveFilters}>
           <input type="text" placeholder="Search customer or reference..." value={search} onChange={e => setSearch(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
           <ReactSelect
             value={status}
             onChange={(val) => setStatus(val || '')}
@@ -762,9 +762,9 @@ export default function CustomerSalesReports() {
             isClearable={false}
           />
           <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
           <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </FilterCard>
 
         <ExportToolbar onExportCSV={downloadCSV} onExportPDF={downloadPDF} onPrint={handlePrint} dataCount={filtered.length} />
@@ -814,15 +814,15 @@ export default function CustomerSalesReports() {
 
         <FilterCard title="Filters" icon={Filter} onClear={clearFilters} hasFilters={hasActiveFilters}>
           <input type="text" placeholder="Search customer or phone..." value={search} onChange={e => setSearch(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
           <input type="number" placeholder="Min Outstanding" value={minAmount} onChange={e => setMinAmount(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
           <input type="number" placeholder="Max Outstanding" value={maxAmount} onChange={e => setMaxAmount(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
           <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
           <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </FilterCard>
 
         <ExportToolbar onExportCSV={downloadCSV} onExportPDF={downloadPDF} onPrint={handlePrint} dataCount={filtered.length} />
@@ -867,7 +867,7 @@ export default function CustomerSalesReports() {
 
         <FilterCard title="Filters" icon={Filter} onClear={clearFilters} hasFilters={hasActiveFilters}>
           <input type="text" placeholder="Search package or category..." value={search} onChange={e => setSearch(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
           <ReactSelect
             value={category}
             onChange={(val) => setCategory(val || '')}
@@ -884,9 +884,9 @@ export default function CustomerSalesReports() {
             isClearable={false}
           />
           <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
           <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </FilterCard>
 
         <ExportToolbar onExportCSV={downloadCSV} onExportPDF={downloadPDF} onPrint={handlePrint} dataCount={filtered.length} />
@@ -905,7 +905,7 @@ export default function CustomerSalesReports() {
             { header: '% of Total', accessor: 'percentOfTotal', cell: row => (
               <div className="flex items-center gap-2">
                 <div className="w-16 bg-gray-200 rounded-full h-2">
-                  <div className="bg-[#C89B3C] h-2 rounded-full" style={{ width: `${Math.min(row.percentOfTotal || 0, 100)}%` }} />
+                  <div className="bg-[#2563EB] h-2 rounded-full" style={{ width: `${Math.min(row.percentOfTotal || 0, 100)}%` }} />
                 </div>
                 <span className="text-xs">{(row.percentOfTotal || 0).toFixed(1)}%</span>
               </div>
@@ -937,7 +937,7 @@ export default function CustomerSalesReports() {
 
         <FilterCard title="Filters" icon={Filter} onClear={clearFilters} hasFilters={hasActiveFilters}>
           <input type="text" placeholder="Search menu item..." value={search} onChange={e => setSearch(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
           <ReactSelect
             value={category}
             onChange={(val) => setCategory(val || '')}
@@ -954,9 +954,9 @@ export default function CustomerSalesReports() {
             isClearable={false}
           />
           <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
           <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </FilterCard>
 
         <ExportToolbar onExportCSV={downloadCSV} onExportPDF={downloadPDF} onPrint={handlePrint} dataCount={filtered.length} />
@@ -1036,7 +1036,7 @@ export default function CustomerSalesReports() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
                   isActive
-                    ? 'bg-[#C89B3C] text-white shadow-sm'
+                    ? 'bg-[#2563EB] text-white shadow-sm'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
@@ -1064,7 +1064,7 @@ export default function CustomerSalesReports() {
 
       {/* Footer */}
       <div className="mt-8 text-center text-xs text-gray-400 print:hidden">
-        <p>UniSoft Enterprise ERP &mdash; Customer & Sales Reports Module</p>
+        <p>Marquee ERP Management System &mdash; Customer & Sales Reports Module</p>
       </div>
     </div>
   );

@@ -21,8 +21,8 @@ import ReactSelect from '../../components/ui/ReactSelect';
 // DESIGN TOKENS
 // ═══════════════════════════════════════════════════════════
 const THEME = {
-  primary: '#C89B3C',
-  primaryHover: '#A97A1F',
+  primary: '#2563EB',
+  primaryHover: '#2563EB',
   primaryLight: '#FDF6E3',
   primaryDark: '#8B6914',
 };
@@ -172,7 +172,7 @@ const exportToPDF = (elementId, filename) => {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(18);
   doc.setTextColor(...primaryColor);
-  doc.text('UniSoft ERP', 14, 14);
+  doc.text('Marquee ERP', 14, 14);
   doc.setFontSize(9);
   doc.setTextColor(120, 120, 120);
   doc.text('Marquee Management System', 14, 21);
@@ -199,7 +199,7 @@ const exportToPDF = (elementId, filename) => {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
-    doc.text(`© 2026 UniSoft ERP — Page ${i} of ${totalPages}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
+    doc.text(`© 2026 Marquee ERP — Page ${i} of ${totalPages}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
   }
 
   doc.save(`${filename}_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -304,7 +304,7 @@ class ErrorBoundary extends React.Component {
           <p className="mb-4 text-sm text-red-600">{this.state.error?.message || 'Unknown error'}</p>
           <button
             onClick={() => this.setState({ hasError: false, error: null })}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#C89B3C] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#A97A1F]"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#2563EB] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]"
           >
             <RotateCcw className="h-4 w-4" /> Try Again
           </button>
@@ -329,7 +329,7 @@ const FilterCard = ({ title, icon: Icon, children, onClear, hasFilters }) => (
   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4 print:hidden">
     <div className="flex items-center justify-between mb-3">
       <div className="flex items-center gap-2 text-gray-700">
-        {Icon && <Icon size={18} className="text-[#C89B3C]" />}
+        {Icon && <Icon size={18} className="text-[#2563EB]" />}
         <span className="font-semibold text-sm">{title}</span>
       </div>
       {hasFilters && (
@@ -361,8 +361,8 @@ const SummaryCard = ({ title, value, icon: Icon, trend, trendUp }) => (
         <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{title}</p>
         <p className="text-xl font-bold text-gray-900 mt-1">{value}</p>
       </div>
-      <div className="p-2 bg-[#C89B3C]/10 rounded-lg">
-        {Icon && <Icon size={20} className="text-[#C89B3C]" />}
+      <div className="p-2 bg-[#2563EB]/10 rounded-lg">
+        {Icon && <Icon size={20} className="text-[#2563EB]" />}
       </div>
     </div>
     {trend && (
@@ -389,13 +389,13 @@ const ExportToolbar = ({ onExportCSV, onExportPDF, onPrint, dataCount, title }) 
       </button>
       <button
         onClick={onExportCSV}
-        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#C89B3C] transition-all"
+        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#2563EB] transition-all"
       >
         <Download size={16} /> CSV
       </button>
       <button
         onClick={onPrint}
-        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-[#C89B3C] rounded-lg hover:bg-[#A97A1F] transition-colors"
+        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-[#2563EB] rounded-lg hover:bg-[#2563EB] transition-colors"
       >
         <Printer size={16} /> Print
       </button>
@@ -406,7 +406,7 @@ const ExportToolbar = ({ onExportCSV, onExportPDF, onPrint, dataCount, title }) 
 const SectionCard = ({ title, icon: Icon, children, className = '' }) => (
   <div className={`rounded-xl border border-gray-200 bg-white p-6 shadow-sm ${className}`}>
     <div className="mb-4 flex items-center gap-2">
-      {Icon && <Icon className="h-5 w-5 text-[#C89B3C]" />}
+      {Icon && <Icon className="h-5 w-5 text-[#2563EB]" />}
       <h3 className="text-base font-bold text-gray-900">{title}</h3>
     </div>
     {children}
@@ -424,7 +424,7 @@ const DataTable = ({ columns, data, keyExtractor, emptyMessage = "No data found"
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-        <Loader2 size={32} className="mx-auto text-[#C89B3C] animate-spin mb-3" />
+        <Loader2 size={32} className="mx-auto text-[#2563EB] animate-spin mb-3" />
         <p className="text-gray-500">Loading data...</p>
       </div>
     );
@@ -479,7 +479,7 @@ const DataTable = ({ columns, data, keyExtractor, emptyMessage = "No data found"
 // ═══════════════════════════════════════════════════════════
 // CHART COMPONENTS
 // ═══════════════════════════════════════════════════════════
-const COLORS = ['#C89B3C', '#059669', '#2563eb', '#dc2626', '#7c3aed', '#f59e0b', '#14b8a6', '#f97316'];
+const COLORS = ['#2563EB', '#059669', '#2563eb', '#dc2626', '#7c3aed', '#f59e0b', '#14b8a6', '#f97316'];
 
 const SimpleBarChart = ({ data, valueKey, labelKey, color = THEME.primary, title }) => {
   if (!data || data.length === 0) return (
@@ -729,24 +729,24 @@ const BookingSummaryReport = ({ data: rawData }) => {
             />
           </FilterField>
           <FilterField label="From Date">
-            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.fromDate} onChange={e => setFilters({...filters, fromDate: e.target.value})} />
           </FilterField>
           <FilterField label="To Date">
-            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.toDate} onChange={e => setFilters({...filters, toDate: e.target.value})} />
           </FilterField>
           <FilterField label="Min Amount">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.minAmount} onChange={e => setFilters({...filters, minAmount: e.target.value})} placeholder="Min PKR" />
           </FilterField>
           <FilterField label="Max Amount">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.maxAmount} onChange={e => setFilters({...filters, maxAmount: e.target.value})} placeholder="Max PKR" />
           </FilterField>
           <div className="flex items-end print:hidden">
             <button onClick={applyFilters}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#C89B3C] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#A97A1F]">
+              className="inline-flex items-center gap-2 rounded-lg bg-[#2563EB] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]">
               <Search className="h-4 w-4" /> Apply
             </button>
           </div>
@@ -898,11 +898,11 @@ const PaymentCollectionReport = ({ data: rawData }) => {
       <div>
         <FilterCard title="Filters" icon={Filter} onClear={clearFilters} hasFilters={hasActiveFilters}>
           <FilterField label="From Date">
-            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.fromDate} onChange={e => setFilters({...filters, fromDate: e.target.value})} />
           </FilterField>
           <FilterField label="To Date">
-            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.toDate} onChange={e => setFilters({...filters, toDate: e.target.value})} />
           </FilterField>
           <FilterField label="Payment Mode">
@@ -941,16 +941,16 @@ const PaymentCollectionReport = ({ data: rawData }) => {
             />
           </FilterField>
           <FilterField label="Min Amount">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.minAmount} onChange={e => setFilters({...filters, minAmount: e.target.value})} placeholder="Min PKR" />
           </FilterField>
           <FilterField label="Max Amount">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.maxAmount} onChange={e => setFilters({...filters, maxAmount: e.target.value})} placeholder="Max PKR" />
           </FilterField>
           <div className="flex items-end print:hidden">
             <button onClick={applyFilters}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#C89B3C] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#A97A1F]">
+              className="inline-flex items-center gap-2 rounded-lg bg-[#2563EB] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]">
               <Search className="h-4 w-4" /> Apply
             </button>
           </div>
@@ -1150,32 +1150,32 @@ const EventExecutionReport = ({ data: rawData }) => {
             />
           </FilterField>
           <FilterField label="From Date">
-            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.fromDate} onChange={e => setFilters({...filters, fromDate: e.target.value})} />
           </FilterField>
           <FilterField label="To Date">
-            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.toDate} onChange={e => setFilters({...filters, toDate: e.target.value})} />
           </FilterField>
           <FilterField label="Min Cost">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.minCost} onChange={e => setFilters({...filters, minCost: e.target.value})} placeholder="Min PKR" />
           </FilterField>
           <FilterField label="Max Cost">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.maxCost} onChange={e => setFilters({...filters, maxCost: e.target.value})} placeholder="Max PKR" />
           </FilterField>
           <FilterField label="Min Revenue">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.minRevenue} onChange={e => setFilters({...filters, minRevenue: e.target.value})} placeholder="Min PKR" />
           </FilterField>
           <FilterField label="Max Revenue">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.maxRevenue} onChange={e => setFilters({...filters, maxRevenue: e.target.value})} placeholder="Max PKR" />
           </FilterField>
           <div className="flex items-end print:hidden">
             <button onClick={applyFilters}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#C89B3C] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#A97A1F]">
+              className="inline-flex items-center gap-2 rounded-lg bg-[#2563EB] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]">
               <Search className="h-4 w-4" /> Apply
             </button>
           </div>
@@ -1353,19 +1353,19 @@ const HallUtilizationReport = ({ data: rawData }) => {
             />
           </FilterField>
           <FilterField label="Min Occupancy %">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.minOccupancy} onChange={e => setFilters({...filters, minOccupancy: e.target.value})} placeholder="e.g. 50" />
           </FilterField>
           <FilterField label="Max Occupancy %">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.maxOccupancy} onChange={e => setFilters({...filters, maxOccupancy: e.target.value})} placeholder="e.g. 90" />
           </FilterField>
           <FilterField label="Min Capacity">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.minCapacity} onChange={e => setFilters({...filters, minCapacity: e.target.value})} placeholder="Min guests" />
           </FilterField>
           <FilterField label="Max Capacity">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.maxCapacity} onChange={e => setFilters({...filters, maxCapacity: e.target.value})} placeholder="Max guests" />
           </FilterField>
           <FilterField label="Sort By">
@@ -1385,7 +1385,7 @@ const HallUtilizationReport = ({ data: rawData }) => {
           </FilterField>
           <div className="flex items-end print:hidden">
             <button onClick={applyFilters}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#C89B3C] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#A97A1F]">
+              className="inline-flex items-center gap-2 rounded-lg bg-[#2563EB] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]">
               <Search className="h-4 w-4" /> Apply
             </button>
           </div>
@@ -1549,27 +1549,27 @@ const PackagePerformanceReport = ({ data: rawData }) => {
       <div>
         <FilterCard title="Filters" icon={Filter} onClear={clearFilters} hasFilters={hasActiveFilters}>
           <FilterField label="Min Revenue (PKR)">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.minRevenue} onChange={e => setFilters({...filters, minRevenue: e.target.value})} placeholder="e.g. 1000000" />
           </FilterField>
           <FilterField label="Max Revenue (PKR)">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.maxRevenue} onChange={e => setFilters({...filters, maxRevenue: e.target.value})} placeholder="e.g. 5000000" />
           </FilterField>
           <FilterField label="Min Sold">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.minSold} onChange={e => setFilters({...filters, minSold: e.target.value})} placeholder="e.g. 10" />
           </FilterField>
           <FilterField label="Max Sold">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.maxSold} onChange={e => setFilters({...filters, maxSold: e.target.value})} placeholder="e.g. 100" />
           </FilterField>
           <FilterField label="Min Price (PKR)">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.minPrice} onChange={e => setFilters({...filters, minPrice: e.target.value})} placeholder="e.g. 50000" />
           </FilterField>
           <FilterField label="Max Price (PKR)">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.maxPrice} onChange={e => setFilters({...filters, maxPrice: e.target.value})} placeholder="e.g. 500000" />
           </FilterField>
           <FilterField label="Sort By">
@@ -1589,7 +1589,7 @@ const PackagePerformanceReport = ({ data: rawData }) => {
           </FilterField>
           <div className="flex items-end print:hidden">
             <button onClick={applyFilters}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#C89B3C] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#A97A1F]">
+              className="inline-flex items-center gap-2 rounded-lg bg-[#2563EB] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]">
               <Search className="h-4 w-4" /> Apply
             </button>
           </div>
@@ -1615,8 +1615,8 @@ const PackagePerformanceReport = ({ data: rawData }) => {
             {stats.topPackage && (
               <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                 <div className="mb-3 flex items-center gap-3">
-                  <div className="p-2 bg-[#C89B3C]/10 rounded-lg">
-                    <Award className="h-5 w-5 text-[#C89B3C]" />
+                  <div className="p-2 bg-[#2563EB]/10 rounded-lg">
+                    <Award className="h-5 w-5 text-[#2563EB]" />
                   </div>
                   <h3 className="text-lg font-bold text-gray-900">Top Selling Package</h3>
                 </div>
@@ -1868,35 +1868,35 @@ const CostingRevenueReport = ({ data: rawData }) => {
             />
           </FilterField>
           <FilterField label="From Date">
-            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.fromDate} onChange={e => setFilters({...filters, fromDate: e.target.value})} />
           </FilterField>
           <FilterField label="To Date">
-            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="date" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.toDate} onChange={e => setFilters({...filters, toDate: e.target.value})} />
           </FilterField>
           <FilterField label="Min Cost">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.minCost} onChange={e => setFilters({...filters, minCost: e.target.value})} placeholder="Min PKR" />
           </FilterField>
           <FilterField label="Max Cost">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.maxCost} onChange={e => setFilters({...filters, maxCost: e.target.value})} placeholder="Max PKR" />
           </FilterField>
           <FilterField label="Min Revenue">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.minRevenue} onChange={e => setFilters({...filters, minRevenue: e.target.value})} placeholder="Min PKR" />
           </FilterField>
           <FilterField label="Max Revenue">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.maxRevenue} onChange={e => setFilters({...filters, maxRevenue: e.target.value})} placeholder="Max PKR" />
           </FilterField>
           <FilterField label="Min Profit">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.minProfit} onChange={e => setFilters({...filters, minProfit: e.target.value})} placeholder="Min PKR" />
           </FilterField>
           <FilterField label="Max Profit">
-            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]"
+            <input type="number" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={filters.maxProfit} onChange={e => setFilters({...filters, maxProfit: e.target.value})} placeholder="Max PKR" />
           </FilterField>
           <FilterField label="Sort By">
@@ -1916,7 +1916,7 @@ const CostingRevenueReport = ({ data: rawData }) => {
           </FilterField>
           <div className="flex items-end print:hidden">
             <button onClick={applyFilters}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#C89B3C] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#A97A1F]">
+              className="inline-flex items-center gap-2 rounded-lg bg-[#2563EB] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]">
               <Search className="h-4 w-4" /> Apply
             </button>
           </div>
@@ -1949,7 +1949,7 @@ const CostingRevenueReport = ({ data: rawData }) => {
         {costRevenueData.length > 0 && (
           <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <div className="mb-4 flex items-center gap-2">
-              <BarChart4 className="h-5 w-5 text-[#C89B3C]" />
+              <BarChart4 className="h-5 w-5 text-[#2563EB]" />
               <h3 className="text-base font-bold text-gray-900">Cost vs Revenue Comparison (Top 10 Events)</h3>
             </div>
             <div className="space-y-3">
@@ -2049,7 +2049,7 @@ const BookingEventReports = () => {
         } catch (e) {
           console.warn('Booking API failed, using mock:', e.message);
           status.bookings = { source: 'MOCK', count: 20 };
-          setBookings(genMockBookings());
+          setBookings([]);
         }
 
         try {
@@ -2061,7 +2061,7 @@ const BookingEventReports = () => {
         } catch (e) {
           console.warn('Event API failed, using mock:', e.message);
           status.events = { source: 'MOCK', count: 15 };
-          setEventExecutions(genMockEvents());
+          setEventExecutions([]);
         }
 
         try {
@@ -2073,7 +2073,7 @@ const BookingEventReports = () => {
         } catch (e) {
           console.warn('Hall API failed, using mock:', e.message);
           status.halls = { source: 'MOCK', count: 8 };
-          setHalls(genMockHalls());
+          setHalls([]);
         }
 
         try {
@@ -2085,17 +2085,17 @@ const BookingEventReports = () => {
         } catch (e) {
           console.warn('Package API failed, using mock:', e.message);
           status.packages = { source: 'MOCK', count: 8 };
-          setPackages(genMockPackages());
+          setPackages([]);
         }
 
         setLoadStatus(status);
       } catch (error) {
         console.error('Data load error:', error);
         setError('Data load karne mein error aaya. Mock data use ho rahi hai.');
-        setBookings(genMockBookings());
-        setEventExecutions(genMockEvents());
-        setHalls(genMockHalls());
-        setPackages(genMockPackages());
+        setBookings([]);
+        setEventExecutions([]);
+        setHalls([]);
+        setPackages([]);
       } finally {
         setLoading(false);
       }
@@ -2107,7 +2107,7 @@ const BookingEventReports = () => {
   if (loading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-50">
-        <Loader2 className="h-12 w-12 animate-spin text-[#C89B3C]" />
+        <Loader2 className="h-12 w-12 animate-spin text-[#2563EB]" />
         <p className="font-medium text-gray-500">Reports load ho rahi hain...</p>
       </div>
     );
@@ -2122,7 +2122,7 @@ const BookingEventReports = () => {
           <p className="text-sm text-red-600">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#C89B3C] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#A97A1F]"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#2563EB] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]"
           >
             <RotateCcw className="h-4 w-4" /> Retry
           </button>
@@ -2175,7 +2175,7 @@ const BookingEventReports = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
                     isActive
-                      ? 'bg-[#C89B3C] text-white shadow-sm'
+                      ? 'bg-[#2563EB] text-white shadow-sm'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
@@ -2199,7 +2199,7 @@ const BookingEventReports = () => {
 
         {/* Footer */}
         <div className="mt-8 text-center text-xs text-gray-400 print:hidden">
-          <p>UniSoft Enterprise ERP — Booking & Event Reports Module</p>
+          <p>Marquee ERP Management System — Booking & Event Reports Module</p>
         </div>
       </div>
     </div>

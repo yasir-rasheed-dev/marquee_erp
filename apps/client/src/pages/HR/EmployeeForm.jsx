@@ -1,12 +1,15 @@
 ﻿// src/pages/hr/EmployeeForm.jsx
+// WITH TOAST + NAVIGATION TO /hr
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import {
   ArrowLeft, Save, User, Briefcase, DollarSign, Phone, Mail,
   MapPin, CreditCard, XCircle, Calendar, Users, Key, Lock,
   Unlock, Eye, EyeOff, Shield, CheckCircle, XCircle as XIcon
 } from 'lucide-react';
-import roleApi from '../../services/rolePermissionApi'; // ✅ ADDED: dynamic roles fetch
+import roleApi from '../../services/rolePermissionApi';
 import ReactSelect from '../../components/ui/ReactSelect';
 
 // ── API Client ──
@@ -82,8 +85,10 @@ const getSelectedBranchId = () => {
   }
 };
 
-// ❌ REMOVED: Hardcoded USER_ROLES array
-// const USER_ROLES = [ ... ];
+// ✅ Toast Helpers
+const showSuccess = (msg) => toast.success(msg, { icon: '✅' });
+const showError = (msg) => toast.error(msg, { icon: '❌' });
+const showLoading = (msg) => toast.loading(msg);
 
 const EmployeeForm = () => {
   const { id } = useParams();
@@ -94,14 +99,12 @@ const EmployeeForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [departments, setDepartments] = useState([]);
   const [designations, setDesignations] = useState([]);
-  
-  // ✅ ADDED: Dynamic roles from API
   const [availableRoles, setAvailableRoles] = useState([]);
-  
+
   // ── User Account Toggle ──
   const [enableLogin, setEnableLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [userRole, setUserRole] = useState(''); // ✅ CHANGED: default empty instead of 'staff'
+  const [userRole, setUserRole] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -131,27 +134,24 @@ const EmployeeForm = () => {
     openingBalance: '0',
     notes: '',
     status: 'active',
-    // User Account Fields
     userId: null,
     userEmail: '',
-    userRole: '' // ✅ CHANGED: default empty
+    userRole: ''
   });
 
-  // ── Fetch Employee for Edit ──
+  // ── Fetch Data ──
   useEffect(() => {
     if (isEdit) {
       fetchEmployee();
     }
     fetchDepartments();
     fetchDesignations();
-    fetchRoles(); // ✅ ADDED
+    fetchRoles();
   }, [id]);
 
-  // ✅ ADDED: Fetch dynamic roles from role-permission API
   const fetchRoles = async () => {
     try {
       const res = await roleApi.getRoles();
-      // Handle both { data: [...] } and direct array responses
       const roleList = Array.isArray(res) ? res : (res.data || []);
       setAvailableRoles(roleList);
     } catch (err) {
@@ -192,17 +192,16 @@ const EmployeeForm = () => {
           status: emp.status || 'active',
           userId: emp.userId || null,
           userEmail: emp.user?.email || emp.email || '',
-          userRole: emp.user?.role || '' // ✅ CHANGED: empty fallback
+          userRole: emp.user?.role || ''
         });
 
-        // If user exists, enable login toggle
         if (emp.userId) {
           setEnableLogin(true);
           setUserRole(emp.user?.role || '');
         }
       }
     } catch (err) {
-      alert('Failed to load employee data');
+      showError('Failed to load employee data');
       console.error(err);
     } finally {
       setLoading(false);
@@ -257,11 +256,11 @@ const EmployeeForm = () => {
 
   const validatePassword = () => {
     if (enableLogin) {
-      if (!password) {
+      if (!password && !formData.userId) {
         setPasswordError('Password is required');
         return false;
       }
-      if (password.length < 6) {
+      if (password && password.length < 6) {
         setPasswordError('Password must be at least 6 characters');
         return false;
       }
@@ -276,33 +275,33 @@ const EmployeeForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // ── Validation ──
+
     if (!formData.name.trim()) {
-      alert('Name is required');
+      showError('Name is required');
       return;
     }
     if (!formData.phone.trim()) {
-      alert('Phone is required');
+      showError('Phone is required');
       return;
     }
     if (!formData.designationId) {
-      alert('Designation is required');
+      showError('Designation is required');
       return;
     }
 
-    // ── Password Validation ──
     if (enableLogin) {
       if (!validatePassword()) {
-        alert(passwordError);
+        showError(passwordError);
         return;
       }
     }
 
+    const toastId = showLoading(isEdit ? 'Updating employee...' : 'Creating employee...');
+
     try {
       setSubmitting(true);
       const branchId = getSelectedBranchId();
-      
+
       const payload = {
         ...formData,
         branchId: branchId || undefined,
@@ -316,8 +315,7 @@ const EmployeeForm = () => {
         joinDate: new Date(formData.joinDate).toISOString(),
         resignDate: formData.resignDate ? new Date(formData.resignDate).toISOString() : undefined,
         dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth).toISOString() : undefined,
-        
-        // ── User Account Data ──
+
         enableLogin: enableLogin,
         password: enableLogin ? password : undefined,
         userRole: enableLogin ? userRole : undefined,
@@ -331,14 +329,18 @@ const EmployeeForm = () => {
         result = await apiClient.post('/employee/employees', payload);
       }
 
+      toast.dismiss(toastId);
+
       if (result.success) {
-        alert(isEdit ? 'Employee updated successfully!' : 'Employee created successfully!');
-        navigate('/hr/employees');
+        showSuccess(isEdit ? 'Employee updated successfully!' : 'Employee created successfully!');
+        // ✅ NAVIGATE TO /hr
+        setTimeout(() => navigate('/hr'), 500);
       } else {
-        alert(result.message || 'Operation failed');
+        showError(result.message || 'Operation failed');
       }
     } catch (err) {
-      alert(err.message || 'Something went wrong');
+      toast.dismiss(toastId);
+      showError(err.message || 'Something went wrong');
       console.error('Submit error:', err);
     } finally {
       setSubmitting(false);
@@ -361,7 +363,7 @@ const EmployeeForm = () => {
       {/* ── Header ── */}
       <div className="flex items-center gap-3 mb-6">
         <button
-          onClick={() => navigate('/hr/employees')}
+          onClick={() => navigate('/hr')}
           className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
         >
           <ArrowLeft size={20} className="text-gray-600" />
@@ -590,7 +592,7 @@ const EmployeeForm = () => {
               )}
             </div>
 
-            {/* Login Credentials — Only Show if Enable Login is ON */}
+            {/* Login Credentials */}
             {enableLogin && (
               <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -870,7 +872,7 @@ const EmployeeForm = () => {
           <div className="flex justify-end gap-3 border-t pt-4">
             <button
               type="button"
-              onClick={() => navigate('/hr/employees')}
+              onClick={() => navigate('/hr')}
               className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
             >
               Cancel

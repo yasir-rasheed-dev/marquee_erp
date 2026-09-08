@@ -59,10 +59,10 @@ export default function AssetAdjustments() {
 
   // ── ReactSelect Options ──
   const typeFilterOptions = useMemo(() => [
-    { value: 'ALL', label: '⚡ All Transaction Types' },
-    { value: 'PURCHASE', label: '✅ Purchases / Additions' },
-    { value: 'ADJUSTMENT', label: '❌ Damages / Reductions' },
-    { value: 'TRANSFER_OUT', label: '🔄 Transfers' }
+    { value: 'ALL', label: 'All Transaction Types' },
+    { value: 'PURCHASE', label: ' Purchases / Additions' },
+    { value: 'ADJUSTMENT', label: 'Damages / Reductions' },
+    { value: 'TRANSFER_OUT', label: ' Transfers' }
   ], []);
 
   const assetOptions = useMemo(() => [
@@ -115,32 +115,32 @@ export default function AssetAdjustments() {
   };
 
   return (
-    <div className="min-h-screen p-6" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <div className="max-w-7xl mx-auto">
         
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] text-white shadow-md">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] text-white shadow-md">
               <SlidersHorizontal className="w-6 h-6" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-800">Asset Adjustments & Logs</h1>
               <p className="text-sm text-gray-600">
-                Track damages, loss, purchases, and branch transfers for <span className="font-semibold text-[#A97A1F]">{currentBranch?.name || 'Selected Branch'}</span>
+                Track damages, loss, purchases, and branch transfers for <span className="font-semibold text-[#2563EB]">{currentBranch?.name || 'Selected Branch'}</span>
               </p>
             </div>
           </div>
           <button 
             onClick={() => { setShowModal(true); setForm(initialFormState); }} 
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white font-semibold flex items-center gap-2 shadow-md hover:opacity-95 transition-all"
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white font-semibold flex items-center gap-2 shadow-md hover:opacity-95 transition-all"
           >
             <Plus size={18} /> New Adjustment / Log
           </button>
         </div>
 
         {/* Filters */}
-        <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] mb-6 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="bg-white p-4 rounded-2xl border border-slate-300 mb-6 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="relative">
             <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input 
@@ -148,7 +148,7 @@ export default function AssetAdjustments() {
               value={search} 
               onChange={e => setSearch(e.target.value)} 
               placeholder="Search transaction logs by notes..." 
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/30" 
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30" 
             />
           </div>
           <div>
@@ -164,10 +164,10 @@ export default function AssetAdjustments() {
         {/* Modal Box for New Adjustment */}
         {showModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fadeIn">
-            <div className="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl border border-[#E0D8CC]">
+            <div className="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl border border-slate-300">
               <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
                 <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                  <SlidersHorizontal size={18} className="text-[#A97A1F]" />
+                  <SlidersHorizontal size={18} className="text-[#2563EB]" />
                   Register Asset Adjustment / Transaction
                 </h3>
                 <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
@@ -206,7 +206,7 @@ export default function AssetAdjustments() {
                       value={form.quantity} 
                       onChange={e => setForm({...form, quantity: e.target.value})} 
                       placeholder="e.g. 2" 
-                      className="w-full p-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-[#A97A1F]/30" 
+                      className="w-full p-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-[#2563EB]/30" 
                     />
                   </div>
                 </div>
@@ -219,7 +219,7 @@ export default function AssetAdjustments() {
                     value={form.notes} 
                     onChange={e => setForm({...form, notes: e.target.value})} 
                     placeholder="e.g. 2 chairs broken in conference room..." 
-                    className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#A97A1F]/30"
+                    className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#2563EB]/30"
                   ></textarea>
                 </div>
 
@@ -227,7 +227,7 @@ export default function AssetAdjustments() {
                   <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 rounded-xl border border-gray-300 text-gray-600 text-sm">
                     Cancel
                   </button>
-                  <button type="submit" className="px-5 py-2 bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white font-semibold rounded-xl text-sm shadow-md">
+                  <button type="submit" className="px-5 py-2 bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white font-semibold rounded-xl text-sm shadow-md">
                     Save Adjustment
                   </button>
                 </div>
@@ -237,10 +237,10 @@ export default function AssetAdjustments() {
         )}
 
         {/* Transactions Table */}
-        <div className="bg-white rounded-2xl border border-[#E0D8CC] overflow-hidden shadow-sm">
+        <div className="bg-white rounded-2xl border border-slate-300 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="bg-[#F5F2EB] border-b border-[#E0D8CC] text-gray-700 font-semibold">
+              <thead className="bg-[#F1F5F9] border-b border-slate-300 text-gray-700 font-semibold">
                 <tr>
                   <th className="p-4">Date & Time</th>
                   <th className="p-4">Asset Name</th>
@@ -254,7 +254,7 @@ export default function AssetAdjustments() {
                   transactionList.map(tx => (
                     <tr key={tx.id} className="hover:bg-amber-50/30 transition-colors">
                       <td className="p-4 text-xs text-gray-500 flex items-center gap-1.5 pt-5">
-                        <Calendar size={13} className="text-[#A97A1F]" />
+                        <Calendar size={13} className="text-[#2563EB]" />
                         {new Date(tx.createdAt).toLocaleDateString()} {new Date(tx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </td>
                       <td className="p-4 font-medium text-gray-800">

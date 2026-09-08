@@ -10,22 +10,22 @@ const {
   stockTransaction,
   getItemHistory // 👈 Import item history function
 } = require('../controllers/inventory.controller');
-const { authMiddleware, authorize } = require('../common/middleware/auth');
+const { authMiddleware, permissionGuard } = require('../common/middleware/auth');
 
 router.use(authMiddleware);
 
 // ── Static / Special routes first (before /:id) ──
-router.post('/transaction', authorize('admin', 'super_admin', 'manager'), stockTransaction);
+router.post('/transaction', permissionGuard('inventory', 'edit'), stockTransaction);
 
-router.get('/', getInventoryItems);
-router.post('/', authorize('admin', 'super_admin', 'manager'), createInventoryItem);
+router.get('/', permissionGuard('inventory', 'view'), getInventoryItems);
+router.post('/', permissionGuard('inventory', 'create'), createInventoryItem);
 
-// ── Item History / Janamkundli Route (Must be before /:id) ──
-router.get('/:id/history', getItemHistory);
+// ── Item History Route (Must be before /:id) ──
+router.get('/:id/history', permissionGuard('inventory', 'view'), getItemHistory);
 
 // ── Dynamic routes ──
-router.get('/:id', getInventoryItem);
-router.put('/:id', authorize('admin', 'super_admin', 'manager'), updateInventoryItem);
-router.delete('/:id', authorize('admin','super_admin'), deleteInventoryItem);
+router.get('/:id', permissionGuard('inventory', 'view'), getInventoryItem);
+router.put('/:id', permissionGuard('inventory', 'edit'), updateInventoryItem);
+router.delete('/:id', permissionGuard('inventory', 'delete'), deleteInventoryItem);
 
 module.exports = router;

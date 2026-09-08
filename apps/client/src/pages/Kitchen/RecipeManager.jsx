@@ -1,8 +1,10 @@
 ﻿import React, { useState, useEffect, useMemo } from 'react';
-import { Box, Plus, Trash2, Utensils, Scale, Layers, Save, RotateCcw, AlertCircle, Check, X } from 'lucide-react';
+import { Box, Plus, Trash2, Utensils, Scale, Layers, Save, RotateCcw, AlertCircle, Check, X, Package, Tag, DollarSign } from 'lucide-react';
 import recipeApi from '../../services/recipeApi';
-import itemApi from '../../services/itemApi';        // ✅ SAHI - Items (Dishes) ke liye
+import itemApi from '../../services/itemApi';
 import inventoryApi from '../../services/inventoryApi';
+import categoryApi from '../../services/categoryApi';
+import unitApi from '../../services/unitApi';
 import ReactSelect from '../../components/ui/ReactSelect';
 import toast from 'react-hot-toast';
 
@@ -22,6 +24,28 @@ export default function RecipeManager() {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editQty, setEditQty] = useState('');
+
+  // ── Raw Item Modal State ──
+  const [showRawItemModal, setShowRawItemModal] = useState(false);
+  const [rawItemForm, setRawItemForm] = useState({
+    name: '',
+    code: '',
+    category: '',
+    subCategory: '',
+    unit: 'pcs',
+    openingStock: '',
+    minStock: '',
+    maxStock: '',
+    avgCostPrice: '',
+    salePrice: '',
+    manageStock: true,
+    isPosVisible: true,
+    isBoxEnabled: false,
+    unitsPerBox: '8'
+  });
+  const [categoriesList, setCategoriesList] = useState([]);
+  const [unitsList, setUnitsList] = useState([]);
+  const [creatingRawItem, setCreatingRawItem] = useState(false);
 
   // ── ReactSelect Options ──
   const dishOptions = useMemo(() =>
@@ -83,25 +107,34 @@ export default function RecipeManager() {
 
   // ── Fetch Items (Dishes) and Inventory ──
   const fetchItemsAndInventory = async () => {
-    try {
-      setLoading(true);
-      // ✅ Items (Dishes) fetch karo
-      const itemRes = await itemApi.getAll();
-      const itemsList = itemRes?.data?.data || itemRes?.data || itemRes || [];
-      const validDishes = Array.isArray(itemsList) ? itemsList : [];
-      setDishes(validDishes);
+  try {
+    setLoading(true);
+    const [itemRes, invRes, catRes, unitRes] = await Promise.all([
+      itemApi.getAll(),
+      inventoryApi.getAll(),
+      categoryApi.getAll({ scope: 'INVENTORY' }),
+      unitApi.getAll({ scope: 'INVENTORY' })
+    ]);
 
-      // ✅ Inventory Items fetch karo
-      const invRes = await inventoryApi.getAll();
-      const inventoryList = invRes?.data?.data || invRes?.data || invRes || [];
-      setRawItems(Array.isArray(inventoryList) ? inventoryList : []);
-    } catch (err) {
-      console.error('Failed to load items or inventory items', err);
-      toast.error('Failed to load dropdown items');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const itemsList = itemRes?.data?.data || itemRes?.data || itemRes || [];
+    const validDishes = Array.isArray(itemsList) ? itemsList : [];
+    setDishes(validDishes);
+
+    const inventoryList = invRes?.data?.data || invRes?.data || invRes || [];
+    setRawItems(Array.isArray(inventoryList) ? inventoryList : []);
+
+    const categoriesData = catRes?.data || catRes || [];
+    setCategoriesList(Array.isArray(categoriesData) ? categoriesData : []);
+
+    const unitsData = unitRes?.data || unitRes || [];
+    setUnitsList(Array.isArray(unitsData) ? unitsData : []);
+  } catch (err) {
+    console.error('Failed to load items or inventory items', err);
+    toast.error('Failed to load dropdown items');
+  } finally {
+    setLoading(false);
+  }
+};
 
   // ── Fetch Recipe for selected Item ──
   const fetchRecipe = async (itemId) => {
@@ -289,6 +322,104 @@ export default function RecipeManager() {
       setCreatingDish(false);
     }
   };
+  // ── 9. Create Raw Inventory Item ──
+const handleCreateRawItem = async (e) => {
+  e.preventDefault();
+  try {
+    setCreatingRawItem(true);
+    
+    let finalStock = rawItemForm.openingStock ? parseFloat(rawItemForm.openingStock) : 0;
+    let finalCostPrice = rawItemForm.avgCostPrice ? parseFloat(rawItemForm.avgCostPrice) : 0;
+    let finalSalePrice = rawItemForm.salePrice ? parseFloat(rawItemForm.salePrice) : 0;
+    const boxEnabled = Boolean(rawItemForm.isBoxEnabled);
+    const unitsPerBox = parseInt(rawItemForm.unitsPerBox) || 1;
+
+    if (boxEnabled && rawItemForm.manageStock) {
+      if (rawItemForm.avgCostPrice) finalCostPrice = parseFloat(rawItemForm.avgCostPrice) / unitsPerBox;
+      if (rawItemForm.salePrice) finalSalePrice = parseFloat(rawItemForm.salePrice) / unitsPerBox;
+    }
+
+    // Check & Auto-Create Category
+    if (rawItemForm.category) {
+      const trimmedCat = rawItemForm.category.trim();
+      const foundCat = categoriesList.find(c => c.name.toLowerCase() === trimmedCat.toLowerCase());
+      if (!foundCat) {
+        try {
+          await categoryApi.create({
+            name: trimmedCat,
+            scope: 'INVENTORY'
+          });
+        } catch (catErr) {
+          console.log('Category might already exist', catErr);
+        }
+      }
+    }
+
+    // Check & Auto-Create Unit
+    if (rawItemForm.unit) {
+      const trimmedUnit = rawItemForm.unit.trim();
+      const foundUnit = unitsList.find(u => u.name.toLowerCase() === trimmedUnit.toLowerCase());
+      if (!foundUnit) {
+        try {
+          await unitApi.create({
+            name: trimmedUnit,
+            symbol: trimmedUnit.substring(0, 3).toLowerCase(),
+            type: 'INVENTORY',
+            scope: 'INVENTORY'
+          });
+        } catch (unitErr) {
+          console.log('Unit might already exist', unitErr);
+        }
+      }
+    }
+
+    const payload = {
+      name: rawItemForm.name.trim(),
+      code: rawItemForm.code?.trim() || null,
+      category: rawItemForm.category.trim(),
+      subCategory: rawItemForm.subCategory?.trim() || null,
+      unit: rawItemForm.unit.trim(),
+      minStock: rawItemForm.minStock ? parseFloat(rawItemForm.minStock) : 0,
+      maxStock: rawItemForm.maxStock ? parseFloat(rawItemForm.maxStock) : 0,
+      avgCostPrice: finalCostPrice,
+      salePrice: finalSalePrice,
+      manageStock: rawItemForm.manageStock,
+      isPosVisible: rawItemForm.isPosVisible,
+      isBoxEnabled: boxEnabled,
+      unitsPerBox: unitsPerBox,
+      openingStock: finalStock
+    };
+
+    await inventoryApi.create(payload);
+    toast.success('Raw inventory item created successfully!');
+    
+    setShowRawItemModal(false);
+    setRawItemForm({
+      name: '',
+      code: '',
+      category: '',
+      subCategory: '',
+      unit: 'pcs',
+      openingStock: '',
+      minStock: '',
+      maxStock: '',
+      avgCostPrice: '',
+      salePrice: '',
+      manageStock: true,
+      isPosVisible: true,
+      isBoxEnabled: false,
+      unitsPerBox: '8'
+    });
+    
+    // Refresh inventory items
+    await fetchItemsAndInventory();
+    
+  } catch (err) {
+    toast.error(err?.response?.data?.message || 'Error creating raw item');
+  } finally {
+    setCreatingRawItem(false);
+  }
+};
 
   // ── 8. Computed totals ──
   const allItems = useMemo(() => {
@@ -317,7 +448,7 @@ export default function RecipeManager() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Utensils className="text-[#A97A1F]" size={28} />
+            <Utensils className="text-[#2563EB]" size={28} />
             Recipe & Menu Manager
           </h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -338,7 +469,7 @@ export default function RecipeManager() {
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-3 bg-[#A97A1F] hover:bg-[#966b1a] text-white font-semibold rounded-xl text-sm shadow-sm transition flex items-center gap-1.5 whitespace-nowrap"
+            className="px-4 py-3 bg-[#2563EB] hover:bg-[#966b1a] text-white font-semibold rounded-xl text-sm shadow-sm transition flex items-center gap-1.5 whitespace-nowrap"
           >
             <Plus size={18} />
             New Menu Item
@@ -351,100 +482,109 @@ export default function RecipeManager() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
           {/* ── LEFT: Add Ingredient Form ── */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit space-y-4">
-            <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2 border-b pb-3">
-              <Plus size={20} className="text-[#A97A1F]" />
-              Add to Recipe Draft
-            </h2>
+<div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit space-y-4">
+  <div className="flex items-center justify-between border-b pb-3">
+    <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+      <Plus size={20} className="text-[#2563EB]" />
+      Add to Recipe Draft
+    </h2>
+    <button
+      onClick={() => setShowRawItemModal(true)}
+      className="px-3 py-1.5 bg-[#2563EB]/10 hover:bg-[#2563EB]/20 text-[#2563EB] font-semibold rounded-lg text-xs transition flex items-center gap-1.5 border border-[#2563EB]/20"
+    >
+      <Package size={14} />
+      Add Raw Item
+    </button>
+  </div>
 
-            <form onSubmit={handleQueueIngredient} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Raw Material</label>
-                <ReactSelect
-                  options={rawItemOptions}
-                  value={selectedIngredient}
-                  onChange={(opt) => setSelectedIngredient(opt || '')}
-                  placeholder="-- Choose Raw Item --"
-                />
-              </div>
+  <form onSubmit={handleQueueIngredient} className="space-y-4">
+    <div>
+      <label className="block text-xs font-medium text-gray-600 mb-1">Raw Material</label>
+      <ReactSelect
+        options={rawItemOptions}
+        value={selectedIngredient}
+        onChange={(opt) => setSelectedIngredient(opt || '')}
+        placeholder="-- Choose Raw Item --"
+      />
+    </div>
 
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Required Qty (per {selectedDish.unit})
-                </label>
-                <input
-                  type="number"
-                  step="0.001"
-                  placeholder="e.g. 10.500"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-[#A97A1F] focus:outline-none"
-                />
-              </div>
+    <div>
+      <label className="block text-xs font-medium text-gray-600 mb-1">
+        Required Qty (per {selectedDish.unit})
+      </label>
+      <input
+        type="number"
+        step="0.001"
+        placeholder="e.g. 10.500"
+        value={quantity}
+        onChange={(e) => setQuantity(e.target.value)}
+        className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-[#2563EB] focus:outline-none"
+      />
+    </div>
 
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Unit</label>
-                <ReactSelect
-                  options={unitOptions}
-                  value={unit}
-                  onChange={(opt) => setUnit(opt || 'kg')}
-                  placeholder="Select Unit"
-                />
-              </div>
+    <div>
+      <label className="block text-xs font-medium text-gray-600 mb-1">Unit</label>
+      <ReactSelect
+        options={unitOptions}
+        value={unit}
+        onChange={(opt) => setUnit(opt || 'kg')}
+        placeholder="Select Unit"
+      />
+    </div>
 
-              <button
-                type="submit"
-                className="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-semibold rounded-xl text-sm shadow-sm transition flex items-center justify-center gap-2"
-              >
-                <Plus size={18} />
-                Add to Draft
+    <button
+      type="submit"
+      className="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-semibold rounded-xl text-sm shadow-sm transition flex items-center justify-center gap-2"
+    >
+      <Plus size={18} />
+      Add to Draft
+    </button>
+  </form>
+
+  {/* Pending Queue Preview */}
+  {pendingItems.length > 0 && (
+    <div className="mt-4 p-4 bg-amber-50 rounded-xl border border-amber-100 space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-bold text-amber-800 uppercase">Draft Queue ({pendingItems.length})</span>
+        <button
+          onClick={() => setPendingItems([])}
+          className="text-[10px] text-red-600 hover:underline font-medium"
+        >
+          Clear All
+        </button>
+      </div>
+      <div className="space-y-1.5 max-h-40 overflow-y-auto">
+        {pendingItems.map((p) => (
+          <div key={p._id} className="flex items-center justify-between text-xs bg-white p-2 rounded-lg border border-amber-200">
+            <span className="font-medium text-gray-700">{p.name}</span>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-amber-700">{p.quantity} {p.unit}</span>
+              <button onClick={() => handleRemovePending(p._id)} className="text-red-500 hover:text-red-700">
+                <Trash2 size={12} />
               </button>
-            </form>
-
-            {/* Pending Queue Preview */}
-            {pendingItems.length > 0 && (
-              <div className="mt-4 p-4 bg-amber-50 rounded-xl border border-amber-100 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-amber-800 uppercase">Draft Queue ({pendingItems.length})</span>
-                  <button
-                    onClick={() => setPendingItems([])}
-                    className="text-[10px] text-red-600 hover:underline font-medium"
-                  >
-                    Clear All
-                  </button>
-                </div>
-                <div className="space-y-1.5 max-h-40 overflow-y-auto">
-                  {pendingItems.map((p) => (
-                    <div key={p._id} className="flex items-center justify-between text-xs bg-white p-2 rounded-lg border border-amber-200">
-                      <span className="font-medium text-gray-700">{p.name}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-amber-700">{p.quantity} {p.unit}</span>
-                        <button onClick={() => handleRemovePending(p._id)} className="text-red-500 hover:text-red-700">
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  onClick={handleSaveRecipe}
-                  disabled={saving}
-                  className="w-full py-2.5 bg-[#A97A1F] hover:bg-[#966b1a] disabled:opacity-50 text-white font-bold rounded-xl text-sm shadow-sm transition flex items-center justify-center gap-2 mt-2"
-                >
-                  {saving ? <RotateCcw size={16} className="animate-spin" /> : <Save size={16} />}
-                  {saving ? 'Saving...' : 'Save Recipe'}
-                </button>
-              </div>
-            )}
+            </div>
           </div>
+        ))}
+      </div>
+
+      <button
+        onClick={handleSaveRecipe}
+        disabled={saving}
+        className="w-full py-2.5 bg-[#2563EB] hover:bg-[#966b1a] disabled:opacity-50 text-white font-bold rounded-xl text-sm shadow-sm transition flex items-center justify-center gap-2 mt-2"
+      >
+        {saving ? <RotateCcw size={16} className="animate-spin" /> : <Save size={16} />}
+        {saving ? 'Saving...' : 'Save Recipe'}
+      </button>
+    </div>
+  )}
+</div>
 
           {/* ── RIGHT: Recipe Table ── */}
           <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
             <div className="flex flex-wrap justify-between items-center border-b pb-3 gap-3">
               <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                <Layers size={20} className="text-[#A97A1F]" />
-                Recipe for: <span className="text-[#A97A1F]">{selectedDish.name}</span>
+                <Layers size={20} className="text-[#2563EB]" />
+                Recipe for: <span className="text-[#2563EB]">{selectedDish.name}</span>
               </h2>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full font-medium border border-gray-200">
@@ -461,7 +601,7 @@ export default function RecipeManager() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
-                  <thead className="bg-[#F5F2EB] text-gray-700 font-semibold border-b">
+                  <thead className="bg-[#F1F5F9] text-gray-700 font-semibold border-b">
                     <tr>
                       <th className="p-3 rounded-l-xl">Ingredient</th>
                       <th className="p-3 text-center">Qty</th>
@@ -491,11 +631,11 @@ export default function RecipeManager() {
                                 step="0.001"
                                 value={editQty}
                                 onChange={(e) => setEditQty(e.target.value)}
-                                className="w-20 px-2 py-1 border border-gray-200 rounded-lg text-xs font-mono text-center focus:ring-2 focus:ring-[#A97A1F] focus:outline-none"
+                                className="w-20 px-2 py-1 border border-gray-200 rounded-lg text-xs font-mono text-center focus:ring-2 focus:ring-[#2563EB] focus:outline-none"
                                 autoFocus
                               />
                             ) : (
-                              <span className="font-mono font-bold text-[#A97A1F]">{Number(rec.quantity).toLocaleString()}</span>
+                              <span className="font-mono font-bold text-[#2563EB]">{Number(rec.quantity).toLocaleString()}</span>
                             )}
                           </td>
                           <td className="p-3 text-center text-gray-600">{rec.unit}</td>
@@ -583,7 +723,7 @@ export default function RecipeManager() {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-sm text-gray-500">Grand Total Cost:</span>
-                      <span className="text-xl font-bold text-[#A97A1F] font-mono">
+                      <span className="text-xl font-bold text-[#2563EB] font-mono">
                         Rs {grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                       </span>
                     </div>
@@ -609,7 +749,7 @@ export default function RecipeManager() {
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in fade-in zoom-in duration-200">
             <div className="flex justify-between items-center border-b pb-3">
               <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <Utensils size={20} className="text-[#A97A1F]" />
+                <Utensils size={20} className="text-[#2563EB]" />
                 Add New Menu Item
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600">
@@ -626,7 +766,7 @@ export default function RecipeManager() {
                   placeholder="e.g. Mutton Biryani Degh"
                   value={newDishData.name}
                   onChange={(e) => setNewDishData({ ...newDishData, name: e.target.value })}
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#A97A1F] focus:outline-none"
+                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#2563EB] focus:outline-none"
                 />
               </div>
 
@@ -638,7 +778,7 @@ export default function RecipeManager() {
                     placeholder="e.g. mb1"
                     value={newDishData.code}
                     onChange={(e) => setNewDishData({ ...newDishData, code: e.target.value })}
-                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#A97A1F] focus:outline-none"
+                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#2563EB] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -661,7 +801,7 @@ export default function RecipeManager() {
                     placeholder="e.g. 35000"
                     value={newDishData.salePrice}
                     onChange={(e) => setNewDishData({ ...newDishData, salePrice: e.target.value })}
-                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#A97A1F] focus:outline-none"
+                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#2563EB] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -671,7 +811,7 @@ export default function RecipeManager() {
                     placeholder="e.g. Rice / Salan"
                     value={newDishData.category}
                     onChange={(e) => setNewDishData({ ...newDishData, category: e.target.value })}
-                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#A97A1F] focus:outline-none"
+                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#2563EB] focus:outline-none"
                   />
                 </div>
               </div>
@@ -687,9 +827,227 @@ export default function RecipeManager() {
                 <button
                   type="submit"
                   disabled={creatingDish}
-                  className="px-5 py-2.5 bg-[#A97A1F] hover:bg-[#966b1a] disabled:opacity-50 text-white font-semibold rounded-xl text-sm shadow-sm transition flex items-center gap-2"
+                  className="px-5 py-2.5 bg-[#2563EB] hover:bg-[#966b1a] disabled:opacity-50 text-white font-semibold rounded-xl text-sm shadow-sm transition flex items-center gap-2"
                 >
                   {creatingDish ? 'Creating...' : 'Create Item'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+            {/* ═══════ RAW ITEM MODAL ═══════ */}
+      {showRawItemModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white p-6 rounded-3xl w-full max-w-2xl shadow-2xl border border-slate-300 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+              <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+                <Package size={20} className="text-[#2563EB]" />
+                Add Raw Inventory Item
+              </h3>
+              <button onClick={() => setShowRawItemModal(false)} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateRawItem} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Item Name *</label>
+                  <input 
+                    required 
+                    value={rawItemForm.name} 
+                    onChange={e => setRawItemForm({...rawItemForm, name: e.target.value})} 
+                    placeholder="e.g. Chicken Boneless" 
+                    className="w-full p-2.5 border border-gray-200 rounded-xl text-sm" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Item Code / SKU</label>
+                  <input 
+                    value={rawItemForm.code} 
+                    onChange={e => setRawItemForm({...rawItemForm, code: e.target.value})} 
+                    placeholder="e.g. RAW-001" 
+                    className="w-full p-2.5 border border-gray-200 rounded-xl text-sm font-mono" 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Category * (Select or Type Custom)</label>
+                  <input 
+                    required 
+                    list="raw-category-list" 
+                    value={rawItemForm.category} 
+                    onChange={e => setRawItemForm({...rawItemForm, category: e.target.value})} 
+                    placeholder="e.g. Meat, Vegetables" 
+                    className="w-full p-2.5 border border-gray-200 rounded-xl text-sm bg-white" 
+                  />
+                  <datalist id="raw-category-list">
+                    {categoriesList.map((c) => <option key={c.id} value={c.name} />)}
+                  </datalist>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Sub Category</label>
+                  <input 
+                    value={rawItemForm.subCategory} 
+                    onChange={e => setRawItemForm({...rawItemForm, subCategory: e.target.value})} 
+                    placeholder="e.g. Boneless" 
+                    className="w-full p-2.5 border border-gray-200 rounded-xl text-sm" 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Base Unit * (Select or Type Custom)</label>
+                  <input 
+                    required
+                    list="raw-unit-list" 
+                    value={rawItemForm.unit} 
+                    onChange={e => setRawItemForm({...rawItemForm, unit: e.target.value})} 
+                    placeholder="e.g. kg, pcs" 
+                    className="w-full p-2.5 border border-gray-200 rounded-xl text-sm bg-white" 
+                  />
+                  <datalist id="raw-unit-list">
+                    {unitsList.map((u) => <option key={u.id} value={u.name} />)}
+                  </datalist>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    {rawItemForm.isBoxEnabled ? 'Opening Stock (In Thalas/Packs)' : 'Opening Stock'}
+                  </label>
+                  <input 
+                    type="number" 
+                    step="0.001" 
+                    value={rawItemForm.openingStock} 
+                    onChange={e => setRawItemForm({...rawItemForm, openingStock: e.target.value})} 
+                    placeholder={rawItemForm.isBoxEnabled ? "e.g. 5 Thalas" : "0.00"} 
+                    className="w-full p-2.5 border border-gray-200 rounded-xl text-sm font-mono" 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    {rawItemForm.isBoxEnabled ? 'Min Stock Warning (In Thalas/Packs)' : 'Min Stock Warning Level'}
+                  </label>
+                  <input 
+                    type="number" 
+                    step="0.001" 
+                    value={rawItemForm.minStock} 
+                    onChange={e => setRawItemForm({...rawItemForm, minStock: e.target.value})} 
+                    placeholder={rawItemForm.isBoxEnabled ? "e.g. 1 Thala" : "0"} 
+                    className="w-full p-2.5 border border-gray-200 rounded-xl text-sm" 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">
+                    {rawItemForm.isBoxEnabled ? 'Cost Price (Per Whole Box Rs)' : 'Cost Price (Per Unit Rs)'}
+                  </label>
+                  <input 
+                    type="number" 
+                    step="0.01" 
+                    value={rawItemForm.avgCostPrice} 
+                    onChange={e => setRawItemForm({...rawItemForm, avgCostPrice: e.target.value})} 
+                    placeholder="0.00" 
+                    className="w-full p-2.5 border border-gray-200 rounded-xl text-sm font-mono" 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">
+                    {rawItemForm.isBoxEnabled ? 'Sale Price (Per Whole Box Rs)' : 'Sale Price (Per Unit Rs)'}
+                  </label>
+                  <input 
+                    type="number" 
+                    step="0.01" 
+                    value={rawItemForm.salePrice} 
+                    onChange={e => setRawItemForm({...rawItemForm, salePrice: e.target.value})} 
+                    placeholder="0.00" 
+                    className="w-full p-2.5 border border-gray-200 rounded-xl text-sm font-mono" 
+                  />
+                </div>
+              </div>
+
+              {/* Toggles */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                <label className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={rawItemForm.manageStock} 
+                    onChange={e => setRawItemForm({...rawItemForm, manageStock: e.target.checked})} 
+                    className="w-4 h-4 rounded text-[#2563EB]" 
+                  />
+                  <span className="text-xs font-bold text-gray-700">Manage Stock Levels</span>
+                </label>
+                <label className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={rawItemForm.isPosVisible} 
+                    onChange={e => setRawItemForm({...rawItemForm, isPosVisible: e.target.checked})} 
+                    className="w-4 h-4 rounded text-[#2563EB]" 
+                  />
+                  <span className="text-xs font-bold text-gray-700">Show in POS Sale Screen</span>
+                </label>
+              </div>
+
+              {/* Box Conversion Checkbox */}
+              {rawItemForm.manageStock && (
+                <div className="p-4 bg-amber-50/70 rounded-2xl border border-amber-200 space-y-3">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={rawItemForm.isBoxEnabled} 
+                      onChange={e => setRawItemForm({...rawItemForm, isBoxEnabled: e.target.checked})} 
+                      className="w-4 h-4 rounded text-[#2563EB]" 
+                    />
+                    <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                      <Box size={15} /> Save stock in Cartons / Thalas (Auto-convert to units)
+                    </span>
+                  </label>
+
+                  {rawItemForm.isBoxEnabled && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Units per Pack / Thala</label>
+                        <input 
+                          type="number" 
+                          value={rawItemForm.unitsPerBox} 
+                          onChange={e => setRawItemForm({...rawItemForm, unitsPerBox: e.target.value})} 
+                          placeholder="50" 
+                          className="w-full p-2.5 bg-white border border-amber-300 rounded-xl text-sm font-mono" 
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Opening Stock in Thalas</label>
+                        <input 
+                          type="number" 
+                          step="0.001" 
+                          value={rawItemForm.openingStock} 
+                          onChange={e => setRawItemForm({...rawItemForm, openingStock: e.target.value})} 
+                          placeholder="e.g. 5" 
+                          className="w-full p-2.5 bg-white border border-amber-300 rounded-xl text-sm font-mono font-bold text-[#2563EB]" 
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-gray-100">
+                <button 
+                  type="button" 
+                  onClick={() => setShowRawItemModal(false)} 
+                  className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-600 text-sm hover:bg-gray-50 transition"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={creatingRawItem}
+                  className="px-6 py-2.5 bg-[#2563EB] hover:bg-[#966b1a] disabled:opacity-50 text-white font-semibold rounded-xl shadow-md text-sm transition flex items-center gap-2"
+                >
+                  {creatingRawItem ? 'Creating...' : 'Create Raw Item'}
                 </button>
               </div>
             </form>

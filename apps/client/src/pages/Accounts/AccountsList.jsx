@@ -241,48 +241,48 @@ export default function AccountsList() {
   };
 
   return (
-    <div className="min-h-screen pb-12" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen pb-12" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       {/* Header */}
-      <div className="sticky top-0 z-40 border-b backdrop-blur-xl" style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderColor: '#E0D8CC' }}>
+      <div className="sticky top-0 z-40 border-b backdrop-blur-xl" style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderColor: '#CBD5E1' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <button onClick={() => navigate(-1)} className="p-2 rounded-xl transition-all hover:scale-105" style={{ backgroundColor: '#F8F5F0' }}>
-                <ChevronLeft size={20} style={{ color: '#4A4A4A' }} />
+                <ChevronLeft size={20} style={{ color: '#334155' }} />
               </button>
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-md">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-md">
                   <Landmark className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold" style={{ color: '#1A1A1A' }}>Payment Accounts</h1>
-                  <p className="text-xs font-medium" style={{ color: '#7A7A7A' }}>
+                  <h1 className="text-lg font-bold" style={{ color: '#0F172A' }}>Payment Accounts</h1>
+                  <p className="text-xs font-medium" style={{ color: '#475569' }}>
                     {totalRecords} total accounts • Page {page} of {totalPages}
-                    {currentBranch && <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] bg-[#F4E7C9] text-[#8B6914] font-bold">{currentBranch.name}</span>}
+                    {currentBranch && <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] bg-amber-100/80 text-[#8B6914] font-bold">{currentBranch.name}</span>}
                   </p>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="bg-white p-1 rounded-xl border border-[#E0D8CC] flex items-center shadow-sm">
+              <div className="bg-white p-1 rounded-xl border border-slate-300 flex items-center shadow-sm">
                 <button 
                   onClick={() => setViewMode('grid')} 
                   title="Grid Card View"
-                  className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                   <LayoutGrid size={18} />
                 </button>
                 <button 
                   onClick={() => setViewMode('table')} 
                   title="Table View"
-                  className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                   <TableIcon size={18} />
                 </button>
               </div>
 
-              <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-bold shadow-md transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #A97A1F, #C89B3C)' }}>
+              <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-bold shadow-md transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #1E40AF, #2563EB)' }}>
                 <Plus size={16} /> Add Account
               </button>
             </div>
@@ -292,18 +292,18 @@ export default function AccountsList() {
 
       {/* Advanced Filter Toolbar */}
       <div className="max-w-7xl mx-auto px-4 py-4 md:px-6">
-        <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-[#E0D8CC] p-4">
+        <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-slate-300 p-4">
           <div className="flex flex-col md:flex-row items-center gap-3">
             
             {/* Search Input */}
             <div className="relative flex-1 w-full">
-              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: '#A97A1F' }} />
+              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: '#2563EB' }} />
               <input 
                 value={search} 
                 onChange={e => setSearch(e.target.value)} 
                 placeholder="Search by account name, holder, or number..."
-                className="w-full border rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20"
-                style={{ borderColor: '#E0D8CC', backgroundColor: '#fff', color: '#1A1A1A' }} 
+                className="w-full border rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                style={{ borderColor: '#CBD5E1', backgroundColor: '#fff', color: '#0F172A' }} 
               />
             </div>
 
@@ -332,7 +332,7 @@ export default function AccountsList() {
               onClick={fetchAccounts} 
               title="Refresh Data"
               className="w-full md:w-auto p-2.5 px-4 rounded-xl border hover:bg-amber-50 transition-all flex items-center justify-center gap-2 text-sm font-semibold" 
-              style={{ borderColor: '#E0D8CC', color: '#A97A1F' }}
+              style={{ borderColor: '#CBD5E1', color: '#2563EB' }}
             >
               <RefreshCw size={16} /> Refresh
             </button>
@@ -344,13 +344,13 @@ export default function AccountsList() {
       <div className="max-w-7xl mx-auto px-4 pb-8 md:px-6">
         {loading ? (
           <div className="text-center py-16">
-            <div className="w-10 h-10 rounded-full border-4 animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
+            <div className="w-10 h-10 rounded-full border-4 animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
           </div>
         ) : accounts.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border" style={{ borderColor: '#E0D8CC' }}>
-            <Landmark size={48} className="mx-auto mb-4" style={{ color: '#E0D8CC' }} />
-            <p className="text-sm font-medium" style={{ color: '#7A7A7A' }}>No accounts found matching your filters</p>
-            <button onClick={openCreate} className="mt-4 px-4 py-2 rounded-xl text-white text-sm font-bold" style={{ background: 'linear-gradient(135deg, #A97A1F, #C89B3C)' }}>Create First Account</button>
+          <div className="text-center py-16 bg-white rounded-2xl border" style={{ borderColor: '#CBD5E1' }}>
+            <Landmark size={48} className="mx-auto mb-4" style={{ color: '#CBD5E1' }} />
+            <p className="text-sm font-medium" style={{ color: '#475569' }}>No accounts found matching your filters</p>
+            <button onClick={openCreate} className="mt-4 px-4 py-2 rounded-xl text-white text-sm font-bold" style={{ background: 'linear-gradient(135deg, #1E40AF, #2563EB)' }}>Create First Account</button>
           </div>
         ) : viewMode === 'grid' ? (
           /* ── GRID CARD VIEW ── */
@@ -359,14 +359,14 @@ export default function AccountsList() {
               const Icon = getAccountIcon(acc.accountType);
               const typeLabel = getAccountTypeLabel(acc.accountType);
               return (
-                <div key={acc.id} className="bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all group" style={{ borderColor: '#E0D8CC' }}>
+                <div key={acc.id} className="bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all group" style={{ borderColor: '#CBD5E1' }}>
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl" style={{ backgroundColor: '#FAF8F4', border: '1px solid #E0D8CC' }}>
-                        <Icon size={20} style={{ color: '#A97A1F' }} />
+                      <div className="p-2.5 rounded-xl" style={{ backgroundColor: '#F8FAFC', border: '1px solid #CBD5E1' }}>
+                        <Icon size={20} style={{ color: '#2563EB' }} />
                       </div>
                       <div>
-                        <h3 className="font-bold text-sm" style={{ color: '#1A1A1A' }}>{acc.bankName || typeLabel}</h3>
+                        <h3 className="font-bold text-sm" style={{ color: '#0F172A' }}>{acc.bankName || typeLabel}</h3>
                         <p className="text-xs text-gray-400 font-mono">{acc.accountNumber || '—'}</p>
                       </div>
                     </div>
@@ -375,7 +375,7 @@ export default function AccountsList() {
 
                   <div className="mb-4">
                     <p className="text-xs text-gray-400 mb-1">Current Balance</p>
-                    <p className="text-2xl font-bold font-mono" style={{ color: '#A97A1F' }}>{formatCurrency(acc.currentBalance ?? acc.initialBalance)}</p>
+                    <p className="text-2xl font-bold font-mono" style={{ color: '#2563EB' }}>{formatCurrency(acc.currentBalance ?? acc.initialBalance)}</p>
                   </div>
 
                   <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
@@ -386,13 +386,13 @@ export default function AccountsList() {
                   </div>
 
                   <div className="flex gap-2">
-                    <button onClick={() => setHistoryAccount(acc)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border text-xs font-bold hover:bg-amber-50 transition-all" style={{ borderColor: '#E0D8CC', color: '#A97A1F' }}>
+                    <button onClick={() => setHistoryAccount(acc)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border text-xs font-bold hover:bg-amber-50 transition-all" style={{ borderColor: '#CBD5E1', color: '#2563EB' }}>
                       <Eye size={12} /> Ledger
                     </button>
-                    <button onClick={() => openEdit(acc)} className="p-2 rounded-xl border hover:bg-gray-50 transition-all" style={{ borderColor: '#E0D8CC', color: '#4A4A4A' }}>
+                    <button onClick={() => openEdit(acc)} className="p-2 rounded-xl border hover:bg-gray-50 transition-all" style={{ borderColor: '#CBD5E1', color: '#334155' }}>
                       <Pencil size={14} />
                     </button>
-                    <button onClick={() => handleDelete(acc.id)} className="p-2 rounded-xl border hover:bg-red-50 transition-all text-red-500" style={{ borderColor: '#E0D8CC' }}>
+                    <button onClick={() => handleDelete(acc.id)} className="p-2 rounded-xl border hover:bg-red-50 transition-all text-red-500" style={{ borderColor: '#CBD5E1' }}>
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -402,11 +402,11 @@ export default function AccountsList() {
           </div>
         ) : (
           /* ── TABLE VIEW ── */
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#FAF8F4] border-b border-[#E0D8CC] text-xs font-bold text-gray-600 uppercase tracking-wider">
+                  <tr className="bg-slate-50 border-b border-slate-300 text-xs font-bold text-gray-600 uppercase tracking-wider">
                     <th className="py-3.5 px-4">Account Name & No</th>
                     <th className="py-3.5 px-4">Holder Name</th>
                     <th className="py-3.5 px-4">Type</th>
@@ -423,7 +423,7 @@ export default function AccountsList() {
                       <tr key={acc.id} className="hover:bg-amber-50/30 transition-all">
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-2">
-                            <Icon size={16} className="text-[#A97A1F]" />
+                            <Icon size={16} className="text-[#2563EB]" />
                             <div>
                               <div className="font-bold text-gray-900">{acc.bankName || typeLabel}</div>
                               <div className="text-xs font-mono text-gray-400">{acc.accountNumber || '—'}</div>
@@ -441,12 +441,12 @@ export default function AccountsList() {
                         <td className="py-3.5 px-4">
                           <span className={`text-[10px] px-2 py-0.5 rounded-lg font-bold ${STATUS_COLORS[acc.status] || 'bg-gray-100'}`}>{acc.status}</span>
                         </td>
-                        <td className="py-3.5 px-4 text-right font-mono text-xs font-bold text-[#A97A1F]">
+                        <td className="py-3.5 px-4 text-right font-mono text-xs font-bold text-[#2563EB]">
                           {formatCurrency(acc.currentBalance ?? acc.initialBalance)}
                         </td>
                         <td className="py-3.5 px-4 text-right">
                           <div className="flex items-center justify-end gap-1">
-                            <button onClick={() => setHistoryAccount(acc)} title="Ledger" className="p-1.5 rounded-lg hover:bg-amber-50 text-[#A97A1F] transition-all">
+                            <button onClick={() => setHistoryAccount(acc)} title="Ledger" className="p-1.5 rounded-lg hover:bg-amber-50 text-[#2563EB] transition-all">
                               <Eye size={15} />
                             </button>
                             <button onClick={() => openEdit(acc)} title="Edit Account" className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-700 transition-all">
@@ -468,7 +468,7 @@ export default function AccountsList() {
 
         {/* ── PAGINATION BAR ── */}
         {!loading && accounts.length > 0 && (
-          <div className="mt-6 bg-white rounded-2xl border border-[#E0D8CC] p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+          <div className="mt-6 bg-white rounded-2xl border border-slate-300 p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
             
             {/* Info & Rows Per Page */}
             <div className="flex items-center gap-4 text-xs font-medium text-gray-600">
@@ -495,7 +495,7 @@ export default function AccountsList() {
               <button
                 onClick={() => setPage(p => Math.max(p - 1, 1))}
                 disabled={page === 1}
-                className="p-2 rounded-xl border border-[#E0D8CC] text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-amber-50 transition-all"
+                className="p-2 rounded-xl border border-slate-300 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-amber-50 transition-all"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -512,8 +512,8 @@ export default function AccountsList() {
                         onClick={() => setPage(p)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                           page === p
-                            ? 'bg-[#A97A1F] text-white shadow-sm'
-                            : 'bg-gray-50 border border-[#E0D8CC] text-gray-700 hover:bg-amber-50'
+                            ? 'bg-[#2563EB] text-white shadow-sm'
+                            : 'bg-gray-50 border border-slate-300 text-gray-700 hover:bg-amber-50'
                         }`}
                       >
                         {p}
@@ -525,7 +525,7 @@ export default function AccountsList() {
               <button
                 onClick={() => setPage(p => Math.min(p + 1, totalPages))}
                 disabled={page >= totalPages}
-                className="p-2 rounded-xl border border-[#E0D8CC] text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-amber-50 transition-all"
+                className="p-2 rounded-xl border border-slate-300 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-amber-50 transition-all"
               >
                 <ChevronRight size={16} />
               </button>
@@ -538,26 +538,26 @@ export default function AccountsList() {
       {/* Create/Edit Modal */}
       {modalOpen && createPortal(
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-6 shadow-2xl border relative" style={{ borderColor: '#E0D8CC' }}>
-            <div className="flex items-center justify-between pb-4 mb-4 border-b" style={{ borderColor: '#E0D8CC' }}>
-              <h2 className="text-lg font-bold" style={{ color: '#1A1A1A' }}>{modalMode === 'create' ? 'Add Payment Account' : 'Edit Payment Account'}</h2>
+          <div className="bg-white rounded-3xl w-full max-w-lg p-6 shadow-2xl border relative" style={{ borderColor: '#CBD5E1' }}>
+            <div className="flex items-center justify-between pb-4 mb-4 border-b" style={{ borderColor: '#CBD5E1' }}>
+              <h2 className="text-lg font-bold" style={{ color: '#0F172A' }}>{modalMode === 'create' ? 'Add Payment Account' : 'Edit Payment Account'}</h2>
               <button onClick={() => setModalOpen(false)} className="p-2 rounded-xl hover:bg-gray-100"><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-xs font-bold uppercase block mb-1.5" style={{ color: '#4A4A4A' }}>Account Name *</label>
+                <label className="text-xs font-bold uppercase block mb-1.5" style={{ color: '#334155' }}>Account Name *</label>
                 <input required value={form.bankName} onChange={e => setForm({ ...form, bankName: e.target.value })} placeholder="e.g. HBL Main, Cash Drawer, JazzCash Account"
-                  className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20" style={{ borderColor: '#E0D8CC' }} />
+                  className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" style={{ borderColor: '#CBD5E1' }} />
               </div>
               
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold uppercase block mb-1.5" style={{ color: '#4A4A4A' }}>Account Holder</label>
+                  <label className="text-xs font-bold uppercase block mb-1.5" style={{ color: '#334155' }}>Account Holder</label>
                   <input value={form.accountHolder} onChange={e => setForm({ ...form, accountHolder: e.target.value })} placeholder="Name on account"
-                    className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20" style={{ borderColor: '#E0D8CC' }} />
+                    className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" style={{ borderColor: '#CBD5E1' }} />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase block mb-1.5" style={{ color: '#4A4A4A' }}>Account Type *</label>
+                  <label className="text-xs font-bold uppercase block mb-1.5" style={{ color: '#334155' }}>Account Type *</label>
                   <ReactSelect
                     options={ACCOUNT_TYPE_OPTIONS}
                     value={form.accountType}
@@ -569,19 +569,19 @@ export default function AccountsList() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold uppercase block mb-1.5" style={{ color: '#4A4A4A' }}>Account Number / ID</label>
+                  <label className="text-xs font-bold uppercase block mb-1.5" style={{ color: '#334155' }}>Account Number / ID</label>
                   <input value={form.accountNumber} onChange={e => setForm({ ...form, accountNumber: e.target.value })} placeholder="e.g. 1234-5678-90 or 03XX-XXXXXXX"
-                    className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20" style={{ borderColor: '#E0D8CC' }} />
+                    className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" style={{ borderColor: '#CBD5E1' }} />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase block mb-1.5" style={{ color: '#4A4A4A' }}>Initial Balance</label>
+                  <label className="text-xs font-bold uppercase block mb-1.5" style={{ color: '#334155' }}>Initial Balance</label>
                   <input type="number" min="0" step="0.01" value={form.initialBalance} onChange={e => setForm({ ...form, initialBalance: e.target.value })} placeholder="0.00"
-                    className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20" style={{ borderColor: '#E0D8CC' }} />
+                    className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" style={{ borderColor: '#CBD5E1' }} />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase block mb-1.5" style={{ color: '#4A4A4A' }}>Status</label>
+                <label className="text-xs font-bold uppercase block mb-1.5" style={{ color: '#334155' }}>Status</label>
                 <ReactSelect
                   options={statusFilterOptions}
                   value={form.status}
@@ -591,14 +591,14 @@ export default function AccountsList() {
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase block mb-1.5" style={{ color: '#4A4A4A' }}>Note</label>
+                <label className="text-xs font-bold uppercase block mb-1.5" style={{ color: '#334155' }}>Note</label>
                 <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Extra details..." rows={2}
-                  className="w-full border rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#A97A1F]/20" style={{ borderColor: '#E0D8CC' }} />
+                  className="w-full border rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" style={{ borderColor: '#CBD5E1' }} />
               </div>
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setModalOpen(false)} className="flex-1 px-4 py-2.5 border rounded-xl font-bold text-sm" style={{ borderColor: '#E0D8CC' }}>Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl font-bold text-white text-sm" style={{ background: 'linear-gradient(135deg, #A97A1F, #C89B3C)' }}>
+                <button type="button" onClick={() => setModalOpen(false)} className="flex-1 px-4 py-2.5 border rounded-xl font-bold text-sm" style={{ borderColor: '#CBD5E1' }}>Cancel</button>
+                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl font-bold text-white text-sm" style={{ background: 'linear-gradient(135deg, #1E40AF, #2563EB)' }}>
                   {modalMode === 'create' ? 'Save Account' : 'Update Account'}
                 </button>
               </div>

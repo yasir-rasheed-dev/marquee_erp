@@ -18,11 +18,11 @@ import bookingApi from '../../services/bookingApi';
 // THEME TOKENS (Single source of truth)
 // ═══════════════════════════════════════════════════════════
 const THEME = {
-  primary: '#C89B3C',
-  primaryDark: '#A97A1F',
+  primary: '#2563EB',
+  primaryDark: '#2563EB',
   primaryRgb: [169, 122, 31],
   primaryLight: 'rgba(200, 155, 60, 0.1)',
-  primaryFocus: 'focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]',
+  primaryFocus: 'focus:ring-[#2563EB]/30 focus:border-[#2563EB]',
   success: '#10B981',
   danger: '#EF4444',
   warning: '#F59E0B',
@@ -205,7 +205,7 @@ const FilterCard = ({ children, title, onReset, onApply, loading, hasFilters }) 
   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4 print:hidden">
     <div className="flex items-center justify-between mb-3">
       <div className="flex items-center gap-2 text-gray-700">
-        <Filter size={18} className="text-[#C89B3C]" />
+        <Filter size={18} className="text-[#2563EB]" />
         <span className="font-semibold text-sm">{title}</span>
       </div>
       <div className="flex items-center gap-2">
@@ -226,7 +226,7 @@ const FilterCard = ({ children, title, onReset, onApply, loading, hasFilters }) 
         <button
           onClick={onApply}
           disabled={loading}
-          className="px-4 py-1.5 text-sm bg-[#C89B3C] text-white rounded-lg hover:bg-[#A97A1F] transition flex items-center gap-1 disabled:opacity-50 shadow-sm"
+          className="px-4 py-1.5 text-sm bg-[#2563EB] text-white rounded-lg hover:bg-[#2563EB] transition flex items-center gap-1 disabled:opacity-50 shadow-sm"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
           Apply
@@ -249,7 +249,7 @@ const SummaryCard = ({ title, amount, icon: Icon, color = 'gray', highlight, sub
     gold: 'bg-amber-50 border-amber-200 text-amber-700',
   };
   return (
-    <div className={`p-4 rounded-xl border ${colors[color] || colors.gray} ${highlight ? 'ring-2 ring-[#C89B3C] ring-offset-2' : ''} bg-white shadow-sm`}>
+    <div className={`p-4 rounded-xl border ${colors[color] || colors.gray} ${highlight ? 'ring-2 ring-[#2563EB] ring-offset-2' : ''} bg-white shadow-sm`}>
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-medium opacity-80 uppercase tracking-wide">{title}</p>
@@ -257,8 +257,8 @@ const SummaryCard = ({ title, amount, icon: Icon, color = 'gray', highlight, sub
           {subtext && <p className="text-xs text-gray-400 mt-0.5">{subtext}</p>}
         </div>
         {Icon && (
-          <div className="p-2 bg-[#C89B3C]/10 rounded-lg">
-            <Icon size={20} className="text-[#C89B3C]" />
+          <div className="p-2 bg-[#2563EB]/10 rounded-lg">
+            <Icon size={20} className="text-[#2563EB]" />
           </div>
         )}
       </div>
@@ -287,13 +287,13 @@ const ExportToolbar = ({ onExportPDF, onExportCSV, onPrint, dataCount, title }) 
       </button>
       <button
         onClick={onExportCSV}
-        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#C89B3C] transition-all"
+        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#2563EB] transition-all"
       >
         <Download size={16} /> CSV
       </button>
       <button
         onClick={onPrint}
-        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-[#C89B3C] rounded-lg hover:bg-[#A97A1F] transition-colors shadow-sm"
+        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-[#2563EB] rounded-lg hover:bg-[#2563EB] transition-colors shadow-sm"
       >
         <Printer size={16} /> Print
       </button>
@@ -305,7 +305,7 @@ const DataTable = ({ columns, data, keyExtractor, emptyMessage = 'No data found'
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-        <Loader2 size={32} className="mx-auto text-[#C89B3C] animate-spin mb-3" />
+        <Loader2 size={32} className="mx-auto text-[#2563EB] animate-spin mb-3" />
         <p className="text-gray-500">Loading data...</p>
       </div>
     );
@@ -399,7 +399,7 @@ const generatePDF = (activeTab, tabLabel, data, dateFrom, dateTo) => {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(18);
   doc.setTextColor(...primaryColor);
-  doc.text('UniSoft Enterprise ERP', 14, 14);
+  doc.text('Marquee ERP Management System', 14, 14);
   doc.setFontSize(9);
   doc.setTextColor(120, 120, 120);
   doc.text('Financial Reports Module', 14, 21);
@@ -577,7 +577,7 @@ const generatePDF = (activeTab, tabLabel, data, dateFrom, dateTo) => {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
-    doc.text(`© 2026 UniSoft Enterprise ERP — Page ${i} of ${totalPages}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
+    doc.text(`© 2026 Marquee ERP Management System — Page ${i} of ${totalPages}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
   }
 
   const safeLabel = tabLabel.replace(/[^a-zA-Z0-9]/g, '_');
@@ -592,7 +592,7 @@ const exportToCSV = (data, filename, headers, rows, meta = {}) => {
   }
 
   const csvContent = [
-    ['UniSoft Enterprise ERP — Financial Report'],
+    ['Marquee ERP Management System — Financial Report'],
     [`Report: ${meta.reportName || 'Report'}`],
     [`Generated: ${new Date().toLocaleString('en-GB')}`],
     meta.period ? [`Period: ${meta.period}`] : [],
@@ -728,17 +728,17 @@ const ProfitLossReport = () => {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">From Date</label>
           <input type="date" value={filters.fromDate} onChange={(e) => setFilters(p => ({ ...p, fromDate: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">To Date</label>
           <input type="date" value={filters.toDate} onChange={(e) => setFilters(p => ({ ...p, toDate: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div className="flex items-center gap-2 pt-6">
           <input type="checkbox" id="comparePrev" checked={filters.comparePrevious}
             onChange={(e) => setFilters(p => ({ ...p, comparePrevious: e.target.checked }))}
-            className="w-4 h-4 text-[#C89B3C] border-gray-300 rounded focus:ring-[#C89B3C]" />
+            className="w-4 h-4 text-[#2563EB] border-gray-300 rounded focus:ring-[#2563EB]" />
           <label htmlFor="comparePrev" className="text-sm text-gray-700">Compare with previous period</label>
         </div>
       </FilterCard>
@@ -927,12 +927,12 @@ const BalanceSheetReport = () => {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">As of Date</label>
           <input type="date" value={filters.asOfDate} onChange={(e) => setFilters(p => ({ ...p, asOfDate: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Account Type</label>
           <select value={filters.accountType} onChange={(e) => setFilters(p => ({ ...p, accountType: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]">
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             {accountTypeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
@@ -1138,7 +1138,7 @@ const AccountLedgerReport = () => {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Account</label>
           <select value={filters.accountId} onChange={(e) => setFilters(p => ({ ...p, accountId: e.target.value }))}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]">
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             <option value="all">📋 All Accounts</option>
             {accounts.map(a => (
               <option key={a.id} value={String(a.id)}>
@@ -1150,17 +1150,17 @@ const AccountLedgerReport = () => {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">From Date</label>
           <input type="date" value={filters.fromDate} onChange={(e) => setFilters(p => ({ ...p, fromDate: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">To Date</label>
           <input type="date" value={filters.toDate} onChange={(e) => setFilters(p => ({ ...p, toDate: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Transaction Type</label>
           <select value={filters.transactionType} onChange={(e) => setFilters(p => ({ ...p, transactionType: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]">
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             {transactionTypeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
@@ -1179,7 +1179,7 @@ const AccountLedgerReport = () => {
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-500">Current Balance</p>
-              <p className="text-xl font-bold text-[#C89B3C]">{formatMoney(accountInfo.currentBalance ?? accountInfo.initialBalance ?? accountInfo.balance ?? 0)}</p>
+              <p className="text-xl font-bold text-[#2563EB]">{formatMoney(accountInfo.currentBalance ?? accountInfo.initialBalance ?? accountInfo.balance ?? 0)}</p>
             </div>
           </div>
         </div>
@@ -1347,17 +1347,17 @@ const CashFlowReport = () => {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">From Date</label>
           <input type="date" value={filters.fromDate} onChange={(e) => setFilters(p => ({ ...p, fromDate: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">To Date</label>
           <input type="date" value={filters.toDate} onChange={(e) => setFilters(p => ({ ...p, toDate: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Account</label>
           <select value={filters.accountId} onChange={(e) => setFilters(p => ({ ...p, accountId: e.target.value }))}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]">
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             <option value="all">All Accounts</option>
             {accounts.map(a => (
               <option key={a.id} value={String(a.id)}>
@@ -1369,14 +1369,14 @@ const CashFlowReport = () => {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Group By</label>
           <select value={filters.groupBy} onChange={(e) => setFilters(p => ({ ...p, groupBy: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]">
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             {groupByOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Flow Type</label>
           <select value={filters.flowType} onChange={(e) => setFilters(p => ({ ...p, flowType: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]">
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             {flowTypeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
@@ -1525,7 +1525,7 @@ const BankReconciliationReport = () => {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Bank Account *</label>
           <select value={filters.bankAccountId} onChange={(e) => setFilters(p => ({ ...p, bankAccountId: e.target.value }))}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]">
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             <option value="">Select Bank Account</option>
             {accounts.map(a => (
               <option key={a.id} value={String(a.id)}>
@@ -1537,17 +1537,17 @@ const BankReconciliationReport = () => {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">From Date</label>
           <input type="date" value={filters.fromDate} onChange={(e) => setFilters(p => ({ ...p, fromDate: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">To Date</label>
           <input type="date" value={filters.toDate} onChange={(e) => setFilters(p => ({ ...p, toDate: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Reconciliation Status</label>
           <select value={filters.status} onChange={(e) => setFilters(p => ({ ...p, status: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]">
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             {statusOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
@@ -1565,7 +1565,7 @@ const BankReconciliationReport = () => {
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-500">Book Balance</p>
-              <p className="text-xl font-bold text-[#C89B3C]">{formatMoney(bankAccount.balance || bankAccount.currentBalance || 0)}</p>
+              <p className="text-xl font-bold text-[#2563EB]">{formatMoney(bankAccount.balance || bankAccount.currentBalance || 0)}</p>
             </div>
           </div>
         </div>
@@ -1696,24 +1696,24 @@ const VoucherReport = () => {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">From Date</label>
           <input type="date" value={filters.fromDate} onChange={(e) => setFilters(p => ({ ...p, fromDate: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">To Date</label>
           <input type="date" value={filters.toDate} onChange={(e) => setFilters(p => ({ ...p, toDate: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Voucher Type</label>
           <select value={filters.voucherType} onChange={(e) => setFilters(p => ({ ...p, voucherType: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]">
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             {voucherTypeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Account</label>
           <select value={filters.accountId} onChange={(e) => setFilters(p => ({ ...p, accountId: e.target.value }))}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]">
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             <option value="all">All Accounts</option>
             {accounts.map(a => (
               <option key={a.id} value={String(a.id)}>
@@ -1725,18 +1725,18 @@ const VoucherReport = () => {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Voucher No</label>
           <input type="text" placeholder="Search voucher..." value={filters.voucherNo} onChange={(e) => setFilters(p => ({ ...p, voucherNo: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div className="flex gap-2">
           <div className="flex-1">
             <label className="block text-xs font-medium text-gray-600 mb-1">Min Amount</label>
             <input type="number" placeholder="0" value={filters.amountMin} onChange={(e) => setFilters(p => ({ ...p, amountMin: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
           </div>
           <div className="flex-1">
             <label className="block text-xs font-medium text-gray-600 mb-1">Max Amount</label>
             <input type="number" placeholder="∞" value={filters.amountMax} onChange={(e) => setFilters(p => ({ ...p, amountMax: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
           </div>
         </div>
       </FilterCard>
@@ -1753,7 +1753,7 @@ const VoucherReport = () => {
             keyExtractor={(row, i) => row.id || i}
             emptyMessage="No vouchers found"
             columns={[
-              { header: 'Voucher No', accessor: 'voucherNo', cell: row => <span className="font-medium text-[#C89B3C]">{row.voucherNo || row.reference || row.id || '-'}</span> },
+              { header: 'Voucher No', accessor: 'voucherNo', cell: row => <span className="font-medium text-[#2563EB]">{row.voucherNo || row.reference || row.id || '-'}</span> },
               { header: 'Date', accessor: 'date', cell: row => formatDate(row.date || row.createdAt) },
               { header: 'Account', accessor: 'accountName', cell: row => row.accountName || row.account?.name || '-' },
               { header: 'Type', accessor: 'type', cell: row => <StatusBadge status={row.type} label={(row.type || row.transactionType || 'General').toUpperCase()} /> },
@@ -1873,24 +1873,24 @@ const ExpenseBreakdownReport = () => {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">From Date</label>
           <input type="date" value={filters.fromDate} onChange={(e) => setFilters(p => ({ ...p, fromDate: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">To Date</label>
           <input type="date" value={filters.toDate} onChange={(e) => setFilters(p => ({ ...p, toDate: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Category</label>
           <select value={filters.category} onChange={(e) => setFilters(p => ({ ...p, category: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]">
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             {categoryOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Group By</label>
           <select value={filters.groupBy} onChange={(e) => setFilters(p => ({ ...p, groupBy: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]">
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             {groupByOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
@@ -2041,17 +2041,17 @@ const TransferReport = () => {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">From Date</label>
           <input type="date" value={filters.fromDate} onChange={(e) => setFilters(p => ({ ...p, fromDate: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">To Date</label>
           <input type="date" value={filters.toDate} onChange={(e) => setFilters(p => ({ ...p, toDate: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">From Account</label>
           <select value={filters.fromAccountId} onChange={(e) => setFilters(p => ({ ...p, fromAccountId: e.target.value }))}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]">
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             <option value="all">All Accounts</option>
             {accounts.map(a => (
               <option key={a.id} value={String(a.id)}>
@@ -2063,7 +2063,7 @@ const TransferReport = () => {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">To Account</label>
           <select value={filters.toAccountId} onChange={(e) => setFilters(p => ({ ...p, toAccountId: e.target.value }))}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]">
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             <option value="all">All Accounts</option>
             {accounts.map(a => (
               <option key={a.id} value={String(a.id)}>
@@ -2075,7 +2075,7 @@ const TransferReport = () => {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
           <select value={filters.status} onChange={(e) => setFilters(p => ({ ...p, status: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]">
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             {statusOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
@@ -2203,7 +2203,7 @@ const FinancialReports = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
                   isActive
-                    ? 'bg-[#C89B3C] text-white shadow-sm'
+                    ? 'bg-[#2563EB] text-white shadow-sm'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
@@ -2222,12 +2222,12 @@ const FinancialReports = () => {
 
       {/* Footer */}
       <div className="mt-8 text-center text-xs text-gray-400 print:hidden">
-        <p>UniSoft Enterprise ERP — Financial Reports Module</p>
+        <p>Marquee ERP Management System — Financial Reports Module</p>
       </div>
 
       {/* Print Footer */}
       <div className="hidden print:block mt-8 pt-4 border-t border-gray-300 text-sm text-gray-500 text-center">
-        <p>UniSoft Enterprise ERP | {activeTabLabel} | Page 1</p>
+        <p>Marquee ERP Management System | {activeTabLabel} | Page 1</p>
         <p>Generated: {new Date().toLocaleString('en-PK')}</p>
       </div>
     </div>

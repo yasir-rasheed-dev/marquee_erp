@@ -1,21 +1,17 @@
-﻿// ═══════════════════════════════════════════════════════════
-// pages/Purchases/PurchaseOrderCreate.jsx
-// ═══════════════════════════════════════════════════════════
+﻿// pages/Purchases/PurchaseOrderCreate.jsx
+// Payment section COMPLETELY REMOVED
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus, Trash2, Calendar, FileText, Package, ArrowLeft,
   Check, AlertCircle, Building2, Loader2, Calculator,
-  ChevronDown, Hash, Phone, DollarSign, Weight, CreditCard,
-  Wallet, Receipt, Landmark, Banknote
+  ChevronDown, Hash, Phone, DollarSign, Weight
 } from 'lucide-react';
 import purchaseApi from '../../services/purchaseApi';
 import supplierApi from '../../services/supplierApi';
-import accountApi from '../../services/accountApi';
 import apiClient from '../../services/apiClient';
 import { useBranch } from '../../context/BranchContext';
-import { useAuth } from '../../context/AuthContext';
 import ReactSelect from '../../components/ui/ReactSelect';
 
 // ── Toast Hook ──
@@ -56,28 +52,19 @@ const DEFAULT_FORM = {
   notes: '',
   taxAmount: 0,
   discount: 0,
-  // ── New Payment Fields ──
-  paymentAmount: 0,
-  paymentMode: 'CASH',
-  paymentAccountId: '',
-  paymentDate: new Date().toISOString().split('T')[0],
+  // ❌ PAYMENT FIELDS REMOVED
 };
-
-const PAYMENT_MODES = ['CASH', 'BANK_TRANSFER', 'CHEQUE', 'JAZZCASH', 'EASYPAISA', 'CREDIT_CARD'];
 
 export default function PurchaseOrderCreate() {
   const navigate = useNavigate();
   const { currentBranch } = useBranch();
-  const { user } = useAuth();
   const { addToast, ToastContainer } = useToast();
 
   // ── Data States ──
   const [suppliers, setSuppliers] = useState([]);
   const [inventoryItems, setInventoryItems] = useState([]);
-  const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [isPartialPayment, setIsPartialPayment] = useState(false);
 
   // ── Form States ──
   const [form, setForm] = useState(DEFAULT_FORM);
@@ -118,28 +105,16 @@ export default function PurchaseOrderCreate() {
     }
   }, [currentBranch?.id, addToast]);
 
-  // ── Fetch Accounts ──
-  const fetchAccounts = useCallback(async () => {
-    try {
-      const branchId = currentBranch?.id || user?.branchId || 1;
-      const res = await accountApi.getAll({ status: 'ACTIVE', branchId });
-      const data = res?.data?.data || res?.data || [];
-      setAccounts(data);
-    } catch (err) {
-      console.error('Failed to fetch accounts:', err);
-    }
-  }, [currentBranch?.id, user?.branchId]);
-
   // ── Initial Load ──
   useEffect(() => {
     let mounted = true;
     (async () => {
       setLoading(true);
-      await Promise.all([fetchSuppliers(), fetchInventory(), fetchAccounts()]);
+      await Promise.all([fetchSuppliers(), fetchInventory()]);
       if (mounted) setLoading(false);
     })();
     return () => { mounted = false; };
-  }, [fetchSuppliers, fetchInventory, fetchAccounts]);
+  }, [fetchSuppliers, fetchInventory]);
 
   // ── Calculations ──
   const subTotal = useMemo(() => {
@@ -153,25 +128,6 @@ export default function PurchaseOrderCreate() {
   const totalAmount = useMemo(() => {
     return Math.max(0, subTotal + taxAmount - discountAmount);
   }, [subTotal, taxAmount, discountAmount]);
-
-  // ── Payment Calculations ──
-  const paymentAmount = parseFloat(form.paymentAmount || 0);
-  const dueAmount = useMemo(() => {
-    return Math.max(0, totalAmount - paymentAmount);
-  }, [totalAmount, paymentAmount]);
-
-  // ── Selected Account ──
-  const selectedAccount = useMemo(() => {
-    if (!form.paymentAccountId) return null;
-    return accounts.find(a => a.id === parseInt(form.paymentAccountId)) || null;
-  }, [form.paymentAccountId, accounts]);
-
-  // ── Account Balance Check ──
-  const hasSufficientBalance = useMemo(() => {
-    if (!selectedAccount) return true;
-    const balance = selectedAccount.currentBalance ?? selectedAccount.initialBalance ?? 0;
-    return parseFloat(balance) >= paymentAmount;
-  }, [selectedAccount, paymentAmount]);
 
   // ── Formatters ──
   const formatCurrency = (val) =>
@@ -227,21 +183,7 @@ export default function PurchaseOrderCreate() {
       }
     });
 
-    // ── Payment Validation ──
-    if (isPartialPayment || paymentAmount > 0) {
-      if (!form.paymentAccountId) {
-        newErrors.paymentAccount = 'Please select a payment account';
-      }
-      if (paymentAmount <= 0) {
-        newErrors.paymentAmount = 'Payment amount must be greater than 0';
-      }
-      if (paymentAmount > totalAmount) {
-        newErrors.paymentAmount = 'Payment amount cannot exceed total amount';
-      }
-      if (!hasSufficientBalance) {
-        newErrors.paymentAccount = 'Insufficient balance in selected account';
-      }
-    }
+    // ❌ PAYMENT VALIDATION REMOVED
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -271,31 +213,18 @@ export default function PurchaseOrderCreate() {
           unitPrice: parseFloat(i.unitPrice),
           unit: i.unit || 'pcs',
         })),
-        // ── Payment Data ──
-        payment: {
-          amount: paymentAmount,
-          mode: form.paymentMode,
-          accountId: paymentAmount > 0 ? parseInt(form.paymentAccountId) : null,
-          paymentDate: form.paymentDate ? new Date(form.paymentDate).toISOString() : null,
-          isPartial: isPartialPayment && paymentAmount < totalAmount,
-          dueAmount: dueAmount,
-        }
+        // ❌ PAYMENT DATA REMOVED
       };
 
       const res = await purchaseApi.orders.create(payload);
       const poNo = res?.data?.data?.poNo || res?.data?.poNo || 'created';
       
-      if (paymentAmount > 0) {
-        addToast(`Purchase Order ${poNo} created with payment of ${formatCurrency(paymentAmount)}`);
-      } else {
-        addToast(`Purchase Order ${poNo} created successfully!`);
-      }
+      addToast(`Purchase Order ${poNo} created successfully!`);
 
       // Reset form
       setForm(DEFAULT_FORM);
       setItems([{ ...DEFAULT_ITEM }]);
       setErrors({});
-      setIsPartialPayment(false);
 
       setTimeout(() => navigate('/procurement/purchase-orders'), 800);
     } catch (err) {
@@ -309,9 +238,9 @@ export default function PurchaseOrderCreate() {
   // ── Loading Screen ──
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F5F2EB' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
         <div className="text-center">
-          <div className="w-12 h-12 rounded-full border-4 border-t-[#A97A1F] animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
+          <div className="w-12 h-12 rounded-full border-4 border-t-[#2563EB] animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
           <p className="mt-4 text-sm font-bold text-gray-600">Loading data...</p>
         </div>
       </div>
@@ -319,13 +248,13 @@ export default function PurchaseOrderCreate() {
   }
 
   return (
-    <div className="min-h-screen pb-12" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen pb-12" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <ToastContainer />
 
       {/* ═══════════════════════════════════════════════════════════
           STICKY HEADER
           ═══════════════════════════════════════════════════════════ */}
-      <div className="border-b backdrop-blur-xl bg-white/90 sticky top-0 z-30 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+      <div className="border-b backdrop-blur-xl bg-white/90 sticky top-0 z-30 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -335,7 +264,7 @@ export default function PurchaseOrderCreate() {
             >
               <ArrowLeft size={20} />
             </button>
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-[0_4px_12px_rgba(169,122,31,0.3)] text-white">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.3)] text-white">
               <FileText className="w-6 h-6" />
             </div>
             <div>
@@ -343,7 +272,7 @@ export default function PurchaseOrderCreate() {
               <p className="text-xs font-medium text-gray-500">
                 Issue a new PO to supplier, add items, taxes & discounts
                 {currentBranch && (
-                  <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-[#F4E7C9] text-[#8B6914] font-bold">
+                  <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-amber-100/80 text-[#8B6914] font-bold">
                     📍 {currentBranch.name}
                   </span>
                 )}
@@ -361,7 +290,7 @@ export default function PurchaseOrderCreate() {
             <button
               onClick={handleSubmit}
               disabled={saving}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white shadow-md hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold transition-all bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white shadow-md hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100"
             >
               {saving ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
               {saving ? 'Saving...' : 'Save Order'}
@@ -373,11 +302,11 @@ export default function PurchaseOrderCreate() {
       <div className="max-w-7xl mx-auto px-4 py-6 md:px-6 space-y-6">
 
         {/* ═══════════════════════════════════════════════════════════
-            TOP STATS CARDS
+            TOP STATS CARDS (Payment Stats Removed)
             ═══════════════════════════════════════════════════════════ */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-50 text-[#A97A1F]">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-amber-50 text-[#2563EB]">
               <Package size={20} />
             </div>
             <div>
@@ -385,7 +314,7 @@ export default function PurchaseOrderCreate() {
               <span className="text-xl font-bold font-mono text-gray-800">{items.length}</span>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600">
               <Calculator size={20} />
             </div>
@@ -394,16 +323,16 @@ export default function PurchaseOrderCreate() {
               <span className="text-lg font-bold font-mono text-gray-800">{formatCurrency(subTotal)}</span>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-red-50 text-red-600">
               <DollarSign size={20} />
             </div>
             <div>
               <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider block">Total</span>
-              <span className="text-xl font-bold font-mono text-[#A97A1F]">{formatCurrency(totalAmount)}</span>
+              <span className="text-xl font-bold font-mono text-[#2563EB]">{formatCurrency(totalAmount)}</span>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600">
               <Building2 size={20} />
             </div>
@@ -414,20 +343,7 @@ export default function PurchaseOrderCreate() {
               </span>
             </div>
           </div>
-          {paymentAmount > 0 && (
-            <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-purple-50 text-purple-600">
-                <CreditCard size={20} />
-              </div>
-              <div>
-                <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider block">Payment</span>
-                <span className="text-lg font-bold font-mono text-purple-700">{formatCurrency(paymentAmount)}</span>
-                {dueAmount > 0 && (
-                  <span className="text-[10px] text-gray-400 block">Due: {formatCurrency(dueAmount)}</span>
-                )}
-              </div>
-            </div>
-          )}
+          {/* ❌ PAYMENT STATS CARD REMOVED */}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -435,9 +351,9 @@ export default function PurchaseOrderCreate() {
           {/* ═══════════════════════════════════════════════════════════
               SECTION 1: SUPPLIER & META INFO
               ═══════════════════════════════════════════════════════════ */}
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-sm overflow-hidden">
-            <div className="px-5 py-3 border-b border-[#E0D8CC] bg-[#FAF8F4] flex items-center gap-2">
-              <Building2 size={16} className="text-[#A97A1F]" />
+          <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
+            <div className="px-5 py-3 border-b border-slate-300 bg-slate-50 flex items-center gap-2">
+              <Building2 size={16} className="text-[#2563EB]" />
               <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Supplier & Order Details</h2>
             </div>
             <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -473,7 +389,7 @@ export default function PurchaseOrderCreate() {
                     type="date"
                     value={form.expectedDate}
                     onChange={(e) => setForm(prev => ({ ...prev, expectedDate: e.target.value }))}
-                    className="w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+                    className="w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                   />
                 </div>
               </div>
@@ -487,7 +403,7 @@ export default function PurchaseOrderCreate() {
                     value={form.notes}
                     onChange={(e) => setForm(prev => ({ ...prev, notes: e.target.value }))}
                     placeholder="Optional remarks..."
-                    className="w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+                    className="w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                   />
                 </div>
               </div>
@@ -519,16 +435,16 @@ export default function PurchaseOrderCreate() {
           {/* ═══════════════════════════════════════════════════════════
               SECTION 2: ORDER ITEMS TABLE
               ═══════════════════════════════════════════════════════════ */}
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-sm overflow-hidden">
-            <div className="px-5 py-3 border-b border-[#E0D8CC] bg-[#FAF8F4] flex items-center justify-between">
+          <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
+            <div className="px-5 py-3 border-b border-slate-300 bg-slate-50 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Package size={16} className="text-[#A97A1F]" />
+                <Package size={16} className="text-[#2563EB]" />
                 <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Order Items</h2>
               </div>
               <button
                 type="button"
                 onClick={addItemRow}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#A97A1F]/10 text-[#8B6914] text-xs font-bold hover:bg-[#A97A1F]/20 transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2563EB]/10 text-[#8B6914] text-xs font-bold hover:bg-[#2563EB]/20 transition-all"
               >
                 <Plus size={14} /> Add Row
               </button>
@@ -555,7 +471,7 @@ export default function PurchaseOrderCreate() {
                     const hasError = !!errors[`item_${index}`];
 
                     return (
-                      <tr key={index} className={`hover:bg-[#FAF8F4]/50 transition-colors ${hasError ? 'bg-red-50/50' : ''}`}>
+                      <tr key={index} className={`hover:bg-slate-50/50 transition-colors ${hasError ? 'bg-red-50/50' : ''}`}>
                         <td className="px-4 py-3 align-top">
                           <ReactSelect
                             value={item.inventoryId}
@@ -588,7 +504,7 @@ export default function PurchaseOrderCreate() {
                             min="0.001"
                             value={item.quantity}
                             onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
-                            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+                            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                           />
                         </td>
 
@@ -599,7 +515,7 @@ export default function PurchaseOrderCreate() {
                               type="text"
                               value={item.unit}
                               onChange={(e) => handleItemChange(index, 'unit', e.target.value)}
-                              className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+                              className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                             />
                           </div>
                         </td>
@@ -613,7 +529,7 @@ export default function PurchaseOrderCreate() {
                               min="0"
                               value={item.unitPrice}
                               onChange={(e) => handleItemChange(index, 'unitPrice', e.target.value)}
-                              className="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+                              className="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                             />
                           </div>
                         </td>
@@ -641,237 +557,26 @@ export default function PurchaseOrderCreate() {
               </table>
             </div>
 
-            <div className="px-5 py-3 border-t border-[#E0D8CC] bg-gray-50/50">
+            <div className="px-5 py-3 border-t border-slate-300 bg-gray-50/50">
               <button
                 type="button"
                 onClick={addItemRow}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-dashed border-[#A97A1F]/40 text-[#8B6914] text-xs font-bold hover:bg-[#A97A1F]/5 hover:border-[#A97A1F] transition-all"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-dashed border-[#2563EB]/40 text-[#8B6914] text-xs font-bold hover:bg-[#2563EB]/5 hover:border-[#2563EB] transition-all"
               >
                 <Plus size={16} /> Add Another Item
               </button>
             </div>
           </div>
 
-          {/* ═══════════════════════════════════════════════════════════
-              SECTION 3: PAYMENT SECTION (NEW)
-              ═══════════════════════════════════════════════════════════ */}
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-sm overflow-hidden">
-            <div className="px-5 py-3 border-b border-[#E0D8CC] bg-[#FAF8F4] flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CreditCard size={16} className="text-[#A97A1F]" />
-                <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Payment Details</h2>
-              </div>
-              <div className="flex items-center gap-2">
-                <label className="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={isPartialPayment}
-                    onChange={(e) => {
-                      setIsPartialPayment(e.target.checked);
-                      if (!e.target.checked && paymentAmount === 0) {
-                        setForm(prev => ({ ...prev, paymentAmount: totalAmount }));
-                      }
-                    }}
-                    className="w-4 h-4 rounded border-gray-300 text-[#A97A1F] focus:ring-[#A97A1F]"
-                  />
-                  Partial Payment
-                </label>
-              </div>
-            </div>
-
-            <div className="p-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Payment Amount */}
-                <div>
-                  <label className="text-xs font-bold text-gray-700 mb-1.5 block">
-                    Payment Amount <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">Rs</span>
-                    <input
-                      type="number"
-                      step="any"
-                      min="0"
-                      max={totalAmount}
-                      value={form.paymentAmount}
-                      onChange={(e) => {
-                        const val = parseFloat(e.target.value) || 0;
-                        setForm(prev => ({ ...prev, paymentAmount: val > totalAmount ? totalAmount : val }));
-                        if (errors.paymentAmount) {
-                          setErrors(prev => { const n = { ...prev }; delete n.paymentAmount; return n; });
-                        }
-                      }}
-                      className={`w-full pl-8 pr-3 py-3 border ${errors.paymentAmount ? 'border-red-500' : 'border-gray-200'} rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]`}
-                      placeholder="0.00"
-                    />
-                  </div>
-                  {errors.paymentAmount && (
-                    <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.paymentAmount}</p>
-                  )}
-                  {paymentAmount > 0 && (
-                    <div className="mt-1 flex items-center gap-2 text-xs">
-                      <span className="text-gray-500">Due:</span>
-                      <span className="font-bold font-mono text-red-600">{formatCurrency(dueAmount)}</span>
-                      {isPartialPayment && dueAmount > 0 && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-bold">Partial</span>
-                      )}
-                      {dueAmount === 0 && paymentAmount > 0 && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-bold">Fully Paid</span>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* Payment Mode */}
-                <div>
-                  <label className="text-xs font-bold text-gray-700 mb-1.5 block">
-                    Payment Mode
-                  </label>
-                  <ReactSelect
-                    value={form.paymentMode}
-                    onChange={(val) => setForm(prev => ({ ...prev, paymentMode: val || 'CASH' }))}
-                    options={PAYMENT_MODES.map(m => ({ value: m, label: m.replace(/_/g, ' ') }))}
-                    placeholder="Select Mode"
-                    isSearchable={false}
-                    isClearable={false}
-                  />
-                </div>
-
-                {/* Payment Account */}
-                <div>
-                  <label className="text-xs font-bold text-gray-700 mb-1.5 block">
-                    Payment Account <span className="text-red-500">*</span>
-                  </label>
-                  <ReactSelect
-                    value={form.paymentAccountId}
-                    onChange={(val) => {
-                      setForm(prev => ({ ...prev, paymentAccountId: val || '' }));
-                      if (errors.paymentAccount) {
-                        setErrors(prev => { const n = { ...prev }; delete n.paymentAccount; return n; });
-                      }
-                    }}
-                    options={[
-                      { value: '', label: '-- Select Account --' },
-                      ...accounts.map(acc => ({
-                        value: String(acc.id),
-                        label: `${acc.bankName} — ${acc.accountNumber} (Bal: ${formatCurrency(acc.currentBalance ?? acc.initialBalance)})`
-                      }))
-                    ]}
-                    placeholder="Select Account"
-                    isSearchable={true}
-                    isClearable={false}
-                  />
-                  {errors.paymentAccount && (
-                    <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.paymentAccount}</p>
-                  )}
-                  {selectedAccount && paymentAmount > 0 && (
-                    <div className="mt-1 flex items-center gap-2 text-xs">
-                      <span className="text-gray-500">Balance:</span>
-                      <span className="font-bold font-mono text-gray-700">
-                        {formatCurrency(selectedAccount.currentBalance ?? selectedAccount.initialBalance ?? 0)}
-                      </span>
-                      {!hasSufficientBalance && (
-                        <span className="text-red-500 text-[10px] font-bold">⚠️ Insufficient Balance</span>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* Payment Date */}
-                <div>
-                  <label className="text-xs font-bold text-gray-700 mb-1.5 block">
-                    Payment Date
-                  </label>
-                  <div className="relative">
-                    <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input
-                      type="date"
-                      value={form.paymentDate}
-                      onChange={(e) => setForm(prev => ({ ...prev, paymentDate: e.target.value }))}
-                      className="w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Payment Summary */}
-              {paymentAmount > 0 && selectedAccount && (
-                <div className={`mt-4 p-4 rounded-xl border ${hasSufficientBalance ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Banknote size={16} className={hasSufficientBalance ? 'text-emerald-600' : 'text-red-600'} />
-                    <span className="text-xs font-bold uppercase text-gray-700">Payment Summary</span>
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                    <div>
-                      <span className="text-gray-500">From Account:</span>
-                      <span className="font-bold text-gray-800 block">{selectedAccount.bankName}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Payment:</span>
-                      <span className={`font-bold font-mono block ${hasSufficientBalance ? 'text-emerald-600' : 'text-red-600'}`}>
-                        -{formatCurrency(paymentAmount)}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Mode:</span>
-                      <span className="font-bold text-gray-800 block">{form.paymentMode.replace(/_/g, ' ')}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Balance After:</span>
-                      <span className={`font-bold font-mono block ${hasSufficientBalance ? 'text-gray-800' : 'text-red-600'}`}>
-                        {formatCurrency((selectedAccount.currentBalance ?? selectedAccount.initialBalance ?? 0) - paymentAmount)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Quick Action Buttons */}
-              <div className="mt-4 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setForm(prev => ({ ...prev, paymentAmount: totalAmount }));
-                    setIsPartialPayment(false);
-                  }}
-                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-all"
-                >
-                  Pay Full Amount
-                </button>
-                {totalAmount > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const half = Math.floor(totalAmount / 2);
-                      setForm(prev => ({ ...prev, paymentAmount: half }));
-                      setIsPartialPayment(true);
-                    }}
-                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-all"
-                  >
-                    Pay 50%
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setForm(prev => ({ ...prev, paymentAmount: 0 }));
-                    setIsPartialPayment(false);
-                  }}
-                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100 transition-all"
-                >
-                  Clear Payment
-                </button>
-              </div>
-            </div>
-          </div>
+          {/* ❌ SECTION 3: PAYMENT SECTION COMPLETELY REMOVED */}
 
           {/* ═══════════════════════════════════════════════════════════
-              SECTION 4: TOTALS & ACTIONS
+              SECTION 3: TOTALS & ACTIONS (Payment removed)
               ═══════════════════════════════════════════════════════════ */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1 bg-white rounded-2xl border border-[#E0D8CC] shadow-sm p-5 space-y-4">
+            <div className="lg:col-span-1 bg-white rounded-2xl border border-slate-300 shadow-sm p-5 space-y-4">
               <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
-                <Calculator size={16} className="text-[#A97A1F]" /> Adjustments
+                <Calculator size={16} className="text-[#2563EB]" /> Adjustments
               </h3>
               <div>
                 <label className="text-xs font-bold text-gray-700 mb-1.5 block">Tax Amount (Rs)</label>
@@ -883,7 +588,7 @@ export default function PurchaseOrderCreate() {
                     min="0"
                     value={form.taxAmount}
                     onChange={(e) => setForm(prev => ({ ...prev, taxAmount: e.target.value }))}
-                    className="w-full pl-8 pr-3 py-3 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+                    className="w-full pl-8 pr-3 py-3 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                   />
                 </div>
               </div>
@@ -897,15 +602,15 @@ export default function PurchaseOrderCreate() {
                     min="0"
                     value={form.discount}
                     onChange={(e) => setForm(prev => ({ ...prev, discount: e.target.value }))}
-                    className="w-full pl-8 pr-3 py-3 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+                    className="w-full pl-8 pr-3 py-3 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="lg:col-span-2 bg-white rounded-2xl border border-[#E0D8CC] shadow-sm p-5 flex flex-col justify-between">
+            <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-300 shadow-sm p-5 flex flex-col justify-between">
               <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <DollarSign size={16} className="text-[#A97A1F]" /> Order Summary
+                <DollarSign size={16} className="text-[#2563EB]" /> Order Summary
               </h3>
 
               <div className="space-y-3">
@@ -923,24 +628,9 @@ export default function PurchaseOrderCreate() {
                 </div>
                 <div className="flex justify-between items-center py-3 bg-amber-50 rounded-xl px-4 border border-amber-100">
                   <span className="text-sm font-bold text-amber-800">Total Amount</span>
-                  <span className="text-2xl font-bold font-mono text-[#A97A1F]">{formatCurrency(totalAmount)}</span>
+                  <span className="text-2xl font-bold font-mono text-[#2563EB]">{formatCurrency(totalAmount)}</span>
                 </div>
-                {paymentAmount > 0 && (
-                  <>
-                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                      <span className="text-sm text-gray-500 font-medium">Payment Made</span>
-                      <span className="text-sm font-bold font-mono text-emerald-600">- {formatCurrency(paymentAmount)}</span>
-                    </div>
-                    <div className={`flex justify-between items-center py-3 rounded-xl px-4 border ${dueAmount === 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-100'}`}>
-                      <span className={`text-sm font-bold ${dueAmount === 0 ? 'text-emerald-700' : 'text-amber-800'}`}>
-                        {dueAmount === 0 ? '✅ Fully Paid' : 'Due Amount'}
-                      </span>
-                      <span className={`text-xl font-bold font-mono ${dueAmount === 0 ? 'text-emerald-700' : 'text-red-600'}`}>
-                        {formatCurrency(dueAmount)}
-                      </span>
-                    </div>
-                  </>
-                )}
+                {/* ❌ PAYMENT LINES REMOVED */}
               </div>
 
               <div className="mt-6 flex items-center justify-end gap-3">
@@ -954,10 +644,10 @@ export default function PurchaseOrderCreate() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-8 py-2.5 bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white font-semibold rounded-xl shadow-md text-sm hover:opacity-95 transition-all disabled:opacity-60 flex items-center gap-2"
+                  className="px-8 py-2.5 bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white font-semibold rounded-xl shadow-md text-sm hover:opacity-95 transition-all disabled:opacity-60 flex items-center gap-2"
                 >
                   {saving ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
-                  {saving ? 'Creating Order...' : paymentAmount > 0 ? 'Create PO with Payment' : 'Save Purchase Order'}
+                  {saving ? 'Creating Order...' : 'Save Purchase Order'}
                 </button>
               </div>
             </div>

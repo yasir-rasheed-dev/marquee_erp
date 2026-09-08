@@ -106,7 +106,7 @@ const FilterCard = ({ title, icon: Icon, children, onClear, hasFilters }) => (
   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4 print:hidden">
     <div className="flex items-center justify-between mb-3">
       <div className="flex items-center gap-2 text-gray-700">
-        {Icon && <Icon size={18} className="text-[#C89B3C]" />}
+        {Icon && <Icon size={18} className="text-[#2563EB]" />}
         <span className="font-semibold text-sm">{title}</span>
       </div>
       {hasFilters && (
@@ -128,8 +128,8 @@ const SummaryCard = ({ title, value, icon: Icon, trend, trendUp }) => (
         <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{title}</p>
         <p className="text-xl font-bold text-gray-900 mt-1">{value}</p>
       </div>
-      <div className="p-2 bg-[#C89B3C]/10 rounded-lg">
-        {Icon && <Icon size={20} className="text-[#C89B3C]" />}
+      <div className="p-2 bg-[#2563EB]/10 rounded-lg">
+        {Icon && <Icon size={20} className="text-[#2563EB]" />}
       </div>
     </div>
     {trend && (
@@ -150,10 +150,10 @@ const ExportToolbar = ({ onExportCSV, onExportPDF, onPrint, dataCount }) => (
       <button onClick={onExportPDF} className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-all shadow-sm">
         <FileText size={16} /> PDF
       </button>
-      <button onClick={onExportCSV} className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#C89B3C] transition-all">
+      <button onClick={onExportCSV} className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#2563EB] transition-all">
         <Download size={16} /> CSV
       </button>
-      <button onClick={onPrint} className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-[#C89B3C] rounded-lg hover:bg-[#A97A1F] transition-colors">
+      <button onClick={onPrint} className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-[#2563EB] rounded-lg hover:bg-[#2563EB] transition-colors">
         <Printer size={16} /> Print
       </button>
     </div>
@@ -164,7 +164,7 @@ const DataTable = ({ columns, data, keyExtractor, emptyMessage = "No data found"
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-        <RefreshCw size={32} className="mx-auto text-[#C89B3C] animate-spin mb-3" />
+        <RefreshCw size={32} className="mx-auto text-[#2563EB] animate-spin mb-3" />
         <p className="text-gray-500">Loading data...</p>
       </div>
     );
@@ -578,17 +578,17 @@ export default function HRPayrollAttendanceReports() {
     try {
       let empData = [];
       try { empData = extractArray(await employeeApi.getAll()).map(normalizeEmployee); }
-      catch (e) { empData = genMockEmployees(); }
+      catch (e) { empData = []; }
       setEmployees(empData);
 
       let attData = [];
       try { attData = extractArray(await attendanceApi.getAll()).map(normalizeAttendance); }
-      catch (e) { attData = genMockAttendance(); }
+      catch (e) { attData = []; }
       setAttendance(attData);
 
       let leaveData = [];
       try { leaveData = extractArray(await attendanceApi.getAllLeaves()).map(normalizeLeave); }
-      catch (e) { leaveData = genMockLeaves(); }
+      catch (e) { leaveData = []; }
       setLeaves(leaveData);
 
       let payrollData = [];
@@ -598,22 +598,22 @@ export default function HRPayrollAttendanceReports() {
         console.log('RAW PAYROLL:', res);
         console.log('NORMALIZED PAYROLL:', payrollData);
       }
-      catch (e) { payrollData = genMockPayrolls(); }
+      catch (e) { payrollData = []; }
       setPayrolls(payrollData);
 
       let loanData = [];
       try { loanData = extractArray(await payrollApi.getAllLoans()).map(normalizeLoan); }
-      catch (e) { loanData = genMockLoans(); }
+      catch (e) { loanData = []; }
       setLoans(loanData);
 
       let staffData = [];
       try { staffData = extractArray(await payrollApi.getAllEventAssignments()).map(normalizeEventStaff); }
-      catch (e) { staffData = genMockEventStaff(); }
+      catch (e) { staffData = []; }
       setEventStaff(staffData);
 
       let ledgerData = [];
       try { ledgerData = extractArray(await payrollApi.getStaffLedger()).map(normalizeLedger); }
-      catch (e) { ledgerData = genMockLedger(); }
+      catch (e) { ledgerData = []; }
       setLedger(ledgerData);
     } catch (err) {
       console.error('Fetch error:', err);
@@ -650,7 +650,7 @@ export default function HRPayrollAttendanceReports() {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(18);
     doc.setTextColor(...primaryColor);
-    doc.text('UniSoft ERP', 14, 14);
+    doc.text('Marquee ERP', 14, 14);
     doc.setFontSize(9);
     doc.setTextColor(120, 120, 120);
     doc.text('HR, Payroll & Attendance Reports', 14, 21);
@@ -716,7 +716,7 @@ export default function HRPayrollAttendanceReports() {
       doc.setPage(i);
       doc.setFontSize(8);
       doc.setTextColor(150, 150, 150);
-      doc.text(`© 2026 UniSoft ERP — Page ${i} of ${totalPages}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
+      doc.text(`© 2026 Marquee ERP — Page ${i} of ${totalPages}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
     }
     doc.save(`HR_${activeTab}_${new Date().toISOString().split('T')[0]}.pdf`);
   }, [activeTab, dateFrom, dateTo, employees, attendance, leaves, payrolls, loans, eventStaff, ledger]);
@@ -759,7 +759,7 @@ export default function HRPayrollAttendanceReports() {
         rows = currentData.map(r => Object.values(r));
     }
     const csvContent = [
-      ['UniSoft ERP - HR, Payroll & Attendance Report'],
+      ['Marquee ERP - HR, Payroll & Attendance Report'],
       [`Report: ${TABS.find(t => t.id === activeTab)?.label}`],
       [`Generated: ${new Date().toLocaleString('en-GB')}`],
       dateFrom && dateTo ? [`Period: ${dateFrom} to ${dateTo}`] : [],
@@ -910,9 +910,9 @@ export default function HRPayrollAttendanceReports() {
             isClearable={false}
           />
           <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" placeholder="From" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" placeholder="From" />
           <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" placeholder="To" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" placeholder="To" />
         </FilterCard>
 
         <ExportToolbar onExportCSV={downloadCSV} onExportPDF={downloadPDF} onPrint={handlePrint} dataCount={filtered.length} />
@@ -986,9 +986,9 @@ export default function HRPayrollAttendanceReports() {
             isClearable={false}
           />
           <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" placeholder="From" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" placeholder="From" />
           <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" placeholder="To" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" placeholder="To" />
         </FilterCard>
 
         <ExportToolbar onExportCSV={downloadCSV} onExportPDF={downloadPDF} onPrint={handlePrint} dataCount={filtered.length} />
@@ -1052,9 +1052,9 @@ export default function HRPayrollAttendanceReports() {
             isClearable={false}
           />
           <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" placeholder="From" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" placeholder="From" />
           <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" placeholder="To" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" placeholder="To" />
         </FilterCard>
 
         <ExportToolbar onExportCSV={downloadCSV} onExportPDF={downloadPDF} onPrint={handlePrint} dataCount={filtered.length} />
@@ -1119,9 +1119,9 @@ export default function HRPayrollAttendanceReports() {
             isClearable={false}
           />
           <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" placeholder="From" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" placeholder="From" />
           <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" placeholder="To" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" placeholder="To" />
         </FilterCard>
 
         <ExportToolbar onExportCSV={downloadCSV} onExportPDF={downloadPDF} onPrint={handlePrint} dataCount={filtered.length} />
@@ -1195,9 +1195,9 @@ export default function HRPayrollAttendanceReports() {
             isClearable={false}
           />
           <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" placeholder="From" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" placeholder="From" />
           <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" placeholder="To" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" placeholder="To" />
         </FilterCard>
 
         <ExportToolbar onExportCSV={downloadCSV} onExportPDF={downloadPDF} onPrint={handlePrint} dataCount={filtered.length} />
@@ -1262,9 +1262,9 @@ export default function HRPayrollAttendanceReports() {
             isClearable={false}
           />
           <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" placeholder="From" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" placeholder="From" />
           <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C89B3C]/30 focus:border-[#C89B3C]" placeholder="To" />
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]" placeholder="To" />
         </FilterCard>
 
         <ExportToolbar onExportCSV={downloadCSV} onExportPDF={downloadPDF} onPrint={handlePrint} dataCount={filtered.length} />
@@ -1322,7 +1322,7 @@ export default function HRPayrollAttendanceReports() {
             <button
               onClick={fetchAllData}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#C89B3C] transition-all disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#2563EB] transition-all disabled:opacity-50"
             >
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> Refresh
             </button>
@@ -1354,7 +1354,7 @@ export default function HRPayrollAttendanceReports() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                     isActive
-                      ? 'bg-[#C89B3C] text-white shadow-sm'
+                      ? 'bg-[#2563EB] text-white shadow-sm'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >

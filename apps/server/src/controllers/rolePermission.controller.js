@@ -1,3 +1,6 @@
+// controllers/rolePermission.controller.js
+// COMPLETE FIXED - getMyPermissions returns array format
+
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
@@ -67,7 +70,7 @@ const getUserRoleId = async (userId) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// 1. ROLES MANAGEMENT (GET & CREATE WITH PERMISSIONS)
+// 1. ROLES MANAGEMENT
 // ═══════════════════════════════════════════════════════════
 
 const getRoles = async (req, res) => {
@@ -101,7 +104,6 @@ const createRoleWithPermissions = async (req, res) => {
 
     const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
 
-    // Check if role exists
     const existingRole = await prisma.role.findFirst({
       where: { slug, companyId: parseInt(companyId) }
     });
@@ -322,10 +324,19 @@ const checkPermission = async (req, res) => {
   }
 };
 
+// ✅ FIXED: getMyPermissions with branchId filter + ARRAY FORMAT
 const getMyPermissions = async (req, res) => {
   try {
     const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized.' });
+    }
+
     const companyId = getCompanyId(req);
+    if (!companyId) {
+      return res.status(400).json({ success: false, message: 'Company context missing.' });
+    }
+
     const branchId = getBranchId(req);
     const roleId = await getUserRoleId(userId);
 
@@ -333,14 +344,45 @@ const getMyPermissions = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Role not assigned.' });
     }
 
+    // ✅ Build where clause
+    const where = {
+      roleId: parseInt(roleId),
+      companyId: parseInt(companyId),
+      allowed: true
+    };
+
+    // ✅ Branch filter
+    if (branchId) {
+      where.branchId = parseInt(branchId);
+    }
+
     const permissions = await prisma.rolePermission.findMany({
-      where: { roleId, companyId: parseInt(companyId), allowed: true }
+      where,
+      select: {
+        id: true,
+        resource: true,
+        action: true,
+        allowed: true,
+        branchId: true
+      }
     });
 
-    res.status(200).json({ success: true, data: { permissions } });
+    console.log('✅ getMyPermissions - branchId:', branchId || 'ALL');
+    console.log('✅ getMyPermissions - permissions count:', permissions.length);
+
+    // ✅ RETURN ARRAY FORMAT (frontend expects this)
+    res.status(200).json({
+      success: true,
+      data: permissions  // ← Array format
+    });
+
   } catch (err) {
-    console.error('getMyPermissions error:', err);
-    res.status(500).json({ success: false, message: 'Server Error', error: err.message });
+    console.error('❌ getMyPermissions error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error',
+      error: err.message
+    });
   }
 };
 

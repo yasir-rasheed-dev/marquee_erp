@@ -243,51 +243,51 @@ export default function Ledger() {
   };
 
   return (
-    <div className="min-h-screen pb-12" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen pb-12" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       {/* Header */}
-      <div className="sticky top-0 z-40 border-b backdrop-blur-xl" style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderColor: '#E0D8CC' }}>
+      <div className="sticky top-0 z-40 border-b backdrop-blur-xl" style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderColor: '#CBD5E1' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <button onClick={() => navigate(-1)} className="p-2 rounded-xl transition-all hover:scale-105" style={{ backgroundColor: '#F8F5F0' }}>
-                <ChevronLeft size={20} style={{ color: '#4A4A4A' }} />
+                <ChevronLeft size={20} style={{ color: '#334155' }} />
               </button>
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-md">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-md">
                   <BookOpen className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold" style={{ color: '#1A1A1A' }}>Account Ledger</h1>
-                  <p className="text-xs font-medium" style={{ color: '#7A7A7A' }}>
+                  <h1 className="text-lg font-bold" style={{ color: '#0F172A' }}>Account Ledger</h1>
+                  <p className="text-xs font-medium" style={{ color: '#475569' }}>
                     {selectedAccount?.bankName || 'Select account'} ({selectedAccount?.accountNumber || '—'})
-                    {currentBranch && <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] bg-[#F4E7C9] text-[#8B6914] font-bold">{currentBranch.name}</span>}
+                    {currentBranch && <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] bg-amber-100/80 text-[#8B6914] font-bold">{currentBranch.name}</span>}
                   </p>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="bg-white p-1 rounded-xl border border-[#E0D8CC] flex items-center shadow-sm">
+              <div className="bg-white p-1 rounded-xl border border-slate-300 flex items-center shadow-sm">
                 <button 
                   onClick={() => setViewMode('grid')} 
                   title="Grid View"
-                  className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                   <LayoutGrid size={18} />
                 </button>
                 <button 
                   onClick={() => setViewMode('table')} 
                   title="Table View"
-                  className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#A97A1F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                   <TableIcon size={18} />
                 </button>
               </div>
 
-              <button onClick={handleExport} className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-bold hover:bg-amber-50 transition-all bg-white" style={{ borderColor: '#E0D8CC', color: '#A97A1F' }}>
+              <button onClick={handleExport} className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-bold hover:bg-amber-50 transition-all bg-white" style={{ borderColor: '#CBD5E1', color: '#2563EB' }}>
                 <Download size={14} /> Export
               </button>
-              <button onClick={fetchLedger} className="p-2 rounded-xl border hover:bg-amber-50 transition-all bg-white" style={{ borderColor: '#E0D8CC', color: '#A97A1F' }}>
+              <button onClick={fetchLedger} className="p-2 rounded-xl border hover:bg-amber-50 transition-all bg-white" style={{ borderColor: '#CBD5E1', color: '#2563EB' }}>
                 <RefreshCw size={16} />
               </button>
             </div>
@@ -297,9 +297,9 @@ export default function Ledger() {
 
       <div className="max-w-7xl mx-auto px-4 py-4 md:px-6 space-y-4">
         {/* Dropdown Select + Filter Controls */}
-        <div className="bg-white p-4 rounded-2xl border shadow-sm flex flex-wrap items-center gap-3" style={{ borderColor: '#E0D8CC' }}>
+        <div className="bg-white p-4 rounded-2xl border shadow-sm flex flex-wrap items-center gap-3" style={{ borderColor: '#CBD5E1' }}>
           <div className="flex items-center gap-2 flex-1 min-w-[300px]">
-            <Landmark size={18} style={{ color: '#A97A1F' }} />
+            <Landmark size={18} style={{ color: '#2563EB' }} />
             <div className="w-full">
               <ReactSelect
                 options={accountOptions}
@@ -323,23 +323,23 @@ export default function Ledger() {
               type="date" 
               value={filters.from} 
               onChange={e => setFilters(prev => ({ ...prev, from: e.target.value }))}
-              className="border rounded-xl px-3 py-1.5 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#A97A1F]" 
-              style={{ borderColor: '#E0D8CC' }} 
+              className="border rounded-xl px-3 py-1.5 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#2563EB]" 
+              style={{ borderColor: '#CBD5E1' }} 
             />
             <span className="text-xs text-gray-400">to</span>
             <input 
               type="date" 
               value={filters.to} 
               onChange={e => setFilters(prev => ({ ...prev, to: e.target.value }))}
-              className="border rounded-xl px-3 py-1.5 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#A97A1F]" 
-              style={{ borderColor: '#E0D8CC' }} 
+              className="border rounded-xl px-3 py-1.5 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#2563EB]" 
+              style={{ borderColor: '#CBD5E1' }} 
             />
           </div>
 
           <button 
             onClick={() => { setCurrentPage(1); fetchLedger(); }} 
             className="px-4 py-2 rounded-xl text-xs font-bold text-white transition-all shadow-sm hover:opacity-90" 
-            style={{ background: 'linear-gradient(135deg, #A97A1F, #C89B3C)' }}
+            style={{ background: 'linear-gradient(135deg, #1E40AF, #2563EB)' }}
           >
             Apply Filter
           </button>
@@ -357,7 +357,7 @@ export default function Ledger() {
         {/* Account Summaries */}
         {selectedAccount && (
           <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
-            <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+            <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
               <p className="text-xs font-bold uppercase text-gray-500">
                 {selectedAccountId === 'ALL' ? 'Accounts Count' : 'Opening Balance'}
               </p>
@@ -368,24 +368,24 @@ export default function Ledger() {
                 }
               </p>
             </div>
-            <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+            <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
               <p className="text-xs font-bold uppercase text-gray-500">Total Credits (In)</p>
               <p className="text-lg font-bold font-mono text-green-600 mt-1">+{formatCurrency(summary.totalCredits)}</p>
             </div>
-            <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+            <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
               <p className="text-xs font-bold uppercase text-gray-500">Total Debits (Out)</p>
               <p className="text-lg font-bold font-mono text-red-600 mt-1">-{formatCurrency(summary.totalDebits)}</p>
             </div>
-            <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+            <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
               <p className="text-xs font-bold uppercase text-gray-500">Total Combined Balance</p>
-              <p className="text-lg font-bold font-mono mt-1" style={{ color: '#A97A1F' }}>
+              <p className="text-lg font-bold font-mono mt-1" style={{ color: '#2563EB' }}>
                 {selectedAccountId === 'ALL' 
                   ? formatCurrency(totalBalanceAllAccounts)
                   : formatCurrency(selectedAccount.currentBalance ?? selectedAccount.initialBalance)
                 }
               </p>
             </div>
-            <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+            <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
               <p className="text-xs font-bold uppercase text-gray-500">Net Flow</p>
               <p className={`text-lg font-bold font-mono mt-1 ${summary.netFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {summary.netFlow >= 0 ? '+' : ''}{formatCurrency(summary.netFlow)}
@@ -397,17 +397,17 @@ export default function Ledger() {
         {/* View Mode Data Representation */}
         {loading ? (
           <div className="text-center py-16">
-            <div className="w-10 h-10 rounded-full border-4 animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
+            <div className="w-10 h-10 rounded-full border-4 animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
           </div>
         ) : history.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border" style={{ borderColor: '#E0D8CC' }}>
-            <BookOpen size={48} className="mx-auto mb-4" style={{ color: '#E0D8CC' }} />
-            <p className="text-sm font-medium" style={{ color: '#7A7A7A' }}>No transactions recorded for this account</p>
+          <div className="text-center py-16 bg-white rounded-2xl border" style={{ borderColor: '#CBD5E1' }}>
+            <BookOpen size={48} className="mx-auto mb-4" style={{ color: '#CBD5E1' }} />
+            <p className="text-sm font-medium" style={{ color: '#475569' }}>No transactions recorded for this account</p>
           </div>
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {paginatedHistory.map(txn => (
-              <div key={txn.id} className="bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between" style={{ borderColor: '#E0D8CC' }}>
+              <div key={txn.id} className="bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between" style={{ borderColor: '#CBD5E1' }}>
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-gray-100 text-gray-700">V-{txn.id}</span>
@@ -443,18 +443,18 @@ export default function Ledger() {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border overflow-hidden shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+          <div className="bg-white rounded-2xl border overflow-hidden shadow-sm" style={{ borderColor: '#CBD5E1' }}>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr style={{ backgroundColor: '#FAF8F4' }}>
-                    <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Date & Time</th>
-                    {selectedAccountId === 'ALL' && <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Account</th>}
-                    <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Voucher #</th>
-                    <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Description & Category</th>
-                    <th className="text-right px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Debit (Out)</th>
-                    <th className="text-right px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Credit (In)</th>
-                    <th className="text-right px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Running Balance</th>
+                  <tr style={{ backgroundColor: '#F8FAFC' }}>
+                    <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Date & Time</th>
+                    {selectedAccountId === 'ALL' && <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Account</th>}
+                    <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Voucher #</th>
+                    <th className="text-left px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Description & Category</th>
+                    <th className="text-right px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Debit (Out)</th>
+                    <th className="text-right px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Credit (In)</th>
+                    <th className="text-right px-4 py-3.5 text-xs font-bold uppercase" style={{ color: '#334155' }}>Running Balance</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -504,7 +504,7 @@ export default function Ledger() {
 
         {/* Pagination Bar */}
         {!loading && history.length > 0 && (
-          <div className="bg-white p-4 rounded-2xl border border-[#E0D8CC] flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+          <div className="bg-white p-4 rounded-2xl border border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
             <p className="text-xs text-gray-500 font-medium">
               Showing <span className="font-bold text-gray-800">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
               <span className="font-bold text-gray-800">{Math.min(currentPage * itemsPerPage, history.length)}</span> of{' '}
@@ -515,7 +515,7 @@ export default function Ledger() {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="p-2 rounded-xl border border-[#E0D8CC] text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-all"
+                className="p-2 rounded-xl border border-slate-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-all"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -531,8 +531,8 @@ export default function Ledger() {
                         onClick={() => setCurrentPage(page)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                           currentPage === page
-                            ? 'bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white shadow-sm'
-                            : 'border border-[#E0D8CC] text-gray-600 hover:bg-gray-50'
+                            ? 'bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white shadow-sm'
+                            : 'border border-slate-300 text-gray-600 hover:bg-gray-50'
                         }`}
                       >
                         {page}
@@ -544,7 +544,7 @@ export default function Ledger() {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-xl border border-[#E0D8CC] text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-all"
+                className="p-2 rounded-xl border border-slate-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-all"
               >
                 <ChevronRight size={16} />
               </button>

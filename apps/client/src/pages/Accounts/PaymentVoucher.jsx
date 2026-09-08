@@ -193,32 +193,32 @@ export default function PaymentVoucher() {
 
   if (loading && accounts.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64" style={{ backgroundColor: '#F5F2EB' }}>
+      <div className="flex items-center justify-center h-64" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
         <div className="text-center">
-          <div className="w-12 h-12 rounded-full border-4 border-t-[#A97A1F] animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
-          <p className="mt-4 text-sm font-medium" style={{ color: '#4A4A4A' }}>Loading Accounts...</p>
+          <div className="w-12 h-12 rounded-full border-4 border-t-[#2563EB] animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
+          <p className="mt-4 text-sm font-medium" style={{ color: '#334155' }}>Loading Accounts...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pb-12 relative" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen pb-12 relative" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <div className="max-w-3xl mx-auto px-4 py-6 md:px-6 space-y-6">
         
         {/* ── Header ── */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-[0_4px_12px_rgba(169,122,31,0.3)]">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.3)]">
                 <Receipt className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#1A1A1A' }}>Payment / Receipt Voucher</h1>
-                <p className="text-sm font-medium flex items-center gap-2" style={{ color: '#4A4A4A' }}>
+                <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>Payment / Receipt Voucher</h1>
+                <p className="text-sm font-medium flex items-center gap-2" style={{ color: '#334155' }}>
                   Record incoming and outgoing financial vouchers
                   {currentBranch && (
-                    <span className="px-2 py-0.5 rounded-full text-xs bg-[#F4E7C9] text-[#8B6914] font-bold">
+                    <span className="px-2 py-0.5 rounded-full text-xs bg-amber-100/80 text-[#8B6914] font-bold">
                       {currentBranch.name}
                     </span>
                   )}
@@ -229,12 +229,12 @@ export default function PaymentVoucher() {
         </div>
 
         {/* ── Inline Form Card ── */}
-        <div className="bg-white rounded-3xl shadow-xl border border-[#E0D8CC] overflow-hidden">
-          <div className="px-6 py-4 border-b bg-[#FAF8F4] flex items-center justify-between border-[#E0D8CC]">
-            <h3 className="font-bold text-lg" style={{ color: '#1A1A1A' }}>
+        <div className="bg-white rounded-3xl shadow-xl border border-slate-300 overflow-hidden">
+          <div className="px-6 py-4 border-b bg-slate-50 flex items-center justify-between border-slate-300">
+            <h3 className="font-bold text-lg" style={{ color: '#0F172A' }}>
               Voucher Entry Form
             </h3>
-            <p className="text-xs font-medium" style={{ color: '#A97A1F' }}>
+            <p className="text-xs font-medium" style={{ color: '#2563EB' }}>
               📍 Branch: <strong>{currentBranch?.name || 'Current Branch'}</strong>
             </p>
           </div>
@@ -244,7 +244,7 @@ export default function PaymentVoucher() {
               
               {/* ── Transaction Type Selector (In / Out) ── */}
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                   Transaction Type <span style={{ color: '#B71C1C' }}>*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-3">
@@ -275,7 +275,7 @@ export default function PaymentVoucher() {
 
               {/* Account Dropdown */}
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                   {form.type === 'DEBIT' ? 'Pay From Account' : 'Receive To Account'} <span style={{ color: '#B71C1C' }}>*</span>
                 </label>
                 <ReactSelect
@@ -285,7 +285,7 @@ export default function PaymentVoucher() {
                   placeholder="-- Select Account --"
                 />
                 {selectedAccount && (
-                  <p className="text-xs font-mono font-bold mt-1.5 text-[#A97A1F]">
+                  <p className="text-xs font-mono font-bold mt-1.5 text-[#2563EB]">
                     Available Balance: {formatCurrency(selectedAccount.currentBalance ?? selectedAccount.initialBalance)}
                   </p>
                 )}
@@ -294,7 +294,7 @@ export default function PaymentVoucher() {
               {/* Amount & Category */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                     Amount (Rs) <span style={{ color: '#B71C1C' }}>*</span>
                   </label>
                   <input 
@@ -306,18 +306,18 @@ export default function PaymentVoucher() {
                     onChange={e => setForm({ ...form, amount: e.target.value })}
                     placeholder="0.00"
                     className="w-full px-4 py-2.5 rounded-xl border text-sm font-mono font-bold"
-                    style={{ borderColor: '#E0D8CC', backgroundColor: '#FFFFFF', color: '#1A1A1A' }} 
+                    style={{ borderColor: '#CBD5E1', backgroundColor: '#FFFFFF', color: '#0F172A' }} 
                   />
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider" style={{ color: '#4A4A4A' }}>
+                    <label className="text-xs font-bold uppercase tracking-wider" style={{ color: '#334155' }}>
                       Category <span style={{ color: '#B71C1C' }}>*</span>
                     </label>
                     <button
                       type="button"
                       onClick={() => setShowCategoryModal(true)}
-                      className="text-[11px] font-bold text-[#A97A1F] hover:underline flex items-center gap-1"
+                      className="text-[11px] font-bold text-[#2563EB] hover:underline flex items-center gap-1"
                     >
                       <FolderPlus size={12} /> Add Category
                     </button>
@@ -334,7 +334,7 @@ export default function PaymentVoucher() {
               {/* Paid To & Reference */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                     {form.type === 'DEBIT' ? 'Paid To' : 'Received From'}
                   </label>
                   <input 
@@ -342,17 +342,17 @@ export default function PaymentVoucher() {
                     onChange={e => setForm({ ...form, paidTo: e.target.value })}
                     placeholder="Person or entity name"
                     className="w-full px-4 py-2.5 rounded-xl border text-sm"
-                    style={{ borderColor: '#E0D8CC', backgroundColor: '#FFFFFF', color: '#1A1A1A' }} 
+                    style={{ borderColor: '#CBD5E1', backgroundColor: '#FFFFFF', color: '#0F172A' }} 
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>Reference #</label>
+                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>Reference #</label>
                   <input 
                     value={form.referenceNumber} 
                     onChange={e => setForm({ ...form, referenceNumber: e.target.value })}
                     placeholder="Cheque #, Txn ID"
                     className="w-full px-4 py-2.5 rounded-xl border text-sm font-mono"
-                    style={{ borderColor: '#E0D8CC', backgroundColor: '#FFFFFF', color: '#1A1A1A' }} 
+                    style={{ borderColor: '#CBD5E1', backgroundColor: '#FFFFFF', color: '#0F172A' }} 
                   />
                 </div>
               </div>
@@ -360,7 +360,7 @@ export default function PaymentVoucher() {
               {/* Payment Mode & Date */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>Payment Mode</label>
+                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>Payment Mode</label>
                   <ReactSelect
                     options={paymentModeOptions}
                     value={form.paymentMode}
@@ -369,20 +369,20 @@ export default function PaymentVoucher() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>Date</label>
+                  <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>Date</label>
                   <input 
                     type="date" 
                     value={form.transactionDate} 
                     onChange={e => setForm({ ...form, transactionDate: e.target.value })}
                     className="w-full px-4 py-2.5 rounded-xl border text-sm bg-white"
-                    style={{ borderColor: '#E0D8CC', color: '#1A1A1A' }} 
+                    style={{ borderColor: '#CBD5E1', color: '#0F172A' }} 
                   />
                 </div>
               </div>
 
               {/* Description */}
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#4A4A4A' }}>
+                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
                   Description <span style={{ color: '#B71C1C' }}>*</span>
                 </label>
                 <textarea 
@@ -392,13 +392,13 @@ export default function PaymentVoucher() {
                   rows={3}
                   placeholder="What is this transaction for?"
                   className="w-full px-4 py-2.5 rounded-xl border text-sm resize-none"
-                  style={{ borderColor: '#E0D8CC', backgroundColor: '#FFFFFF', color: '#1A1A1A' }} 
+                  style={{ borderColor: '#CBD5E1', backgroundColor: '#FFFFFF', color: '#0F172A' }} 
                 />
               </div>
             </form>
           </div>
 
-          <div className="px-6 py-4 border-t bg-[#FAF8F4] flex items-center justify-end gap-3 border-[#E0D8CC]">
+          <div className="px-6 py-4 border-t bg-slate-50 flex items-center justify-end gap-3 border-slate-300">
             <button 
               type="button" 
               onClick={resetForm} 
@@ -409,7 +409,7 @@ export default function PaymentVoucher() {
             <button 
               type="submit" 
               form="voucherForm" 
-              className="px-7 py-2.5 rounded-xl font-bold text-white text-sm bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] shadow-md hover:scale-[1.01] transition-all"
+              className="px-7 py-2.5 rounded-xl font-bold text-white text-sm bg-gradient-to-r from-[#2563EB] to-[#2563EB] shadow-md hover:scale-[1.01] transition-all"
             >
               Record Voucher
             </button>
@@ -419,9 +419,9 @@ export default function PaymentVoucher() {
         {/* ── Manage Categories Modal ── */}
         {showCategoryModal && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl border border-[#E0D8CC] overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#E0D8CC] bg-[#FAF8F4] flex items-center justify-between">
-                <h3 className="font-bold text-lg" style={{ color: '#1A1A1A' }}>Manage Categories</h3>
+            <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl border border-slate-300 overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-300 bg-slate-50 flex items-center justify-between">
+                <h3 className="font-bold text-lg" style={{ color: '#0F172A' }}>Manage Categories</h3>
                 <button onClick={() => setShowCategoryModal(false)} className="p-2 rounded-xl hover:bg-gray-100 text-gray-600">
                   <X size={18} />
                 </button>
@@ -435,13 +435,13 @@ export default function PaymentVoucher() {
                     onChange={e => setNewCategoryName(e.target.value)}
                     placeholder="New category name..."
                     className="flex-1 px-4 py-2.5 rounded-xl border text-sm"
-                    style={{ borderColor: '#E0D8CC' }}
+                    style={{ borderColor: '#CBD5E1' }}
                     onKeyDown={e => { if (e.key === 'Enter') handleAddCategory(); }}
                   />
                   <button
                     onClick={handleAddCategory}
                     disabled={!newCategoryName.trim() || categoryLoading}
-                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white font-bold text-sm disabled:opacity-50"
+                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white font-bold text-sm disabled:opacity-50"
                   >
                     <Plus size={16} />
                   </button>
@@ -450,7 +450,7 @@ export default function PaymentVoucher() {
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   <p className="text-xs font-bold uppercase text-gray-400 mb-2">Default Categories</p>
                   {DEFAULT_CATEGORIES.map(c => (
-                    <div key={c.key} className="flex items-center justify-between px-3 py-2 rounded-lg bg-gray-50 border border-[#E0D8CC]">
+                    <div key={c.key} className="flex items-center justify-between px-3 py-2 rounded-lg bg-gray-50 border border-slate-300">
                       <span className="text-sm font-medium text-gray-700">{c.label}</span>
                       <span className="text-[10px] font-bold text-gray-400 uppercase">System</span>
                     </div>
@@ -460,7 +460,7 @@ export default function PaymentVoucher() {
                     <>
                       <p className="text-xs font-bold uppercase text-gray-400 mb-2 mt-4">Custom Categories</p>
                       {customCategories.map(c => (
-                        <div key={c.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-amber-50/50 border border-[#E0D8CC]">
+                        <div key={c.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-amber-50/50 border border-slate-300">
                           <span className="text-sm font-medium text-gray-800">{c.name}</span>
                           <button
                             onClick={() => handleDeleteCategory(c.id)}

@@ -477,42 +477,42 @@ export default function MenuManagement() {
   };
 
   return (
-    <div className="min-h-screen pb-12 relative" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen pb-12 relative" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       <ToastContainer />
 
       {/* TOP HEADER */}
-      <div className="border-b backdrop-blur-xl bg-white/90 sticky top-0 z-30 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+      <div className="border-b backdrop-blur-xl bg-white/90 sticky top-0 z-30 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-md">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-md">
               <Utensils className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900">Menu Management</h1>
               <p className="text-xs font-medium text-gray-500">
                 Create, edit & manage menus
-                {currentBranch && <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-[#F4E7C9] text-[#8B6914] font-bold">📍 {currentBranch.name}</span>}
+                {currentBranch && <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-amber-100/80 text-[#8B6914] font-bold">📍 {currentBranch.name}</span>}
               </p>
             </div>
           </div>
           
           <div className="flex items-center gap-3">
-            <div className="bg-white p-1 rounded-xl border border-[#E0D8CC] flex items-center shadow-sm">
+            <div className="bg-white p-1 rounded-xl border border-slate-300 flex items-center shadow-sm">
               <button 
                 onClick={() => setViewMode('grid')} 
-                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#A97A1F] text-white' : 'text-gray-400'}`}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#2563EB] text-white' : 'text-gray-400'}`}
               >
                 <LayoutGrid size={18} />
               </button>
               <button 
                 onClick={() => setViewMode('table')} 
-                className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#A97A1F] text-white' : 'text-gray-400'}`}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#2563EB] text-white' : 'text-gray-400'}`}
               >
                 <TableIcon size={18} />
               </button>
             </div>
 
-            <Button onClick={() => handleOpenModal('create')} className="bg-gradient-to-r from-[#A97A1F] to-[#C89B3C] text-white rounded-xl shadow-md">
+            <Button onClick={() => handleOpenModal('create')} className="bg-gradient-to-r from-[#2563EB] to-[#2563EB] text-white rounded-xl shadow-md">
               <Plus size={16} /> Add Menu
             </Button>
           </div>
@@ -521,7 +521,7 @@ export default function MenuManagement() {
 
       {/* MAIN CONTENT / LIST */}
       <div className="max-w-7xl mx-auto px-4 py-6 md:px-6 space-y-6">
-        <div className="flex items-center justify-between gap-4 flex-wrap bg-white p-4 rounded-2xl border border-[#E0D8CC] shadow-sm">
+        <div className="flex items-center justify-between gap-4 flex-wrap bg-white p-4 rounded-2xl border border-slate-300 shadow-sm">
           <div className="relative flex-1 min-w-[280px]">
             <Search className="absolute left-3.5 top-3 text-gray-400" size={18} />
             <input 
@@ -532,18 +532,18 @@ export default function MenuManagement() {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }} 
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E0D8CC] text-sm focus:outline-none focus:ring-2 focus:ring-[#A97A1F]"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
             />
           </div>
         </div>
 
         {listLoading ? (
           <div className="text-center py-20">
-            <div className="w-12 h-12 rounded-full border-4 border-t-[#A97A1F] animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
+            <div className="w-12 h-12 rounded-full border-4 border-t-[#2563EB] animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
             <p className="mt-4 text-sm font-bold text-gray-600">Loading menus...</p>
           </div>
         ) : paginatedMenus.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] p-12 text-center shadow-sm">
+          <div className="bg-white rounded-2xl border border-slate-300 p-12 text-center shadow-sm">
             <Layers className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <h3 className="text-base font-bold text-gray-700">No Menus Found</h3>
             <p className="text-xs text-gray-500 mt-1">Get started by creating your first menu template.</p>
@@ -551,11 +551,11 @@ export default function MenuManagement() {
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedMenus.map(menu => (
-              <div key={menu.id} className="bg-white rounded-2xl border border-[#E0D8CC] p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+              <div key={menu.id} className="bg-white rounded-2xl border border-slate-300 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 text-[#A97A1F] border border-amber-200">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 text-[#2563EB] border border-amber-200">
                         {menu.code || 'MENU'}
                       </span>
                       <h3 className="font-bold text-base text-gray-800 mt-1">{menu.name}</h3>
@@ -567,13 +567,13 @@ export default function MenuManagement() {
                   <p className="text-xs text-gray-500 line-clamp-2 mb-4">{menu.description || 'No description provided.'}</p>
                 </div>
 
-                <div className="pt-4 border-t border-[#F0ECE6] flex items-center justify-between">
+                <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between">
                   <div className="flex items-center gap-1">
                     <button onClick={() => handleOpenModal('view', menu.id)} className="p-2 rounded-xl hover:bg-gray-100 text-gray-600"><Eye size={16} /></button>
-                    <button onClick={() => handleOpenModal('edit', menu.id)} className="p-2 rounded-xl hover:bg-amber-50 text-[#A97A1F]"><Edit2 size={16} /></button>
+                    <button onClick={() => handleOpenModal('edit', menu.id)} className="p-2 rounded-xl hover:bg-amber-50 text-[#2563EB]"><Edit2 size={16} /></button>
                     <button onClick={() => handleDeleteMenu(menu.id)} className="p-2 rounded-xl hover:bg-red-50 text-red-600"><Trash2 size={16} /></button>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => handleOpenModal('view', menu.id)} className="border-[#E0D8CC] text-xs">
+                  <Button variant="outline" size="sm" onClick={() => handleOpenModal('view', menu.id)} className="border-slate-300 text-xs">
                     View Items
                   </Button>
                 </div>
@@ -581,10 +581,10 @@ export default function MenuManagement() {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#FAF8F4] border-b border-[#E0D8CC] text-xs font-bold text-gray-600 uppercase">
+                <tr className="bg-slate-50 border-b border-slate-300 text-xs font-bold text-gray-600 uppercase">
                   <th className="py-3.5 px-4">Menu Name</th>
                   <th className="py-3.5 px-4">Code</th>
                   <th className="py-3.5 px-4">Description</th>
@@ -596,7 +596,7 @@ export default function MenuManagement() {
                 {paginatedMenus.map(menu => (
                   <tr key={menu.id} className="hover:bg-amber-50/30">
                     <td className="py-3.5 px-4 font-bold text-gray-900">{menu.name}</td>
-                    <td className="py-3.5 px-4"><span className="text-xs font-bold text-[#A97A1F]">{menu.code || 'MENU'}</span></td>
+                    <td className="py-3.5 px-4"><span className="text-xs font-bold text-[#2563EB]">{menu.code || 'MENU'}</span></td>
                     <td className="py-3.5 px-4 text-xs text-gray-500 max-w-xs truncate">{menu.description || 'N/A'}</td>
                     <td className="py-3.5 px-4 text-center">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${menu.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
@@ -606,7 +606,7 @@ export default function MenuManagement() {
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <button onClick={() => handleOpenModal('view', menu.id)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-600"><Eye size={15} /></button>
-                        <button onClick={() => handleOpenModal('edit', menu.id)} className="p-1.5 rounded-lg hover:bg-amber-50 text-[#A97A1F]"><Edit2 size={15} /></button>
+                        <button onClick={() => handleOpenModal('edit', menu.id)} className="p-1.5 rounded-lg hover:bg-amber-50 text-[#2563EB]"><Edit2 size={15} /></button>
                         <button onClick={() => handleDeleteMenu(menu.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-600"><Trash2 size={15} /></button>
                       </div>
                     </td>
@@ -619,7 +619,7 @@ export default function MenuManagement() {
 
         {/* PAGINATION CONTROLS */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between bg-white px-4 py-3 rounded-2xl border border-[#E0D8CC] shadow-sm">
+          <div className="flex items-center justify-between bg-white px-4 py-3 rounded-2xl border border-slate-300 shadow-sm">
             <span className="text-xs text-gray-500">
               Showing Page <strong className="text-gray-800">{currentPage}</strong> of <strong className="text-gray-800">{totalPages}</strong>
             </span>
@@ -627,14 +627,14 @@ export default function MenuManagement() {
               <button 
                 onClick={() => handlePageChange(currentPage - 1)} 
                 disabled={currentPage === 1}
-                className="p-2 rounded-xl border border-[#E0D8CC] hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent"
+                className="p-2 rounded-xl border border-slate-300 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent"
               >
                 <ChevronLeft size={16} />
               </button>
               <button 
                 onClick={() => handlePageChange(currentPage + 1)} 
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-xl border border-[#E0D8CC] hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent"
+                className="p-2 rounded-xl border border-slate-300 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent"
               >
                 <ChevronRight size={16} />
               </button>
@@ -646,12 +646,12 @@ export default function MenuManagement() {
       {/* OVERLAY MODAL FOR CREATE / EDIT / VIEW */}
       {isModalOpen && (
         <div className="fixed inset-y-0 right-0 left-0 lg:left-64 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-5xl max-h-[92vh] flex flex-col shadow-2xl border border-[#E0D8CC] overflow-hidden my-auto">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-5xl max-h-[92vh] flex flex-col shadow-2xl border border-slate-300 overflow-hidden my-auto">
             
             {/* Modal Header */}
-            <div className="px-4 sm:px-6 py-3.5 border-b bg-[#FAF8F4] flex items-center justify-between border-[#E0D8CC] sticky top-0 z-20">
+            <div className="px-4 sm:px-6 py-3.5 border-b bg-slate-50 flex items-center justify-between border-slate-300 sticky top-0 z-20">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-amber-100 text-[#A97A1F]">
+                <div className="p-2 rounded-xl bg-amber-100 text-[#2563EB]">
                   <Utensils size={20} />
                 </div>
                 <div>
@@ -669,14 +669,14 @@ export default function MenuManagement() {
             <div className="p-3 sm:p-6 overflow-y-auto flex-1 space-y-6">
               {pageLoading ? (
                 <div className="text-center py-16">
-                  <div className="w-12 h-12 rounded-full border-4 border-t-[#A97A1F] animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
+                  <div className="w-12 h-12 rounded-full border-4 border-t-[#2563EB] animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
                 </div>
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                   
                   {/* Left Form */}
                   <div className="lg:col-span-2 space-y-4">
-                    <div className="bg-white rounded-xl border border-[#E0D8CC] p-4 shadow-sm space-y-4">
+                    <div className="bg-white rounded-xl border border-slate-300 p-4 shadow-sm space-y-4">
                       <h3 className="font-bold text-xs text-gray-700 uppercase">Basic Details</h3>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div className="md:col-span-2">
@@ -700,7 +700,7 @@ export default function MenuManagement() {
                       <div className="flex items-center justify-between mb-3">
                         <h3 className="font-bold text-xs text-gray-700 uppercase">Categories & Dishes</h3>
                         {modalMode !== 'view' && (
-                          <Button variant="outline" size="sm" onClick={addCategory} className="border-[#E0D8CC] text-[#A97A1F]">
+                          <Button variant="outline" size="sm" onClick={addCategory} className="border-slate-300 text-[#2563EB]">
                             <Plus size={14} /> Add Category
                           </Button>
                         )}
@@ -716,8 +716,8 @@ export default function MenuManagement() {
                             : masterItems;
 
                           return (
-                            <div key={catIndex} className="bg-white rounded-xl border border-[#E0D8CC] overflow-hidden shadow-sm">
-                              <div className="px-4 py-2.5 flex items-center gap-3 border-b bg-[#FAF8F4]" style={{ borderColor: '#E0D8CC' }}>
+                            <div key={catIndex} className="bg-white rounded-xl border border-slate-300 overflow-hidden shadow-sm">
+                              <div className="px-4 py-2.5 flex items-center gap-3 border-b bg-slate-50" style={{ borderColor: '#CBD5E1' }}>
                                 <input 
                                   disabled={modalMode === 'view'} 
                                   value={category.name || ''} 
@@ -734,10 +734,10 @@ export default function MenuManagement() {
 
                               <div className="p-4 space-y-4">
                                 {modalMode !== 'view' && (
-                                  <div className="bg-[#FBF9F5] p-3 rounded-xl border border-[#E0D8CC] space-y-3">
+                                  <div className="bg-[#FBF9F5] p-3 rounded-xl border border-slate-300 space-y-3">
                                     <div className="flex items-center justify-between">
-                                      <span className="text-xs font-bold text-[#A97A1F]">⚡ Select Items from Master</span>
-                                      <Button variant="outline" size="sm" onClick={() => openItemModal(catIndex)} className="border-[#E0D8CC] text-xs">
+                                      <span className="text-xs font-bold text-[#2563EB]">⚡ Select Items from Master</span>
+                                      <Button variant="outline" size="sm" onClick={() => openItemModal(catIndex)} className="border-slate-300 text-xs">
                                         <Plus size={12} /> Custom Dish
                                       </Button>
                                     </div>
@@ -783,10 +783,10 @@ export default function MenuManagement() {
                                 )}
 
                                 {category.items.length > 0 ? (
-                                  <div className="overflow-x-auto rounded-xl border border-[#E0D8CC]">
+                                  <div className="overflow-x-auto rounded-xl border border-slate-300">
                                     <table className="w-full text-xs">
                                       <thead>
-                                        <tr className="bg-[#FAF8F4] border-b border-[#E0D8CC]">
+                                        <tr className="bg-slate-50 border-b border-slate-300">
                                           <th className="text-left px-3 py-2 font-bold">Dish Name</th>
                                           <th className="text-left px-3 py-2 font-bold">Unit</th>
                                           <th className="text-right px-3 py-2 font-bold">Cost</th>
@@ -829,7 +829,7 @@ export default function MenuManagement() {
 
                   {/* Right Cost Summary */}
                   <div className="lg:col-span-1 space-y-4">
-                    <div className="bg-white rounded-2xl border border-[#E0D8CC] p-5 shadow-sm space-y-4 sticky top-4">
+                    <div className="bg-white rounded-2xl border border-slate-300 p-5 shadow-sm space-y-4 sticky top-4">
                       <h3 className="font-bold text-xs text-gray-700 uppercase">Pricing Calculation</h3>
                       
                       <div className="space-y-3 pt-2 text-xs">
@@ -841,9 +841,9 @@ export default function MenuManagement() {
                           <span>Est. Cost Price / Head:</span>
                           <span className="font-bold">{formatCurrency(totals.totalCost)}</span>
                         </div>
-                        <div className="flex justify-between items-center text-gray-800 font-bold border-t pt-2 border-[#E0D8CC]">
+                        <div className="flex justify-between items-center text-gray-800 font-bold border-t pt-2 border-slate-300">
                           <span>Sale Price / Head:</span>
-                          <span className="text-[#A97A1F] text-base">{formatCurrency(totals.totalSale)}</span>
+                          <span className="text-[#2563EB] text-base">{formatCurrency(totals.totalSale)}</span>
                         </div>
                         <div className="flex justify-between items-center text-xs text-emerald-600 font-bold bg-emerald-50 p-2.5 rounded-xl border border-emerald-100">
                           <span>Est. Profit Margin:</span>
@@ -855,7 +855,7 @@ export default function MenuManagement() {
                         <Button 
                           onClick={handleSave} 
                           disabled={loading} 
-                          className="w-full bg-[#A97A1F] hover:bg-[#8B6914] text-white py-3 rounded-xl shadow-md font-bold mt-4 flex items-center justify-center gap-2"
+                          className="w-full bg-[#2563EB] hover:bg-[#8B6914] text-white py-3 rounded-xl shadow-md font-bold mt-4 flex items-center justify-center gap-2"
                         >
                           {loading ? <LoadingSpinner size="sm" /> : <Save size={18} />}
                           {modalMode === 'edit' ? 'Update Menu' : 'Save Menu'}
@@ -875,8 +875,8 @@ export default function MenuManagement() {
       {/* Item Modal (Custom Item) */}
       {showItemModal && (
         <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl border border-[#E0D8CC]">
-            <div className="flex justify-between items-center border-b pb-3 border-[#E0D8CC]">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl border border-slate-300">
+            <div className="flex justify-between items-center border-b pb-3 border-slate-300">
               <h3 className="font-bold text-gray-800 text-sm">
                 {editingItemIndex !== null ? 'Edit Custom Item' : 'Add Custom Dish'}
               </h3>
@@ -913,7 +913,7 @@ export default function MenuManagement() {
 
               <div className="flex justify-end gap-2 pt-3">
                 <Button type="button" variant="outline" onClick={() => setShowItemModal(false)}>Cancel</Button>
-                <Button type="submit" className="bg-[#A97A1F] text-white">Save Item</Button>
+                <Button type="submit" className="bg-[#2563EB] text-white">Save Item</Button>
               </div>
             </form>
           </div>

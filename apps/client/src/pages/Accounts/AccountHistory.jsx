@@ -151,28 +151,28 @@ export default function AccountHistory({ account, onClose }) {
   };
 
   return (
-    <div className="min-h-screen pb-12" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen pb-12" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       {/* ═══ PAGE HEADER ═══ */}
-      <div className="sticky top-0 z-40 border-b backdrop-blur-xl" style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderColor: '#E0D8CC' }}>
+      <div className="sticky top-0 z-40 border-b backdrop-blur-xl" style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderColor: '#CBD5E1' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <button onClick={() => onClose ? onClose() : navigate(-1)} className="p-2 rounded-xl transition-all hover:scale-105" style={{ backgroundColor: '#F8F5F0' }}>
-                <ChevronLeft size={20} style={{ color: '#4A4A4A' }} />
+                <ChevronLeft size={20} style={{ color: '#334155' }} />
               </button>
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-gradient-to-br from-[#A97A1F] to-[#C89B3C] shadow-md">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#2563EB] shadow-md">
                   <Landmark className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold" style={{ color: '#1A1A1A' }}>{account.bankName}</h1>
-                  <p className="text-xs font-medium" style={{ color: '#7A7A7A' }}>
+                  <h1 className="text-lg font-bold" style={{ color: '#0F172A' }}>{account.bankName}</h1>
+                  <p className="text-xs font-medium" style={{ color: '#475569' }}>
                     {account.accountHolder} • {account.accountNumber} • {account.accountType}
                   </p>
                 </div>
               </div>
             </div>
-            <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm font-bold hover:bg-amber-50 transition-all" style={{ borderColor: '#E0D8CC', color: '#A97A1F' }}>
+            <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm font-bold hover:bg-amber-50 transition-all" style={{ borderColor: '#CBD5E1', color: '#2563EB' }}>
               <Download size={14} /> Export CSV
             </button>
           </div>
@@ -183,33 +183,33 @@ export default function AccountHistory({ account, onClose }) {
 
           {/* ═══ TODAY SUMMARY CARDS ═══ */}
           {todaySummary && (
-            <div className="px-6 py-5 border-b" style={{ borderColor: '#F0ECE6', backgroundColor: '#FAF8F4' }}>
-              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#A97A1F' }}>
+            <div className="px-6 py-5 border-b" style={{ borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}>
+              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#2563EB' }}>
                 <Clock size={12} className="inline mr-1" /> Today's Summary — {new Date().toLocaleDateString('en-PK', { weekday: 'long', day: 'numeric', month: 'long' })}
               </p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {/* Start Balance */}
-                <div className="bg-white rounded-xl p-4 border shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+                <div className="bg-white rounded-xl p-4 border shadow-sm" style={{ borderColor: '#CBD5E1' }}>
                   <div className="flex items-center gap-2 mb-2">
-                    <Wallet size={16} style={{ color: '#7A7A7A' }} />
-                    <span className="text-xs font-bold uppercase" style={{ color: '#7A7A7A' }}>Start of Day</span>
+                    <Wallet size={16} style={{ color: '#475569' }} />
+                    <span className="text-xs font-bold uppercase" style={{ color: '#475569' }}>Start of Day</span>
                   </div>
-                  <p className="text-xl font-bold font-mono" style={{ color: '#1A1A1A' }}>{formatCurrency(todaySummary.startOfDayBalance)}</p>
+                  <p className="text-xl font-bold font-mono" style={{ color: '#0F172A' }}>{formatCurrency(todaySummary.startOfDayBalance)}</p>
                   <p className="text-[10px] text-gray-400 mt-1">Opening balance @ 12:00 AM</p>
                 </div>
 
                 {/* Current Balance */}
-                <div className="bg-white rounded-xl p-4 border shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+                <div className="bg-white rounded-xl p-4 border shadow-sm" style={{ borderColor: '#CBD5E1' }}>
                   <div className="flex items-center gap-2 mb-2">
-                    <Banknote size={16} style={{ color: '#A97A1F' }} />
-                    <span className="text-xs font-bold uppercase" style={{ color: '#A97A1F' }}>Current Balance</span>
+                    <Banknote size={16} style={{ color: '#2563EB' }} />
+                    <span className="text-xs font-bold uppercase" style={{ color: '#2563EB' }}>Current Balance</span>
                   </div>
-                  <p className="text-xl font-bold font-mono" style={{ color: '#A97A1F' }}>{formatCurrency(todaySummary.currentBalance)}</p>
+                  <p className="text-xl font-bold font-mono" style={{ color: '#2563EB' }}>{formatCurrency(todaySummary.currentBalance)}</p>
                   <p className="text-[10px] text-gray-400 mt-1">Live updated</p>
                 </div>
 
                 {/* Today's In */}
-                <div className="bg-white rounded-xl p-4 border shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+                <div className="bg-white rounded-xl p-4 border shadow-sm" style={{ borderColor: '#CBD5E1' }}>
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp size={16} className="text-green-600" />
                     <span className="text-xs font-bold uppercase text-green-600">Today's In (CR)</span>
@@ -219,7 +219,7 @@ export default function AccountHistory({ account, onClose }) {
                 </div>
 
                 {/* Today's Out */}
-                <div className="bg-white rounded-xl p-4 border shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+                <div className="bg-white rounded-xl p-4 border shadow-sm" style={{ borderColor: '#CBD5E1' }}>
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingDown size={16} className="text-red-600" />
                     <span className="text-xs font-bold uppercase text-red-600">Today's Out (DR)</span>
@@ -232,41 +232,41 @@ export default function AccountHistory({ account, onClose }) {
           )}
 
           {/* ═══ LIFETIME SUMMARY ═══ */}
-          <div className="px-6 py-4 border-b flex flex-wrap items-center justify-between gap-4" style={{ borderColor: '#F0ECE6' }}>
+          <div className="px-6 py-4 border-b flex flex-wrap items-center justify-between gap-4" style={{ borderColor: '#E2E8F0' }}>
             <div className="flex items-center gap-6 flex-wrap">
               <div className="text-center">
-                <p className="text-[10px] font-bold uppercase" style={{ color: '#7A7A7A' }}>Total In (All Time)</p>
+                <p className="text-[10px] font-bold uppercase" style={{ color: '#475569' }}>Total In (All Time)</p>
                 <p className="text-lg font-bold font-mono text-green-600">+{formatCurrency(summary.totalCredits)}</p>
               </div>
-              <div className="w-px h-8" style={{ backgroundColor: '#E0D8CC' }} />
+              <div className="w-px h-8" style={{ backgroundColor: '#CBD5E1' }} />
               <div className="text-center">
-                <p className="text-[10px] font-bold uppercase" style={{ color: '#7A7A7A' }}>Total Out (All Time)</p>
+                <p className="text-[10px] font-bold uppercase" style={{ color: '#475569' }}>Total Out (All Time)</p>
                 <p className="text-lg font-bold font-mono text-red-600">-{formatCurrency(summary.totalDebits)}</p>
               </div>
-              <div className="w-px h-8" style={{ backgroundColor: '#E0D8CC' }} />
+              <div className="w-px h-8" style={{ backgroundColor: '#CBD5E1' }} />
               <div className="text-center">
-                <p className="text-[10px] font-bold uppercase" style={{ color: '#7A7A7A' }}>Net Flow</p>
+                <p className="text-[10px] font-bold uppercase" style={{ color: '#475569' }}>Net Flow</p>
                 <p className={`text-lg font-bold font-mono ${summary.netFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {summary.netFlow >= 0 ? '+' : ''}{formatCurrency(summary.netFlow)}
                 </p>
               </div>
             </div>
-            <button onClick={() => { fetchTodaySummary(); fetchHistory(pagination.page); }} className="p-2 rounded-xl hover:bg-amber-50 transition-all" style={{ color: '#A97A1F' }} title="Refresh">
+            <button onClick={() => { fetchTodaySummary(); fetchHistory(pagination.page); }} className="p-2 rounded-xl hover:bg-amber-50 transition-all" style={{ color: '#2563EB' }} title="Refresh">
               <RefreshCw size={16} />
             </button>
           </div>
 
           {/* ═══ FILTERS ═══ */}
-          <div className="px-6 py-4 border-b flex flex-wrap items-center gap-3" style={{ borderColor: '#F0ECE6', backgroundColor: '#FAF8F4' }}>
-            <Filter size={14} style={{ color: '#A97A1F' }} />
+          <div className="px-6 py-4 border-b flex flex-wrap items-center gap-3" style={{ borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}>
+            <Filter size={14} style={{ color: '#2563EB' }} />
             <div className="flex items-center gap-2 flex-wrap">
-              <Calendar size={14} style={{ color: '#7A7A7A' }} />
+              <Calendar size={14} style={{ color: '#475569' }} />
               <input
                 type="date"
                 value={filters.from}
                 onChange={e => setFilters(prev => ({ ...prev, from: e.target.value }))}
                 className="border rounded-lg px-2 py-1.5 text-xs"
-                style={{ borderColor: '#E0D8CC' }}
+                style={{ borderColor: '#CBD5E1' }}
               />
               <span className="text-xs text-gray-400">to</span>
               <input
@@ -274,14 +274,14 @@ export default function AccountHistory({ account, onClose }) {
                 value={filters.to}
                 onChange={e => setFilters(prev => ({ ...prev, to: e.target.value }))}
                 className="border rounded-lg px-2 py-1.5 text-xs"
-                style={{ borderColor: '#E0D8CC' }}
+                style={{ borderColor: '#CBD5E1' }}
               />
             </div>
             <select
               value={filters.type}
               onChange={e => setFilters(prev => ({ ...prev, type: e.target.value }))}
               className="border rounded-lg px-2 py-1.5 text-xs"
-              style={{ borderColor: '#E0D8CC', backgroundColor: '#fff' }}
+              style={{ borderColor: '#CBD5E1', backgroundColor: '#fff' }}
             >
               <option value="">All Types</option>
               <option value="CREDIT">In (Credit)</option>
@@ -291,7 +291,7 @@ export default function AccountHistory({ account, onClose }) {
               value={filters.category}
               onChange={e => setFilters(prev => ({ ...prev, category: e.target.value }))}
               className="border rounded-lg px-2 py-1.5 text-xs"
-              style={{ borderColor: '#E0D8CC', backgroundColor: '#fff' }}
+              style={{ borderColor: '#CBD5E1', backgroundColor: '#fff' }}
             >
               <option value="">All Categories</option>
               {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
@@ -312,28 +312,28 @@ export default function AccountHistory({ account, onClose }) {
           <div className="px-6 py-4">
             {loading ? (
               <div className="text-center py-12">
-                <div className="w-10 h-10 rounded-full border-4 animate-spin mx-auto" style={{ borderColor: '#E0D8CC', borderTopColor: '#A97A1F' }} />
-                <p className="mt-3 text-sm font-medium" style={{ color: '#7A7A7A' }}>Loading ledger...</p>
+                <div className="w-10 h-10 rounded-full border-4 animate-spin mx-auto" style={{ borderColor: '#CBD5E1', borderTopColor: '#2563EB' }} />
+                <p className="mt-3 text-sm font-medium" style={{ color: '#475569' }}>Loading ledger...</p>
               </div>
             ) : history.length === 0 ? (
               <div className="text-center py-12">
-                <FileText size={40} className="mx-auto mb-3" style={{ color: '#E0D8CC' }} />
-                <p className="text-sm font-medium" style={{ color: '#7A7A7A' }}>No transactions found</p>
+                <FileText size={40} className="mx-auto mb-3" style={{ color: '#CBD5E1' }} />
+                <p className="text-sm font-medium" style={{ color: '#475569' }}>No transactions found</p>
                 <p className="text-xs text-gray-400 mt-1">Try adjusting your filters</p>
               </div>
             ) : (
-              <div className="border rounded-2xl overflow-hidden" style={{ borderColor: '#E0D8CC' }}>
+              <div className="border rounded-2xl overflow-hidden" style={{ borderColor: '#CBD5E1' }}>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm min-w-[700px]">
                   <thead>
-                    <tr style={{ backgroundColor: '#FAF8F4' }}>
-                      <th className="text-left px-4 py-3 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Date & Time</th>
-                      <th className="text-left px-4 py-3 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Type</th>
-                      <th className="text-left px-4 py-3 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Category</th>
-                      <th className="text-left px-4 py-3 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Description</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Amount</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>Balance</th>
-                      <th className="text-left px-4 py-3 text-xs font-bold uppercase" style={{ color: '#4A4A4A' }}>By</th>
+                    <tr style={{ backgroundColor: '#F8FAFC' }}>
+                      <th className="text-left px-4 py-3 text-xs font-bold uppercase" style={{ color: '#334155' }}>Date & Time</th>
+                      <th className="text-left px-4 py-3 text-xs font-bold uppercase" style={{ color: '#334155' }}>Type</th>
+                      <th className="text-left px-4 py-3 text-xs font-bold uppercase" style={{ color: '#334155' }}>Category</th>
+                      <th className="text-left px-4 py-3 text-xs font-bold uppercase" style={{ color: '#334155' }}>Description</th>
+                      <th className="text-right px-4 py-3 text-xs font-bold uppercase" style={{ color: '#334155' }}>Amount</th>
+                      <th className="text-right px-4 py-3 text-xs font-bold uppercase" style={{ color: '#334155' }}>Balance</th>
+                      <th className="text-left px-4 py-3 text-xs font-bold uppercase" style={{ color: '#334155' }}>By</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -341,7 +341,7 @@ export default function AccountHistory({ account, onClose }) {
                       <tr
                         key={txn.id}
                         className="border-t transition-all hover:bg-amber-50/30"
-                        style={{ borderColor: '#F0ECE6', backgroundColor: idx % 2 === 0 ? '#fff' : '#FAFAF8' }}
+                        style={{ borderColor: '#E2E8F0', backgroundColor: idx % 2 === 0 ? '#fff' : '#FAFAF8' }}
                       >
                         <td className="px-4 py-3">
                           <p className="font-semibold text-gray-800">{formatDate(txn.transactionDate)}</p>
@@ -391,7 +391,7 @@ export default function AccountHistory({ account, onClose }) {
 
                 {/* Pagination */}
                 {pagination.totalPages > 1 && (
-                  <div className="flex items-center justify-between px-4 py-3 border-t" style={{ borderColor: '#F0ECE6', backgroundColor: '#FAF8F4' }}>
+                  <div className="flex items-center justify-between px-4 py-3 border-t" style={{ borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}>
                     <p className="text-xs text-gray-500">
                       Page {pagination.page} of {pagination.totalPages}
                     </p>
@@ -400,7 +400,7 @@ export default function AccountHistory({ account, onClose }) {
                         disabled={pagination.page <= 1}
                         onClick={() => fetchHistory(pagination.page - 1)}
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg border text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-all"
-                        style={{ borderColor: '#E0D8CC' }}
+                        style={{ borderColor: '#CBD5E1' }}
                       >
                         <ChevronLeft size={14} /> Prev
                       </button>
@@ -408,7 +408,7 @@ export default function AccountHistory({ account, onClose }) {
                         disabled={pagination.page >= pagination.totalPages}
                         onClick={() => fetchHistory(pagination.page + 1)}
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg border text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-all"
-                        style={{ borderColor: '#E0D8CC' }}
+                        style={{ borderColor: '#CBD5E1' }}
                       >
                         Next <ChevronRight size={14} />
                       </button>

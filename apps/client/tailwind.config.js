@@ -44,6 +44,27 @@ export default {
           400: '#a3a3a3',
           500: '#737373',
         },
+        // 👑 Luxury Champagne Gold
+        gold: {
+          50: '#FDFBF7',
+          100: '#FAF5EA',
+          200: '#F3E8CE',
+          300: '#EAD5A8',
+          400: '#DEBF7C',
+          500: '#C5A059',
+          600: '#B0883E',
+          700: '#8C672B',
+          800: '#6E4F22',
+          900: '#4D3618',
+        },
+        // 🌌 Royal Midnight Slate
+        midnight: {
+          700: '#334155',
+          800: '#1E293B',
+          850: '#172033',
+          900: '#0F172A',
+          950: '#0A0F1D',
+        },
       },
       fontFamily: {
         sans: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],

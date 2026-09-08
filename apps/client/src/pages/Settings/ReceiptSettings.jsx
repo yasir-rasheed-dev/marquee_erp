@@ -47,7 +47,7 @@ const defaultSettings = {
   showCustomerDetails: true,
   showPaymentHistory: true,
   themeColor: '#1a1a2e',
-  accentColor: '#A97A1F',
+  accentColor: '#2563EB',
   thermalWidth: '80mm',
   thermalFontSize: '12px',
 };
@@ -58,9 +58,9 @@ const defaultSettings = {
 // ═══════════════════════════════════════════════════════════
 
 const Toggle = ({ label, checked, onChange, icon: Icon, disabled }) => (
-  <div className="flex items-center justify-between p-3 bg-white rounded-xl border hover:border-amber-300 transition-all" style={{ borderColor: '#E0D8CC' }}>
+  <div className="flex items-center justify-between p-3 bg-white rounded-xl border hover:border-amber-300 transition-all" style={{ borderColor: '#CBD5E1' }}>
     <div className="flex items-center gap-2">
-      {Icon && <Icon size={16} style={{ color: '#A97A1F' }} />}
+      {Icon && <Icon size={16} style={{ color: '#2563EB' }} />}
       <span className="text-sm font-semibold text-gray-700">{label}</span>
     </div>
     <button
@@ -77,7 +77,7 @@ const Toggle = ({ label, checked, onChange, icon: Icon, disabled }) => (
 const Input = ({ label, value, onChange, placeholder, type = 'text', icon: Icon, disabled }) => (
   <div>
     <label className="text-xs font-bold uppercase mb-1.5 block text-gray-500 flex items-center gap-1.5">
-      {Icon && <Icon size={12} style={{ color: '#A97A1F' }} />}
+      {Icon && <Icon size={12} style={{ color: '#2563EB' }} />}
       {label}
     </label>
     <input
@@ -87,7 +87,7 @@ const Input = ({ label, value, onChange, placeholder, type = 'text', icon: Icon,
       placeholder={placeholder}
       disabled={disabled}
       className="w-full border rounded-xl px-3 py-2.5 text-sm transition-all focus:ring-2 focus:ring-amber-200 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-      style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }}
+      style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}
     />
   </div>
 );
@@ -595,9 +595,9 @@ const ReceiptSettings = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F5F2EB' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
         <div className="flex flex-col items-center gap-3">
-          <Loader2 size={32} className="animate-spin" style={{ color: '#A97A1F' }} />
+          <Loader2 size={32} className="animate-spin" style={{ color: '#2563EB' }} />
           <p className="text-sm font-medium text-gray-500">Loading receipt settings...</p>
         </div>
       </div>
@@ -605,18 +605,18 @@ const ReceiptSettings = () => {
   }
 
   return (
-    <div className="min-h-screen pb-20" style={{ backgroundColor: '#F5F2EB' }}>
+    <div className="min-h-screen pb-20" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       {/* ═══ HEADER ═══ */}
-      <div className="sticky top-0 z-40 border-b backdrop-blur-xl" style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderColor: '#E0D8CC' }}>
+      <div className="sticky top-0 z-40 border-b backdrop-blur-xl" style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderColor: '#CBD5E1' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
               <button onClick={() => navigate(-1)} className="p-2 rounded-xl hover:bg-gray-100 transition-all">
-                <ArrowLeft size={20} style={{ color: '#4A4A4A' }} />
+                <ArrowLeft size={20} style={{ color: '#334155' }} />
               </button>
               <div>
-                <h1 className="text-lg font-bold" style={{ color: '#1A1A1A' }}>Receipt Settings</h1>
-                <p className="text-xs font-medium" style={{ color: '#7A7A7A' }}>Customize your A4 & Thermal receipts</p>
+                <h1 className="text-lg font-bold" style={{ color: '#0F172A' }}>Receipt Settings</h1>
+                <p className="text-xs font-medium" style={{ color: '#475569' }}>Customize your A4 & Thermal receipts</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -624,7 +624,7 @@ const ReceiptSettings = () => {
                 onClick={handleReset}
                 disabled={saving}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border hover:bg-red-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ borderColor: '#E0D8CC', color: '#B71C1C' }}
+                style={{ borderColor: '#CBD5E1', color: '#B71C1C' }}
               >
                 <RotateCcw size={14} className={saving ? 'animate-spin' : ''} /> Reset
               </button>
@@ -632,7 +632,7 @@ const ReceiptSettings = () => {
                 onClick={handleSave}
                 disabled={saving}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium text-white shadow-md transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                style={{ background: 'linear-gradient(135deg, #A97A1F, #C89B3C)' }}
+                style={{ background: 'linear-gradient(135deg, #1E40AF, #2563EB)' }}
               >
                 {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
                 {savedFlag ? 'Saved!' : 'Save Changes'}
@@ -647,9 +647,9 @@ const ReceiptSettings = () => {
           {/* ═══ LEFT: SETTINGS FORM ═══ */}
           <div className="lg:col-span-2 space-y-6">
             {/* ── Company Info ── */}
-            <div className="bg-white rounded-2xl border p-5 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
-              <h2 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: '#1A1A1A' }}>
-                <Building2 size={16} style={{ color: '#A97A1F' }} /> Company Information
+            <div className="bg-white rounded-2xl border p-5 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
+              <h2 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: '#0F172A' }}>
+                <Building2 size={16} style={{ color: '#2563EB' }} /> Company Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input label="Company Name" value={settings.companyName} onChange={v => updateField('companyName', v)} placeholder="Your Business Name" icon={Type} disabled={saving} />
@@ -662,12 +662,12 @@ const ReceiptSettings = () => {
             </div>
 
             {/* ── Logo ── */}
-            <div className="bg-white rounded-2xl border p-5 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
-              <h2 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: '#1A1A1A' }}>
-                <Image size={16} style={{ color: '#A97A1F' }} /> Logo
+            <div className="bg-white rounded-2xl border p-5 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
+              <h2 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: '#0F172A' }}>
+                <Image size={16} style={{ color: '#2563EB' }} /> Logo
               </h2>
               <div className="flex items-center gap-4">
-                <div className="w-20 h-20 rounded-xl border flex items-center justify-center overflow-hidden" style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }}>
+                <div className="w-20 h-20 rounded-xl border flex items-center justify-center overflow-hidden" style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}>
                   {settings.logoUrl ? (
                     <img src={settings.logoUrl} alt="Logo" className="w-full h-full object-contain" />
                   ) : (
@@ -675,7 +675,7 @@ const ReceiptSettings = () => {
                   )}
                 </div>
                 <div className="flex-1">
-                  <label className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white cursor-pointer transition-all hover:scale-[1.02] ${saving ? 'opacity-50 cursor-not-allowed' : ''}`} style={{ background: 'linear-gradient(135deg, #A97A1F, #C89B3C)' }}>
+                  <label className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white cursor-pointer transition-all hover:scale-[1.02] ${saving ? 'opacity-50 cursor-not-allowed' : ''}`} style={{ background: 'linear-gradient(135deg, #1E40AF, #2563EB)' }}>
                     <Upload size={14} /> Upload Logo
                     <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={saving} />
                   </label>
@@ -690,9 +690,9 @@ const ReceiptSettings = () => {
             </div>
 
             {/* ── Receipt Text ── */}
-            <div className="bg-white rounded-2xl border p-5 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
-              <h2 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: '#1A1A1A' }}>
-                <AlignCenter size={16} style={{ color: '#A97A1F' }} /> Receipt Text
+            <div className="bg-white rounded-2xl border p-5 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
+              <h2 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: '#0F172A' }}>
+                <AlignCenter size={16} style={{ color: '#2563EB' }} /> Receipt Text
               </h2>
               <div className="space-y-4">
                 <Input label="Header Text (shown before footer)" value={settings.headerText} onChange={v => updateField('headerText', v)} placeholder="Thank you for your business!" icon={Type} disabled={saving} />
@@ -702,9 +702,9 @@ const ReceiptSettings = () => {
             </div>
 
             {/* ── Tax & Legal ── */}
-            <div className="bg-white rounded-2xl border p-5 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
-              <h2 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: '#1A1A1A' }}>
-                <Hash size={16} style={{ color: '#A97A1F' }} /> Tax & Legal
+            <div className="bg-white rounded-2xl border p-5 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
+              <h2 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: '#0F172A' }}>
+                <Hash size={16} style={{ color: '#2563EB' }} /> Tax & Legal
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
@@ -725,9 +725,9 @@ const ReceiptSettings = () => {
             </div>
 
             {/* ── Show / Hide Toggles ── */}
-            <div className="bg-white rounded-2xl border p-5 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
-              <h2 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: '#1A1A1A' }}>
-                <Eye size={16} style={{ color: '#A97A1F' }} /> Show / Hide Fields
+            <div className="bg-white rounded-2xl border p-5 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
+              <h2 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: '#0F172A' }}>
+                <Eye size={16} style={{ color: '#2563EB' }} /> Show / Hide Fields
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <Toggle label="Company Logo" checked={settings.showLogo} onChange={() => toggleField('showLogo')} icon={Image} disabled={saving} />
@@ -748,44 +748,44 @@ const ReceiptSettings = () => {
             </div>
 
             {/* ── Theme & Colors ── */}
-            <div className="bg-white rounded-2xl border p-5 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
-              <h2 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: '#1A1A1A' }}>
-                <Palette size={16} style={{ color: '#A97A1F' }} /> Theme & Colors
+            <div className="bg-white rounded-2xl border p-5 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
+              <h2 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: '#0F172A' }}>
+                <Palette size={16} style={{ color: '#2563EB' }} /> Theme & Colors
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold uppercase mb-1.5 block text-gray-500">Theme Color</label>
                   <div className="flex items-center gap-3">
-                    <input type="color" value={settings.themeColor} onChange={e => updateField('themeColor', e.target.value)} disabled={saving} className="w-12 h-10 rounded-lg border cursor-pointer disabled:opacity-50" style={{ borderColor: '#E0D8CC' }} />
-                    <input type="text" value={settings.themeColor} onChange={e => updateField('themeColor', e.target.value)} disabled={saving} className="flex-1 border rounded-xl px-3 py-2.5 text-sm font-mono disabled:opacity-50" style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }} />
+                    <input type="color" value={settings.themeColor} onChange={e => updateField('themeColor', e.target.value)} disabled={saving} className="w-12 h-10 rounded-lg border cursor-pointer disabled:opacity-50" style={{ borderColor: '#CBD5E1' }} />
+                    <input type="text" value={settings.themeColor} onChange={e => updateField('themeColor', e.target.value)} disabled={saving} className="flex-1 border rounded-xl px-3 py-2.5 text-sm font-mono disabled:opacity-50" style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }} />
                   </div>
                 </div>
                 <div>
                   <label className="text-xs font-bold uppercase mb-1.5 block text-gray-500">Accent Color</label>
                   <div className="flex items-center gap-3">
-                    <input type="color" value={settings.accentColor} onChange={e => updateField('accentColor', e.target.value)} disabled={saving} className="w-12 h-10 rounded-lg border cursor-pointer disabled:opacity-50" style={{ borderColor: '#E0D8CC' }} />
-                    <input type="text" value={settings.accentColor} onChange={e => updateField('accentColor', e.target.value)} disabled={saving} className="flex-1 border rounded-xl px-3 py-2.5 text-sm font-mono disabled:opacity-50" style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }} />
+                    <input type="color" value={settings.accentColor} onChange={e => updateField('accentColor', e.target.value)} disabled={saving} className="w-12 h-10 rounded-lg border cursor-pointer disabled:opacity-50" style={{ borderColor: '#CBD5E1' }} />
+                    <input type="text" value={settings.accentColor} onChange={e => updateField('accentColor', e.target.value)} disabled={saving} className="flex-1 border rounded-xl px-3 py-2.5 text-sm font-mono disabled:opacity-50" style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }} />
                   </div>
                 </div>
               </div>
             </div>
 
             {/* ── Thermal Printer Settings ── */}
-            <div className="bg-white rounded-2xl border p-5 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
-              <h2 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: '#1A1A1A' }}>
-                <Thermometer size={16} style={{ color: '#A97A1F' }} /> Thermal Printer Settings
+            <div className="bg-white rounded-2xl border p-5 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
+              <h2 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: '#0F172A' }}>
+                <Thermometer size={16} style={{ color: '#2563EB' }} /> Thermal Printer Settings
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold uppercase mb-1.5 block text-gray-500">Paper Width</label>
-                  <select value={settings.thermalWidth} onChange={e => updateField('thermalWidth', e.target.value)} disabled={saving} className="w-full border rounded-xl px-3 py-2.5 text-sm disabled:opacity-50" style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }}>
+                  <select value={settings.thermalWidth} onChange={e => updateField('thermalWidth', e.target.value)} disabled={saving} className="w-full border rounded-xl px-3 py-2.5 text-sm disabled:opacity-50" style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}>
                     <option value="58mm">58mm (Small)</option>
                     <option value="80mm">80mm (Standard)</option>
                   </select>
                 </div>
                 <div>
                   <label className="text-xs font-bold uppercase mb-1.5 block text-gray-500">Font Size</label>
-                  <select value={settings.thermalFontSize} onChange={e => updateField('thermalFontSize', e.target.value)} disabled={saving} className="w-full border rounded-xl px-3 py-2.5 text-sm disabled:opacity-50" style={{ borderColor: '#E0D8CC', backgroundColor: '#FAF8F4' }}>
+                  <select value={settings.thermalFontSize} onChange={e => updateField('thermalFontSize', e.target.value)} disabled={saving} className="w-full border rounded-xl px-3 py-2.5 text-sm disabled:opacity-50" style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}>
                     <option value="10px">Small (10px)</option>
                     <option value="11px">Medium (11px)</option>
                     <option value="12px">Standard (12px)</option>
@@ -800,10 +800,10 @@ const ReceiptSettings = () => {
           {/* ═══ RIGHT: LIVE PREVIEW ═══ */}
           <div className="lg:col-span-1">
             <div className="sticky top-20 space-y-4">
-              <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
+              <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1A1A1A' }}>
-                    <Eye size={16} style={{ color: '#A97A1F' }} /> Live Preview
+                  <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#0F172A' }}>
+                    <Eye size={16} style={{ color: '#2563EB' }} /> Live Preview
                   </h3>
                   <div className="flex bg-gray-100 rounded-lg p-0.5">
                     <button onClick={() => setActivePreview('a4')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${activePreview === 'a4' ? 'bg-white shadow text-amber-700' : 'text-gray-500'}`}>
@@ -822,13 +822,13 @@ const ReceiptSettings = () => {
                 </p>
               </div>
 
-              <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#E0D8CC' }}>
-                <h3 className="font-bold text-sm mb-3" style={{ color: '#1A1A1A' }}>Quick Test Print</h3>
+              <div className="bg-white rounded-2xl border p-4 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
+                <h3 className="font-bold text-sm mb-3" style={{ color: '#0F172A' }}>Quick Test Print</h3>
                 <div className="space-y-2">
-                  <button onClick={() => toast('Go to any booking and click Print → A4 to test', { icon: '💡' })} className="w-full py-2.5 rounded-xl text-sm font-bold border hover:bg-gray-50 transition-all flex items-center justify-center gap-2" style={{ borderColor: '#E0D8CC', color: '#4A4A4A' }}>
+                  <button onClick={() => toast('Go to any booking and click Print → A4 to test', { icon: '💡' })} className="w-full py-2.5 rounded-xl text-sm font-bold border hover:bg-gray-50 transition-all flex items-center justify-center gap-2" style={{ borderColor: '#CBD5E1', color: '#334155' }}>
                     <Printer size={14} /> Test A4 Print
                   </button>
-                  <button onClick={() => toast('Go to any booking and click Print → Thermal to test', { icon: '💡' })} className="w-full py-2.5 rounded-xl text-sm font-bold border hover:bg-gray-50 transition-all flex items-center justify-center gap-2" style={{ borderColor: '#E0D8CC', color: '#4A4A4A' }}>
+                  <button onClick={() => toast('Go to any booking and click Print → Thermal to test', { icon: '💡' })} className="w-full py-2.5 rounded-xl text-sm font-bold border hover:bg-gray-50 transition-all flex items-center justify-center gap-2" style={{ borderColor: '#CBD5E1', color: '#334155' }}>
                     <Thermometer size={14} /> Test Thermal Print
                   </button>
                 </div>

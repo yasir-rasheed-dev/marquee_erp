@@ -1,22 +1,28 @@
-﻿import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { themes } from '../theme/themeConfig';
 
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
   const [currentTheme, setCurrentTheme] = useState(() => {
-    return localStorage.getItem('erp-theme') || 'ocean';
+    const saved = localStorage.getItem('erp-theme');
+    if (!saved || saved !== 'gold') {
+      localStorage.setItem('erp-theme', 'gold');
+      return 'gold';
+    }
+    return 'gold';
   });
 
   useEffect(() => {
-    const theme = themes[currentTheme];
+    const theme = themes[currentTheme] || themes.gold;
     if (!theme) return;
     
     const root = document.documentElement;
     
     // Apply all CSS variables
     Object.entries(theme).forEach(([key, value]) => {
-      root.style.setProperty(`--${key}`, value);
+      const varName = key.startsWith('--') ? key : `--${key}`;
+      root.style.setProperty(varName, value);
     });
     
     // Set data attribute for any CSS selectors
