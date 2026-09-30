@@ -7,6 +7,7 @@ import {
   Crown, ArrowRight, Eye, EyeOff,
   CheckCircle, AlertCircle, Building2, MapPin
 } from 'lucide-react';
+import { formatPhone } from '../../utils/validators';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ const Register = () => {
     const { name, value } = e.target;
     let val = value;
     if (name === 'companyPhone' || name === 'phone') {
-      val = value.replace(/\D/g, '').slice(0, 11);
+      val = formatPhone(value);
     }
     setFormData(prev => ({ ...prev, [name]: val }));
     setLocalError('');
@@ -79,11 +80,11 @@ const Register = () => {
       setLocalError('Passwords do not match');
       return false;
     }
-    if (formData.companyPhone && formData.companyPhone.length !== 11) {
+    if (formData.companyPhone && formData.companyPhone.replace(/\D/g, '').length !== 11) {
       setLocalError('Company phone must be exactly 11 digits');
       return false;
     }
-    if (formData.phone && formData.phone.length !== 11) {
+    if (formData.phone && formData.phone.replace(/\D/g, '').length !== 11) {
       setLocalError('Admin phone must be exactly 11 digits');
       return false;
     }
@@ -243,9 +244,9 @@ const Register = () => {
                   name="companyPhone"
                   value={formData.companyPhone}
                   onChange={handleChange}
-                  maxLength={11}
+                  maxLength={12}
                   inputMode="numeric"
-                  placeholder="03001234567"
+                  placeholder="0303-1234567"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
                   style={{
                     backgroundColor: '#FFFFFF',
@@ -326,9 +327,9 @@ const Register = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  maxLength={11}
+                  maxLength={12}
                   inputMode="numeric"
-                  placeholder="03001234567"
+                  placeholder="0303-1234567"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
                   style={{
                     backgroundColor: '#FFFFFF',

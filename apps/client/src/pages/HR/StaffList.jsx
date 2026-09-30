@@ -10,6 +10,7 @@ import {
 import employeeApi from '../../services/employeeApi';
 import { useBranch } from '../../context/BranchContext';
 import ReactSelect from '../../components/ui/ReactSelect';
+import { formatPhone, formatCnic } from '../../utils/validators';
 
 
 // ── Helpers ──
@@ -292,7 +293,9 @@ const StaffList = () => {
     const { name, value } = e.target;
     let val = value;
     if (name === 'phone' || name === 'emergencyContact') {
-      val = value.replace(/\D/g, '').slice(0, 11);
+      val = formatPhone(value);
+    } else if (name === 'cnic') {
+      val = formatCnic(value);
     }
     setFormData(prev => ({ ...prev, [name]: val }));
   };
@@ -309,12 +312,16 @@ const StaffList = () => {
       alert('Phone is required');
       return;
     }
-    if (formData.phone.trim().length !== 11) {
-      alert('Phone number must be exactly 11 digits (e.g. 03001234567)');
+    if (formData.phone.replace(/\D/g, '').length !== 11) {
+      alert('Phone number must be exactly 11 digits (e.g. 0300-1234567 or 042-12345678)');
       return;
     }
-    if (formData.emergencyContact && formData.emergencyContact.trim().length !== 11) {
+    if (formData.emergencyContact && formData.emergencyContact.replace(/\D/g, '').length !== 11) {
       alert('Emergency contact must be exactly 11 digits');
+      return;
+    }
+    if (formData.cnic && formData.cnic.replace(/\D/g, '').length !== 13) {
+      alert('CNIC must be 13 digits (e.g. 31203-4256351-7)');
       return;
     }
     if (!formData.designationId) {
@@ -813,7 +820,8 @@ const StaffList = () => {
                         name="cnic"
                         value={formData.cnic}
                         onChange={handleFormChange}
-                        placeholder="12345-6789012-3"
+                        maxLength={15}
+                        placeholder="31203-4256351-7"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
                       />
                     </div>
@@ -836,9 +844,9 @@ const StaffList = () => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleFormChange}
-                        maxLength={11}
+                        maxLength={12}
                         inputMode="numeric"
-                        placeholder="03001234567"
+                        placeholder="0300-1234567 / 042-12345678"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
                         required
                       />
@@ -892,9 +900,9 @@ const StaffList = () => {
                         name="emergencyContact"
                         value={formData.emergencyContact}
                         onChange={handleFormChange}
-                        maxLength={11}
+                        maxLength={12}
                         inputMode="numeric"
-                        placeholder="03001234567"
+                        placeholder="0300-1234567 / 042-12345678"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
                       />
                     </div>

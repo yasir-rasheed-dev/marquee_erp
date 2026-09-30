@@ -12,6 +12,7 @@ import {
 import customerApi from '../../services/customerApi';
 import { useBranch } from '../../context/BranchContext';
 import ReactSelect from '../../components/ui/ReactSelect';
+import { formatPhone, formatCnic } from '../../utils/validators';
 
 const useToast = () => {
   const [toasts, setToasts] = useState([]);
@@ -174,11 +175,11 @@ export default function CustomerManagement() {
       addToast('Name and phone are required', 'error');
       return;
     }
-    if (form.phone.trim().length !== 11) {
-      addToast('Phone number must be exactly 11 digits (e.g. 03001234567)', 'error');
+    if (form.phone.replace(/\D/g, '').length !== 11) {
+      addToast('Phone number must be exactly 11 digits (e.g. 0303-1234567 or 042-12345678)', 'error');
       return;
     }
-    if (form.contactPersonPhone && form.contactPersonPhone.trim().length !== 11) {
+    if (form.contactPersonPhone && form.contactPersonPhone.replace(/\D/g, '').length !== 11) {
       addToast('Contact person phone must be exactly 11 digits', 'error');
       return;
     }
@@ -566,7 +567,7 @@ export default function CustomerManagement() {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-700 mb-1 block">Phone Number *</label>
-                    <input required disabled={modalMode === 'view'} value={form.phone} onChange={e => setForm({...form, phone: e.target.value.replace(/\D/g, '').slice(0, 11)})} maxLength={11} inputMode="numeric" placeholder="03001234567" className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono disabled:bg-gray-50" />
+                    <input required disabled={modalMode === 'view'} value={form.phone} onChange={e => setForm({...form, phone: formatPhone(e.target.value)})} maxLength={12} inputMode="numeric" placeholder="0303-1234567" className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono disabled:bg-gray-50" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-700 mb-1 block">Email Address</label>
@@ -574,7 +575,7 @@ export default function CustomerManagement() {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-700 mb-1 block">CNIC</label>
-                    <input disabled={modalMode === 'view'} value={form.cnic} onChange={e => setForm({...form, cnic: e.target.value})} placeholder="31102-1234567-1" className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono disabled:bg-gray-50" />
+                    <input disabled={modalMode === 'view'} value={form.cnic} onChange={e => setForm({...form, cnic: formatCnic(e.target.value)})} maxLength={15} inputMode="numeric" placeholder="31203-4256351-7" className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono disabled:bg-gray-50" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-700 mb-1 block">City</label>
@@ -657,7 +658,7 @@ export default function CustomerManagement() {
                         </div>
                         <div>
                           <label className="text-xs font-bold text-gray-700 mb-1 block">Contact Phone</label>
-                          <input disabled={modalMode === 'view'} value={form.contactPersonPhone} onChange={e => setForm({...form, contactPersonPhone: e.target.value.replace(/\D/g, '').slice(0, 11)})} maxLength={11} inputMode="numeric" placeholder="03001234567" className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono disabled:bg-gray-50" />
+                          <input disabled={modalMode === 'view'} value={form.contactPersonPhone} onChange={e => setForm({...form, contactPersonPhone: formatPhone(e.target.value)})} maxLength={12} inputMode="numeric" placeholder="0303-1234567" className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono disabled:bg-gray-50" />
                         </div>
                         <div>
                           <label className="text-xs font-bold text-gray-700 mb-1 block">Designation</label>
@@ -708,7 +709,7 @@ export default function CustomerManagement() {
                     <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-white p-3 rounded-xl border border-amber-100 shadow-sm">
                       <div className="md:col-span-4"><input disabled={modalMode === 'view'} value={ec.name} onChange={e => { const list = [...form.emergencyContacts]; list[idx].name = e.target.value; setForm({...form, emergencyContacts: list}); }} placeholder="Contact Name" className="w-full p-2.5 border rounded-xl text-sm disabled:bg-gray-50" /></div>
                       <div className="md:col-span-3"><input disabled={modalMode === 'view'} value={ec.relation} onChange={e => { const list = [...form.emergencyContacts]; list[idx].relation = e.target.value; setForm({...form, emergencyContacts: list}); }} placeholder="Relation (e.g. Brother)" className="w-full p-2.5 border rounded-xl text-sm disabled:bg-gray-50" /></div>
-                      <div className="md:col-span-4"><input disabled={modalMode === 'view'} value={ec.phone} onChange={e => { const list = [...form.emergencyContacts]; list[idx].phone = e.target.value.replace(/\D/g, '').slice(0, 11); setForm({...form, emergencyContacts: list}); }} maxLength={11} inputMode="numeric" placeholder="Phone" className="w-full p-2.5 border rounded-xl text-sm font-mono disabled:bg-gray-50" /></div>
+                      <div className="md:col-span-4"><input disabled={modalMode === 'view'} value={ec.phone} onChange={e => { const list = [...form.emergencyContacts]; list[idx].phone = formatPhone(e.target.value); setForm({...form, emergencyContacts: list}); }} maxLength={12} inputMode="numeric" placeholder="0303-1234567" className="w-full p-2.5 border rounded-xl text-sm font-mono disabled:bg-gray-50" /></div>
                       {modalMode !== 'view' && (
                         <div className="md:col-span-1 text-center"><button type="button" onClick={() => setForm({...form, emergencyContacts: form.emergencyContacts.filter((_, i) => i !== idx)}) } className="text-red-600 hover:bg-red-50 p-2 rounded-lg"><Trash2 size={16} /></button></div>
                       )}

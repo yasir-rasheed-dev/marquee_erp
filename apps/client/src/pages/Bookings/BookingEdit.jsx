@@ -29,6 +29,7 @@ import taxRateApi from '../../services/taxRateApi';
 import accountApi from '../../services/accountApi';
 import receiptSettingsApi from '../../services/receiptSettingsApi';
 import ReactSelect from '../../components/ui/ReactSelect';
+import { formatPhone } from '../../utils/validators';
 
 // ── HELPERS ──
 const formatCurrency = (val) => `Rs ${Math.round(Number(val || 0)).toLocaleString('en-PK')}`;
@@ -1040,8 +1041,8 @@ const BookingEdit = () => {
       toast.error('Customer name and phone are required');
       return false;
     }
-    if (newCustomer.phone.length !== 11) {
-      toast.error('Phone number must be exactly 11 digits (e.g. 03001234567)');
+    if (newCustomer.phone.replace(/\D/g, '').length !== 11) {
+      toast.error('Phone number must be exactly 11 digits (e.g. 0300-1234567 or 042-12345678)');
       return false;
     }
     try {
@@ -1528,7 +1529,7 @@ const BookingEdit = () => {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <input type="text" placeholder="Full Name *" value={newCustomer.name} onChange={e => setNewCustomer({ ...newCustomer, name: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm" style={{ borderColor: '#CBD5E1' }} />
-                    <input type="tel" placeholder="Phone *" value={newCustomer.phone} onChange={e => setNewCustomer({ ...newCustomer, phone: e.target.value.replace(/\D/g, '').slice(0, 11) })} maxLength={11} inputMode="numeric" className="border rounded-xl px-3 py-2.5 text-sm" style={{ borderColor: '#CBD5E1' }} />
+                    <input type="tel" placeholder="Phone *" value={newCustomer.phone} onChange={e => setNewCustomer({ ...newCustomer, phone: formatPhone(e.target.value) })} maxLength={12} inputMode="numeric" placeholder="0300-1234567 / 042-12345678" className="border rounded-xl px-3 py-2.5 text-sm" style={{ borderColor: '#CBD5E1' }} />
                     <input type="text" placeholder="Email" value={newCustomer.email} onChange={e => setNewCustomer({ ...newCustomer, email: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm" style={{ borderColor: '#CBD5E1' }} />
                   </div>
                   <button type="button" onClick={handleCreateCustomer}

@@ -11,6 +11,7 @@ import {
 import supplierApi from '../../services/supplierApi';
 import ReactSelect from '../../components/ui/ReactSelect';
 import { useBranch } from '../../context/BranchContext';
+import { formatPhone } from '../../utils/validators';
 
 const useToast = () => {
   const [toasts, setToasts] = useState([]);
@@ -179,8 +180,8 @@ export default function SupplierManagement() {
       addToast('Name and phone are required', 'error');
       return;
     }
-    if (form.phone.trim().length !== 11) {
-      addToast('Phone number must be exactly 11 digits (e.g. 03001234567)', 'error');
+    if (form.phone.replace(/\D/g, '').length !== 11) {
+      addToast('Phone number must be exactly 11 digits (e.g. 0300-1234567 or 042-12345678)', 'error');
       return;
     }
 
@@ -634,7 +635,7 @@ export default function SupplierManagement() {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-700 mb-1 block">Phone Number *</label>
-                    <input required disabled={modalMode === 'view'} value={form.phone} onChange={e => setForm({...form, phone: e.target.value.replace(/\D/g, '').slice(0, 11)})} maxLength={11} inputMode="numeric" placeholder="03001234567" className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono disabled:bg-gray-50" />
+                    <input required disabled={modalMode === 'view'} value={form.phone} onChange={e => setForm({...form, phone: formatPhone(e.target.value)})} maxLength={12} inputMode="numeric" placeholder="0300-1234567 / 042-12345678" className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono disabled:bg-gray-50" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-700 mb-1 block">Email Address</label>

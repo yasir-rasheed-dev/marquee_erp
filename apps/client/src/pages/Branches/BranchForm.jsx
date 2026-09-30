@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import authApi from '../../services/authApi';  // ✅ Fixed import
 import { useAuth } from '../../context/AuthContext';
 import { useBranch } from '../../context/BranchContext';
+import { formatPhone } from '../../utils/validators';
 
 const BranchForm = () => {
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ const BranchForm = () => {
     const { name, value, type, checked } = e.target;
     let val = type === 'checkbox' ? checked : value;
     if (name === 'phone') {
-      val = value.replace(/\D/g, '').slice(0, 11);
+      val = formatPhone(value);
     }
     setFormData(prev => ({
       ...prev,
@@ -216,9 +217,9 @@ const BranchForm = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  maxLength={11}
+                  maxLength={12}
                   inputMode="numeric"
-                  placeholder="03001234567"
+                  placeholder="0300-1234567 / 042-12345678"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
                   style={{
                     backgroundColor: '#FFFFFF',

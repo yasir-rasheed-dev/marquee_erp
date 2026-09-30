@@ -17,6 +17,7 @@ import accountApi from '../../services/accountApi';
 import apiClient from '../../services/apiClient';
 import { useBranch } from '../../context/BranchContext';
 import { useAuth } from '../../context/AuthContext';
+import { formatPhone } from '../../utils/validators';
 
 // ── Toast Hook ──
 const useToast = () => {
@@ -965,10 +966,10 @@ export default function GoodsReceivedNote() {
                       <input
                         type="tel"
                         value={form.driverPhone}
-                        onChange={(e) => setForm(prev => ({ ...prev, driverPhone: e.target.value.replace(/\D/g, '').slice(0, 11) }))}
-                        maxLength={11}
+                        onChange={(e) => setForm(prev => ({ ...prev, driverPhone: formatPhone(e.target.value) }))}
+                        maxLength={12}
                         inputMode="numeric"
-                        placeholder="03001234567"
+                        placeholder="0300-1234567 / 042-12345678"
                         className="w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-white"
                       />
                     </div>

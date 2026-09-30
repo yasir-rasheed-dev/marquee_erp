@@ -11,8 +11,8 @@ const registerValidation = [
   body('email').isEmail().withMessage('Valid email is required'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('role').optional().isIn(['admin', 'manager', 'cashier', 'staff']).withMessage('Invalid role'),
-  body('phone').optional().isString().isLength({ max: 11 }).withMessage('Phone must not exceed 11 digits'),
-  body('companyPhone').optional().isString().isLength({ max: 11 }).withMessage('Company phone must not exceed 11 digits'),
+  body('phone').optional().isString().isLength({ max: 15 }).withMessage('Phone must not exceed 15 characters'),
+  body('companyPhone').optional().isString().isLength({ max: 15 }).withMessage('Company phone must not exceed 15 characters'),
   body('branchId').optional().isInt().withMessage('Branch ID must be an integer'),
   body('companyId').optional().isInt().withMessage('Company ID must be an integer')
 ];

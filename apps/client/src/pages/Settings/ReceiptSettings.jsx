@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import receiptSettingsApi from '../../services/receiptSettingsApi';
+import { formatPhone } from '../../utils/validators';
 
 // ── DEFAULT SETTINGS ──
 const defaultSettings = {
@@ -657,7 +658,7 @@ const ReceiptSettings = () => {
                 <Input label="Company Name" value={settings.companyName} onChange={v => updateField('companyName', v)} placeholder="Your Business Name" icon={Type} disabled={saving} />
                 <Input label="Slogan / Tagline" value={settings.companySlogan} onChange={v => updateField('companySlogan', v)} placeholder="Premium Event Management" icon={Sparkles} disabled={saving} />
                 <Input label="Address" value={settings.address} onChange={v => updateField('address', v)} placeholder="Full address" icon={MapPin} disabled={saving} />
-                <Input label="Phone Number" value={settings.phone} onChange={v => updateField('phone', v.replace(/\D/g, '').slice(0, 11))} maxLength={11} inputMode="numeric" placeholder="03001234567" icon={Phone} disabled={saving} />
+                <Input label="Phone Number" value={settings.phone} onChange={v => updateField('phone', formatPhone(v))} maxLength={12} inputMode="numeric" placeholder="0300-1234567 / 042-12345678" icon={Phone} disabled={saving} />
                 <Input label="Email" value={settings.email} onChange={v => updateField('email', v)} placeholder="info@company.com" type="email" icon={Mail} disabled={saving} />
                 <Input label="Website" value={settings.website} onChange={v => updateField('website', v)} placeholder="www.company.com" icon={Globe} disabled={saving} />
               </div>
