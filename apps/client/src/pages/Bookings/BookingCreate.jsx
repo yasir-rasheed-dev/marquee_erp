@@ -23,7 +23,7 @@ import hallApi from '../../services/hallApi';
 import customerApi from '../../services/customerApi';
 import serviceApi from '../../services/serviceApi';
 import eventApi from '../../services/eventApi';
-import { formatPhone, formatCnic } from '../../utils/validators';
+import { formatPhone, formatCnic, validateEmail, isEmailInvalid } from '../../utils/validators';
 import taxRateApi from '../../services/taxRateApi';
 import accountApi from '../../services/accountApi';
 import receiptSettingsApi from '../../services/receiptSettingsApi';
@@ -952,6 +952,10 @@ const updateServiceHours = (serviceId, hours) => {
     }
     if (newCustomer.phone.replace(/\D/g, '').length !== 11) {
       toast.error('Phone number must be exactly 11 digits (e.g. 0303-1234567 or 042-12345678)');
+      return false;
+    }
+    if (newCustomer.email && newCustomer.email.trim() && !validateEmail(newCustomer.email.trim())) {
+      toast.error('Please enter a valid email address (e.g. name@gmail.com, info@domain.edu.pk)');
       return false;
     }
     if (newCustomer.customerType !== 'individual' && !newCustomer.businessName.trim()) {
@@ -2093,7 +2097,25 @@ console.log('📊 Final Services:', payloadServices.length);
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <input type="text" placeholder="Full Name *" value={newCustomer.name} onChange={e => setNewCustomer({ ...newCustomer, name: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" style={{ borderColor: '#CBD5E1' }} />
                     <input type="tel" placeholder="Phone * (e.g. 0303-1234567)" value={newCustomer.phone} onChange={e => setNewCustomer({ ...newCustomer, phone: formatPhone(e.target.value) })} maxLength={12} inputMode="numeric" className="border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 font-mono" style={{ borderColor: '#CBD5E1' }} />
-                    <input type="text" placeholder="Email" value={newCustomer.email} onChange={e => setNewCustomer({ ...newCustomer, email: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" style={{ borderColor: '#CBD5E1' }} />
+                    <div className="flex flex-col">
+                      <input 
+                        type="text" 
+                        placeholder="Email (e.g. name@gmail.com)" 
+                        value={newCustomer.email} 
+                        onChange={e => setNewCustomer({ ...newCustomer, email: e.target.value })} 
+                        className={`border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 w-full transition-colors ${
+                          isEmailInvalid(newCustomer.email)
+                            ? 'border-red-500 bg-red-50/30 text-red-900 focus:ring-red-400'
+                            : 'focus:ring-[#2563EB]/20'
+                        }`} 
+                        style={{ borderColor: isEmailInvalid(newCustomer.email) ? '#EF4444' : '#CBD5E1' }} 
+                      />
+                      {isEmailInvalid(newCustomer.email) && (
+                        <p className="text-[10px] text-red-500 font-medium mt-1">
+                          Invalid email format
+                        </p>
+                      )}
+                    </div>
                     <input type="text" placeholder="CNIC (e.g. 31203-4256351-7)" value={newCustomer.cnic} onChange={e => setNewCustomer({ ...newCustomer, cnic: formatCnic(e.target.value) })} maxLength={15} inputMode="numeric" className="border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 font-mono" style={{ borderColor: '#CBD5E1' }} />
                     <input type="text" placeholder="City" value={newCustomer.city} onChange={e => setNewCustomer({ ...newCustomer, city: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" style={{ borderColor: '#CBD5E1' }} />
                     <input type="text" placeholder="Address" value={newCustomer.address} onChange={e => setNewCustomer({ ...newCustomer, address: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" style={{ borderColor: '#CBD5E1' }} />

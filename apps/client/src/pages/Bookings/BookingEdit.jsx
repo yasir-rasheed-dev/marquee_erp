@@ -29,7 +29,7 @@ import taxRateApi from '../../services/taxRateApi';
 import accountApi from '../../services/accountApi';
 import receiptSettingsApi from '../../services/receiptSettingsApi';
 import ReactSelect from '../../components/ui/ReactSelect';
-import { formatPhone } from '../../utils/validators';
+import { formatPhone, validateEmail, isEmailInvalid } from '../../utils/validators';
 
 // ── HELPERS ──
 const formatCurrency = (val) => `Rs ${Math.round(Number(val || 0)).toLocaleString('en-PK')}`;
@@ -1045,6 +1045,10 @@ const BookingEdit = () => {
       toast.error('Phone number must be exactly 11 digits (e.g. 0300-1234567 or 042-12345678)');
       return false;
     }
+    if (newCustomer.email && newCustomer.email.trim() && !validateEmail(newCustomer.email.trim())) {
+      toast.error('Please enter a valid email address (e.g. name@gmail.com, info@domain.edu.pk)');
+      return false;
+    }
     try {
       const payload = { ...newCustomer, branchId, companyId };
       const res = await customerApi.create(payload);
@@ -1530,7 +1534,25 @@ const BookingEdit = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <input type="text" placeholder="Full Name *" value={newCustomer.name} onChange={e => setNewCustomer({ ...newCustomer, name: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm" style={{ borderColor: '#CBD5E1' }} />
                     <input type="tel" placeholder="Phone *" value={newCustomer.phone} onChange={e => setNewCustomer({ ...newCustomer, phone: formatPhone(e.target.value) })} maxLength={12} inputMode="numeric" placeholder="0300-1234567 / 042-12345678" className="border rounded-xl px-3 py-2.5 text-sm" style={{ borderColor: '#CBD5E1' }} />
-                    <input type="text" placeholder="Email" value={newCustomer.email} onChange={e => setNewCustomer({ ...newCustomer, email: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm" style={{ borderColor: '#CBD5E1' }} />
+                    <div className="flex flex-col">
+                      <input 
+                        type="text" 
+                        placeholder="Email" 
+                        value={newCustomer.email} 
+                        onChange={e => setNewCustomer({ ...newCustomer, email: e.target.value })} 
+                        className={`border rounded-xl px-3 py-2.5 text-sm w-full transition-colors ${
+                          isEmailInvalid(newCustomer.email)
+                            ? 'border-red-500 bg-red-50/30 text-red-900 focus:outline-none focus:ring-2 focus:ring-red-400'
+                            : 'focus:outline-none focus:ring-2 focus:ring-blue-500/20'
+                        }`} 
+                        style={{ borderColor: isEmailInvalid(newCustomer.email) ? '#EF4444' : '#CBD5E1' }} 
+                      />
+                      {isEmailInvalid(newCustomer.email) && (
+                        <p className="text-[10px] text-red-500 font-medium mt-1">
+                          Invalid email format
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <button type="button" onClick={handleCreateCustomer}
                     className="px-5 py-2.5 rounded-xl text-white text-sm font-bold shadow-md transition-all hover:scale-105"

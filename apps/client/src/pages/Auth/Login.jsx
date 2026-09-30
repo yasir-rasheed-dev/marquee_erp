@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { LogIn, Eye, EyeOff, AlertCircle, UserPlus, Crown } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { validateEmail, isEmailInvalid } from '../../utils/validators';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -23,6 +24,12 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!validateEmail(form.email)) {
+      setError('Please enter a valid email address (e.g. admin@marquee.com)');
+      return;
+    }
+
     setLoading(true);
     
     try {
@@ -73,8 +80,17 @@ export default function Login() {
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               placeholder="admin@marquee.com"
-              className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-sm focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all shadow-2xs"
+              className={`w-full px-4 py-3 rounded-xl border text-sm transition-all shadow-2xs ${
+                isEmailInvalid(form.email)
+                  ? 'border-red-500 bg-red-50/30 text-red-900 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-400'
+                  : 'border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20'
+              }`}
             />
+            {isEmailInvalid(form.email) && (
+              <p className="text-[11px] text-red-500 font-medium mt-1">
+                Invalid email format (e.g. admin@marquee.com)
+              </p>
+            )}
           </div>
 
           <div>

@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import receiptSettingsApi from '../../services/receiptSettingsApi';
-import { formatPhone } from '../../utils/validators';
+import { formatPhone, validateEmail, isEmailInvalid } from '../../utils/validators';
 
 // ── DEFAULT SETTINGS ──
 const defaultSettings = {
@@ -75,10 +75,10 @@ const Toggle = ({ label, checked, onChange, icon: Icon, disabled }) => (
   </div>
 );
 
-const Input = ({ label, value, onChange, placeholder, type = 'text', icon: Icon, disabled, maxLength, inputMode }) => (
+const Input = ({ label, value, onChange, placeholder, type = 'text', icon: Icon, disabled, maxLength, inputMode, isError, errorText }) => (
   <div>
     <label className="text-xs font-bold uppercase mb-1.5 block text-gray-500 flex items-center gap-1.5">
-      {Icon && <Icon size={12} style={{ color: '#2563EB' }} />}
+      {Icon && <Icon size={12} style={{ color: isError ? '#EF4444' : '#2563EB' }} />}
       {label}
     </label>
     <input
@@ -89,9 +89,20 @@ const Input = ({ label, value, onChange, placeholder, type = 'text', icon: Icon,
       disabled={disabled}
       maxLength={maxLength}
       inputMode={inputMode}
-      className="w-full border rounded-xl px-3 py-2.5 text-sm transition-all focus:ring-2 focus:ring-amber-200 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-      style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}
+      className={`w-full border rounded-xl px-3 py-2.5 text-sm transition-all outline-none disabled:opacity-50 disabled:cursor-not-allowed ${
+        isError
+          ? 'border-red-500 bg-red-50/30 text-red-900 focus:ring-2 focus:ring-red-400'
+          : 'focus:ring-2 focus:ring-amber-200'
+      }`}
+      style={{
+        borderColor: isError ? '#EF4444' : '#CBD5E1',
+        backgroundColor: isError ? '#FEF2F2' : '#F8FAFC',
+        color: isError ? '#991B1B' : '#0F172A'
+      }}
     />
+    {isError && errorText && (
+      <p className="text-[11px] text-red-500 font-medium mt-1">{errorText}</p>
+    )}
   </div>
 );
 
@@ -493,6 +504,10 @@ const ReceiptSettings = () => {
   };
 
   const handleSave = async () => {
+    if (settings.email && settings.email.trim() && !validateEmail(settings.email.trim())) {
+      toast.error('Please enter a valid email address (e.g. info@company.com)');
+      return;
+    }
     try {
       setSaving(true);
       setSavedFlag(false);
@@ -659,7 +674,17 @@ const ReceiptSettings = () => {
                 <Input label="Slogan / Tagline" value={settings.companySlogan} onChange={v => updateField('companySlogan', v)} placeholder="Premium Event Management" icon={Sparkles} disabled={saving} />
                 <Input label="Address" value={settings.address} onChange={v => updateField('address', v)} placeholder="Full address" icon={MapPin} disabled={saving} />
                 <Input label="Phone Number" value={settings.phone} onChange={v => updateField('phone', formatPhone(v))} maxLength={12} inputMode="numeric" placeholder="0300-1234567 / 042-12345678" icon={Phone} disabled={saving} />
-                <Input label="Email" value={settings.email} onChange={v => updateField('email', v)} placeholder="info@company.com" type="email" icon={Mail} disabled={saving} />
+                <Input 
+                  label="Email" 
+                  value={settings.email} 
+                  onChange={v => updateField('email', v)} 
+                  placeholder="info@company.com" 
+                  type="email" 
+                  icon={Mail} 
+                  disabled={saving} 
+                  isError={isEmailInvalid(settings.email)}
+                  errorText="Invalid email format (e.g. info@company.com, contact@domain.pk)"
+                />
                 <Input label="Website" value={settings.website} onChange={v => updateField('website', v)} placeholder="www.company.com" icon={Globe} disabled={saving} />
               </div>
             </div>

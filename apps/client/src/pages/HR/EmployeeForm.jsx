@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import roleApi from '../../services/rolePermissionApi';
 import ReactSelect from '../../components/ui/ReactSelect';
-import { formatPhone, formatCnic } from '../../utils/validators';
+import { formatPhone, formatCnic, validateEmail, isEmailInvalid } from '../../utils/validators';
 
 // ── API Client ──
 const API_URL = (() => {
@@ -303,6 +303,10 @@ const EmployeeForm = () => {
       showError('CNIC must be 13 digits (e.g. 31203-4256351-7)');
       return;
     }
+    if (formData.email && formData.email.trim() && !validateEmail(formData.email.trim())) {
+      showError('Please enter a valid email address (e.g. employee@gmail.com, name@company.com)');
+      return;
+    }
     if (!formData.designationId) {
       showError('Designation is required');
       return;
@@ -516,8 +520,18 @@ const EmployeeForm = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
+                  placeholder="employee@gmail.com"
+                  className={`w-full px-3 py-2 border rounded-lg outline-none text-sm transition-colors ${
+                    isEmailInvalid(formData.email)
+                      ? 'border-red-500 bg-red-50/30 text-red-900 focus:ring-2 focus:ring-red-400 focus:border-red-500'
+                      : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                  }`}
                 />
+                {isEmailInvalid(formData.email) && (
+                  <p className="text-[11px] text-red-500 font-medium mt-1">
+                    Invalid email format (e.g. name@gmail.com, user@domain.com)
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">City</label>

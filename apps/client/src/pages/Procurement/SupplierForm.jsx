@@ -10,8 +10,7 @@ import {
 } from 'lucide-react';
 import supplierApi from '../../services/supplierApi';
 import ReactSelect from '../../components/ui/ReactSelect';
-import { useBranch } from '../../context/BranchContext';
-import { formatPhone } from '../../utils/validators';
+import { formatPhone, validateEmail, isEmailInvalid } from '../../utils/validators';
 
 const useToast = () => {
   const [toasts, setToasts] = useState([]);
@@ -182,6 +181,10 @@ export default function SupplierManagement() {
     }
     if (form.phone.replace(/\D/g, '').length !== 11) {
       addToast('Phone number must be exactly 11 digits (e.g. 0300-1234567 or 042-12345678)', 'error');
+      return;
+    }
+    if (form.email && form.email.trim() && !validateEmail(form.email.trim())) {
+      addToast('Please enter a valid email address (e.g. supplier@gmail.com, info@company.com)', 'error');
       return;
     }
 
@@ -639,7 +642,23 @@ export default function SupplierManagement() {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-700 mb-1 block">Email Address</label>
-                    <input type="email" disabled={modalMode === 'view'} value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="supplier@gmail.com" className="w-full p-3 border border-gray-200 rounded-xl text-sm disabled:bg-gray-50" />
+                    <input 
+                      type="email" 
+                      disabled={modalMode === 'view'} 
+                      value={form.email} 
+                      onChange={e => setForm({...form, email: e.target.value})} 
+                      placeholder="supplier@gmail.com" 
+                      className={`w-full p-3 border rounded-xl text-sm disabled:bg-gray-50 transition-colors ${
+                        isEmailInvalid(form.email)
+                          ? 'border-red-500 bg-red-50/30 text-red-900 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-500'
+                          : 'border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
+                      }`} 
+                    />
+                    {isEmailInvalid(form.email) && (
+                      <p className="text-[11px] text-red-500 font-medium mt-1">
+                        Invalid email format (e.g. supplier@gmail.com, info@company.com)
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-700 mb-1 block">Contact Person</label>

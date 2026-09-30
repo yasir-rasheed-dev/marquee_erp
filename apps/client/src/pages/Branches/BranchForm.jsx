@@ -7,8 +7,7 @@ import {
 import toast from 'react-hot-toast';
 import authApi from '../../services/authApi';  // ✅ Fixed import
 import { useAuth } from '../../context/AuthContext';
-import { useBranch } from '../../context/BranchContext';
-import { formatPhone } from '../../utils/validators';
+import { formatPhone, validateEmail, isEmailInvalid } from '../../utils/validators';
 
 const BranchForm = () => {
   const navigate = useNavigate();
@@ -79,6 +78,10 @@ const BranchForm = () => {
   // ── Handle Submit ──
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.email && formData.email.trim() && !validateEmail(formData.email.trim())) {
+      toast.error('Please enter a valid email address (e.g. branch@gmail.com, info@company.com)');
+      return;
+    }
     setLoading(true);
 
     try {
@@ -237,22 +240,26 @@ const BranchForm = () => {
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: isEmailInvalid(formData.email) ? '#EF4444' : '#475569' }} />
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="Enter email address"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
+                  placeholder="Enter email address (e.g. branch@company.com)"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm transition-colors"
                   style={{
-                    backgroundColor: '#FFFFFF',
-                    borderColor: '#CBD5E1',
-                    color: '#0F172A',
-                    focusRingColor: 'rgba(37,99,235,0.2)'
+                    backgroundColor: isEmailInvalid(formData.email) ? '#FEF2F2' : '#FFFFFF',
+                    borderColor: isEmailInvalid(formData.email) ? '#EF4444' : '#CBD5E1',
+                    color: isEmailInvalid(formData.email) ? '#991B1B' : '#0F172A'
                   }}
                 />
               </div>
+              {isEmailInvalid(formData.email) && (
+                <p className="text-[11px] text-red-500 font-medium mt-1">
+                  Invalid email format (e.g. branch@gmail.com, info@company.com)
+                </p>
+              )}
             </div>
 
             {/* Status */}

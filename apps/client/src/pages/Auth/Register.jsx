@@ -7,7 +7,7 @@ import {
   Crown, ArrowRight, Eye, EyeOff,
   CheckCircle, AlertCircle, Building2, MapPin
 } from 'lucide-react';
-import { formatPhone } from '../../utils/validators';
+import { formatPhone, validateEmail, isEmailInvalid } from '../../utils/validators';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -68,8 +68,8 @@ const Register = () => {
       setLocalError('Email is required');
       return false;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setLocalError('Please enter a valid email address');
+    if (!validateEmail(formData.email)) {
+      setLocalError('Please enter a valid email address (e.g. admin@company.com, info@domain.edu.pk)');
       return false;
     }
     if (formData.password.length < 6) {
@@ -296,7 +296,7 @@ const Register = () => {
                 Admin Email <span style={{ color: '#B71C1C' }}>*</span>
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: isEmailInvalid(formData.email) ? '#EF4444' : '#475569' }} />
                 <input
                   type="email"
                   name="email"
@@ -304,15 +304,20 @@ const Register = () => {
                   onChange={handleChange}
                   placeholder="admin@company.com"
                   required
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm transition-colors"
                   style={{
-                    backgroundColor: '#FFFFFF',
-                    borderColor: '#CBD5E1',
-                    color: '#0F172A',
-                    focusRingColor: 'rgba(37,99,235,0.2)'
+                    backgroundColor: isEmailInvalid(formData.email) ? '#FEF2F2' : '#FFFFFF',
+                    borderColor: isEmailInvalid(formData.email) ? '#EF4444' : '#CBD5E1',
+                    color: isEmailInvalid(formData.email) ? '#991B1B' : '#0F172A',
+                    focusRingColor: isEmailInvalid(formData.email) ? 'rgba(239,68,68,0.2)' : 'rgba(37,99,235,0.2)'
                   }}
                 />
               </div>
+              {isEmailInvalid(formData.email) && (
+                <p className="text-[11px] text-red-500 font-medium mt-1">
+                  Invalid email format (e.g. admin@company.com, info@domain.edu.pk)
+                </p>
+              )}
             </div>
 
             {/* Admin Phone */}
