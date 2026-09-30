@@ -267,6 +267,15 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
 
   const toggleSubmenu = (label) => setExpandedMenu(prev => prev === label ? null : label);
 
+  const handleNavigate = () => {
+    setMobileOpen(false);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+    const mainEl = document.querySelector('main');
+    if (mainEl) mainEl.scrollTop = 0;
+  };
+
   const renderMenuItem = (item) => {
     const Icon = item.icon;
     const active = isMenuActive(item);
@@ -293,7 +302,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
           <NavLink
             to={item.path}
             end={item.path === '/'}
-            onClick={() => setMobileOpen(false)}
+            onClick={handleNavigate}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
               ${isActive 
@@ -321,7 +330,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
                 <NavLink
                   key={sub.path}
                   to={sub.path}
-                  onClick={() => setMobileOpen(false)}
+                  onClick={handleNavigate}
                   className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all group/sub
                     ${isSubActive 
                       ? 'text-blue-700 bg-blue-50 font-bold' 

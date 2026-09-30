@@ -1,10 +1,17 @@
-import { Outlet } from 'react-router-dom';
-import { useState } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
+import { useState, useLayoutEffect } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
 
 const DashboardLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen bg-[#F1F5F9] text-[#0F172A]">
