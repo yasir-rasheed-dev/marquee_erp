@@ -1,4 +1,4 @@
-﻿// pages/Suppliers/SupplierManagement.jsx
+// pages/Suppliers/SupplierManagement.jsx
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -177,6 +177,10 @@ export default function SupplierManagement() {
     e.preventDefault();
     if (!form.name.trim() || !form.phone.trim()) {
       addToast('Name and phone are required', 'error');
+      return;
+    }
+    if (form.phone.trim().length !== 11) {
+      addToast('Phone number must be exactly 11 digits (e.g. 03001234567)', 'error');
       return;
     }
 
@@ -630,7 +634,7 @@ export default function SupplierManagement() {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-700 mb-1 block">Phone Number *</label>
-                    <input required disabled={modalMode === 'view'} value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="03001234567" className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono disabled:bg-gray-50" />
+                    <input required disabled={modalMode === 'view'} value={form.phone} onChange={e => setForm({...form, phone: e.target.value.replace(/\D/g, '').slice(0, 11)})} maxLength={11} inputMode="numeric" placeholder="03001234567" className="w-full p-3 border border-gray-200 rounded-xl text-sm font-mono disabled:bg-gray-50" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-700 mb-1 block">Email Address</label>

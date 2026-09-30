@@ -24,10 +24,7 @@ export const PermissionProvider = ({ children }) => {
       const userStr = localStorage.getItem('user');
       const user = userStr ? JSON.parse(userStr) : null;
 
-      console.log('🔐 PermissionContext - User:', user);
-
       if (!user) {
-        console.log('🔐 PermissionContext: No user found, clearing permissions');
         setPermissions([]);
         setUserRole(null);
         setLoading(false);
@@ -38,14 +35,12 @@ export const PermissionProvider = ({ children }) => {
 
       // Admin = skip API call, instant access
       if (user.role === 'super_admin' || user.role === 'admin') {
-        console.log('🔐 Admin user - granting all permissions');
         setPermissions([]);
         setLoading(false);
         return;
       }
 
       const res = await roleApi.getMyPermissions();
-      console.log('🔐 getMyPermissions Response:', res);
 
       let perms = [];
 
@@ -88,12 +83,8 @@ export const PermissionProvider = ({ children }) => {
         allowed: p.allowed === true || p.allowed === 'true' || p.allowed === 1
       }));
 
-      console.log('🔐 Permissions loaded for', user.role, ':', perms.length, 'permissions');
-      console.log('🔐 Resources:', perms.map(p => `${p.resource}:${p.action}`));
-
       setPermissions(perms);
     } catch (err) {
-      console.error('❌ Permission load error:', err);
       setPermissions([]);
     } finally {
       setLoading(false);
@@ -105,7 +96,6 @@ export const PermissionProvider = ({ children }) => {
     loadPermissions();
 
     const handleAuthChange = () => {
-      console.log('🔄 Auth changed, reloading permissions...');
       loadPermissions();
     };
 
@@ -123,7 +113,6 @@ export const PermissionProvider = ({ children }) => {
         set.add(`${p.resource}:${p.action}`);
       }
     });
-    console.log('🔐 Allowed Resources:', set);
     return set;
   }, [permissions]);
 

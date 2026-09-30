@@ -141,7 +141,6 @@ class BaseApiService {
   clearCache() {
     this.cache.clear();
     this.pendingRequests.clear();
-    console.log('🧹 API Cache cleared successfully.');
   }
 
   clearCacheForEndpoint(endpoint) {

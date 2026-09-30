@@ -1040,6 +1040,10 @@ const BookingEdit = () => {
       toast.error('Customer name and phone are required');
       return false;
     }
+    if (newCustomer.phone.length !== 11) {
+      toast.error('Phone number must be exactly 11 digits (e.g. 03001234567)');
+      return false;
+    }
     try {
       const payload = { ...newCustomer, branchId, companyId };
       const res = await customerApi.create(payload);
@@ -1524,7 +1528,7 @@ const BookingEdit = () => {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <input type="text" placeholder="Full Name *" value={newCustomer.name} onChange={e => setNewCustomer({ ...newCustomer, name: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm" style={{ borderColor: '#CBD5E1' }} />
-                    <input type="text" placeholder="Phone *" value={newCustomer.phone} onChange={e => setNewCustomer({ ...newCustomer, phone: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm" style={{ borderColor: '#CBD5E1' }} />
+                    <input type="tel" placeholder="Phone *" value={newCustomer.phone} onChange={e => setNewCustomer({ ...newCustomer, phone: e.target.value.replace(/\D/g, '').slice(0, 11) })} maxLength={11} inputMode="numeric" className="border rounded-xl px-3 py-2.5 text-sm" style={{ borderColor: '#CBD5E1' }} />
                     <input type="text" placeholder="Email" value={newCustomer.email} onChange={e => setNewCustomer({ ...newCustomer, email: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm" style={{ borderColor: '#CBD5E1' }} />
                   </div>
                   <button type="button" onClick={handleCreateCustomer}

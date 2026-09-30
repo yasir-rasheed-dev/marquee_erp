@@ -45,8 +45,6 @@ const DataRefreshWrapper = ({ children }) => {
     const companyChanged = previousCompanyId.current !== currentCompanyId;
 
     if (branchChanged || companyChanged) {
-      console.log(`🔄 Wrapper detected change: Branch ${previousBranchId.current} → ${currentBranchId}, Company ${previousCompanyId.current} → ${currentCompanyId}`);
-
       // Clear any pending debounce
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
@@ -129,7 +127,6 @@ const DataRefreshWrapper = ({ children }) => {
     if (typeof window !== 'undefined') {
       window.__refreshAppData = refreshAllData;
       window.__refreshBranchData = refreshBranchOnly;
-      console.log('🛠️ Debug: Use window.__refreshAppData() or window.__refreshBranchData() in console to manually refresh');
     }
     
     return () => {

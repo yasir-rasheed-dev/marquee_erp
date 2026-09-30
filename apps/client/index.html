@@ -5,6 +5,41 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Marquee ERP - Admin</title>
+    <script>
+      (function() {
+        if (typeof window !== 'undefined') {
+          // Disable React DevTools prompt
+          window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
+            isDisabled: true,
+            supportsFiber: true,
+            inject: function() {},
+            onCommitFiberRoot: function() {},
+            onCommitFiberUnmount: function() {}
+          };
+
+          // Completely silence console for clean presentation
+          const isDebug = window.location.search.includes('debug=true') || localStorage.getItem('debug') === 'true';
+          if (!isDebug) {
+            const noop = function() {};
+            console.log = noop;
+            console.info = noop;
+            console.debug = noop;
+            console.warn = noop;
+            console.error = noop;
+            window.addEventListener('error', function(e) { e.preventDefault(); });
+            window.addEventListener('unhandledrejection', function(e) { e.preventDefault(); });
+          }
+          window.__enableConsole = function() {
+            localStorage.setItem('debug', 'true');
+            window.location.reload();
+          };
+          window.__disableConsole = function() {
+            localStorage.removeItem('debug');
+            window.location.reload();
+          };
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -42,7 +42,11 @@ const Register = () => {
   // ── Handle Change ──
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    let val = value;
+    if (name === 'companyPhone' || name === 'phone') {
+      val = value.replace(/\D/g, '').slice(0, 11);
+    }
+    setFormData(prev => ({ ...prev, [name]: val }));
     setLocalError('');
   };
 
@@ -73,6 +77,14 @@ const Register = () => {
     }
     if (formData.password !== formData.confirmPassword) {
       setLocalError('Passwords do not match');
+      return false;
+    }
+    if (formData.companyPhone && formData.companyPhone.length !== 11) {
+      setLocalError('Company phone must be exactly 11 digits');
+      return false;
+    }
+    if (formData.phone && formData.phone.length !== 11) {
+      setLocalError('Admin phone must be exactly 11 digits');
       return false;
     }
     return true;
@@ -231,7 +243,9 @@ const Register = () => {
                   name="companyPhone"
                   value={formData.companyPhone}
                   onChange={handleChange}
-                  placeholder="042-1234567"
+                  maxLength={11}
+                  inputMode="numeric"
+                  placeholder="03001234567"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
                   style={{
                     backgroundColor: '#FFFFFF',
@@ -384,7 +398,9 @@ const Register = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="0300-1234567"
+                  maxLength={11}
+                  inputMode="numeric"
+                  placeholder="03001234567"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
                   style={{
                     backgroundColor: '#FFFFFF',

@@ -1,4 +1,4 @@
-﻿// src/pages/hr/EmployeeForm.jsx
+// src/pages/hr/EmployeeForm.jsx
 // WITH TOAST + NAVIGATION TO /hr
 
 import React, { useState, useEffect } from 'react';
@@ -235,7 +235,11 @@ const EmployeeForm = () => {
   // ── Handlers ──
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    let val = value;
+    if (name === 'phone' || name === 'emergencyContact') {
+      val = value.replace(/\D/g, '').slice(0, 11);
+    }
+    setFormData(prev => ({ ...prev, [name]: val }));
   };
 
   const handleToggleLogin = (checked) => {
@@ -282,6 +286,14 @@ const EmployeeForm = () => {
     }
     if (!formData.phone.trim()) {
       showError('Phone is required');
+      return;
+    }
+    if (formData.phone.trim().length !== 11) {
+      showError('Phone number must be exactly 11 digits (e.g. 03001234567)');
+      return;
+    }
+    if (formData.emergencyContact && formData.emergencyContact.trim().length !== 11) {
+      showError('Emergency contact must be exactly 11 digits');
       return;
     }
     if (!formData.designationId) {
@@ -478,10 +490,13 @@ const EmployeeForm = () => {
                   Phone <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="text"
+                  type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
+                  maxLength={11}
+                  inputMode="numeric"
+                  placeholder="03001234567"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
                   required
                 />
@@ -531,10 +546,13 @@ const EmployeeForm = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Number</label>
                 <input
-                  type="text"
+                  type="tel"
                   name="emergencyContact"
                   value={formData.emergencyContact}
                   onChange={handleChange}
+                  maxLength={11}
+                  inputMode="numeric"
+                  placeholder="03001234567"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
                 />
               </div>

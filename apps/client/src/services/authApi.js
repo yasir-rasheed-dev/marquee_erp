@@ -79,19 +79,9 @@ api.interceptors.request.use(
       };
     }
     
-    // ✅ Log request for debugging (only in development)
-    if (import.meta.env.DEV) {
-      console.log(`🚀 ${config.method?.toUpperCase()} ${config.url}`, {
-        params: config.params,
-        data: config.data,
-        headers: config.headers
-      });
-    }
-    
     return config;
   },
   (error) => {
-    console.error('❌ Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -99,13 +89,6 @@ api.interceptors.request.use(
 // ── Response Interceptor ──
 api.interceptors.response.use(
   (response) => {
-    // ✅ Log response for debugging (only in development)
-    if (import.meta.env.DEV) {
-      console.log(`✅ ${response.config.method?.toUpperCase()} ${response.config.url}`, {
-        status: response.status,
-        data: response.data
-      });
-    }
     return response;
   },
   async (error) => {

@@ -24,15 +24,12 @@ export default {
         branchId: params.branchId || branchId
       };
       
-      console.log('🔍 customerApi.getAll - params:', finalParams);
       return apiClient.get('/customers', { params: finalParams })
         .then(response => response)
         .catch(error => {
-          console.error('❌ customerApi.getAll - error:', error);
           throw error;
         });
     } catch (e) {
-      console.error('❌ customerApi error:', e);
       return apiClient.get('/customers', { params });
     }
   },

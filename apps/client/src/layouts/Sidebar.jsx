@@ -7,7 +7,16 @@ import {
   LayoutDashboard, Calendar, Users, ChevronLeft, ChevronRight,
   Crown, ChevronDown, Utensils, Menu, X, Coffee, Package,
   ChefHat, Truck, Settings, BookOpen, Briefcase, Activity,
-  Shield, Loader2
+  Shield, Loader2,
+  CalendarPlus, CalendarDays, UserPlus, PartyPopper, ConciergeBell,
+  UtensilsCrossed, PlusCircle, Boxes, Layers, FolderTree, Scale,
+  Box, ArrowLeftRight, SlidersHorizontal, ClipboardList, MonitorPlay,
+  CalendarRange, BookOpenCheck, Trash2, Landmark, CreditCard, Receipt,
+  FileText, Clock, Building, RefreshCw, Store, ClipboardCheck,
+  RotateCcw, CalendarCheck2, Banknote, CalendarOff, Coins, UserCheck,
+  Settings2, BarChart3, TrendingUp, CalendarCheck, LineChart,
+  ShoppingBag, BadgeDollarSign, Building2, Printer, Percent, ShieldCheck,
+  Database
 } from 'lucide-react';
 import { usePermissions } from '../hooks/usePermissions';
 
@@ -18,162 +27,161 @@ const menuItems = [
     icon: Calendar, 
     label: 'Bookings', 
     path: '/bookings', 
-    resource: 'bookings_list',  // ✅ FIXED: bookings_list
+    resource: 'bookings_list',
     submenu: [
-      { label: 'All Bookings', path: '/bookings' },
-      { label: 'Create Booking', path: '/bookings/create' },
-      { label: 'Booking Calendar', path: '/bookings/calendar' },
+      { label: 'All Bookings', path: '/bookings', icon: Calendar },
+      { label: 'Create Booking', path: '/bookings/create', icon: CalendarPlus },
+      { label: 'Booking Calendar', path: '/bookings/calendar', icon: CalendarDays },
     ]
   },
   {
     icon: Users, 
     label: 'Customer', 
     path: '/customers', 
-    resource: 'customers',  // ✅ FIXED: customers (not customers_list)
+    resource: 'customers',
     submenu: [
-      { label: 'All Customers', path: '/customers' },
-      { label: 'Add Customer', path: '/customers/add' }
+      { label: 'All Customers', path: '/customers', icon: Users },
+      { label: 'Add Customer', path: '/customers/add', icon: UserPlus }
     ]
   },
   {
     icon: Coffee, 
     label: 'Events', 
     path: '/events', 
-    resource: 'events',  // ✅ FIXED: events
+    resource: 'events',
     submenu: [
-
-      { label: 'Event', path: '/events/add' }
+      { label: 'Event', path: '/events/add', icon: PartyPopper }
     ]
   },
   {
     icon: Coffee, 
     label: 'Services', 
     path: '/serviceslist', 
-    resource: 'services',  // ✅ FIXED: services
-    submenu: [{ label: 'Services List', path: '/serviceslist' }]
+    resource: 'services',
+    submenu: [
+      { label: 'Services List', path: '/serviceslist', icon: ConciergeBell }
+    ]
   },
   {
     icon: Utensils, 
     label: 'Menu & Packages', 
     path: '/menus', 
-    resource: 'menus',  // ✅ FIXED: menus
+    resource: 'menus',
     submenu: [
-      { label: 'Menu List', path: '/menus' },
-      { label: 'Add Menu', path: '/menus/add' },
-      { label: 'Packages', path: '/menus/packages' },
-      { label: 'Items', path: '/menus/items' },
-      { label: 'Categories', path: '/menus/categories' },
-      { label: 'Units', path: '/menus/units' },
+      { label: 'Menu List', path: '/menus', icon: UtensilsCrossed },
+      { label: 'Add Menu', path: '/menus/add', icon: PlusCircle },
+      { label: 'Packages', path: '/menus/packages', icon: Boxes },
+      { label: 'Items', path: '/menus/items', icon: Layers },
+      { label: 'Categories', path: '/menus/categories', icon: FolderTree },
+      { label: 'Units', path: '/menus/units', icon: Scale },
     ]
   },
   {
     icon: Package, 
     label: 'Inventory', 
     path: '/inventory', 
-    resource: 'inventory',  // ✅ FIXED: inventory
+    resource: 'inventory',
     submenu: [
-      // { label: 'Inventory List', path: '/inventory' },
-      { label: 'Item Master', path: '/inventory/item-master' },
-      { label: 'Stock Transfer', path: '/inventory/stock-transfer' },
-      { label: 'Stock Adjustment', path: '/inventory/stock-adjustment' },
+      { label: 'Item Master', path: '/inventory/item-master', icon: Box },
+      { label: 'Stock Transfer', path: '/inventory/stock-transfer', icon: ArrowLeftRight },
+      { label: 'Stock Adjustment', path: '/inventory/stock-adjustment', icon: SlidersHorizontal },
     ]
   },
   {
     icon: ChefHat, 
     label: 'Kitchen', 
     path: '/kitchen', 
-    resource: 'kitchen',  // ✅ FIXED: kitchen
+    resource: 'kitchen',
     submenu: [
-      { label: 'Kitchen Sheet', path: '/kitchen' },
-      { label: 'KDS', path: '/kitchen/kds' },
-      { label: 'Production Plan', path: '/kitchen/production-plan' },
-      { label: 'Recipe Manager', path: '/kitchen/recipe-manager' },
-      { label: 'Wastage Log', path: '/kitchen/wastage-log' },
+      { label: 'Kitchen Sheet', path: '/kitchen', icon: ClipboardList },
+      { label: 'KDS', path: '/kitchen/kds', icon: MonitorPlay },
+      { label: 'Production Plan', path: '/kitchen/production-plan', icon: CalendarRange },
+      { label: 'Recipe Manager', path: '/kitchen/recipe-manager', icon: BookOpenCheck },
+      { label: 'Wastage Log', path: '/kitchen/wastage-log', icon: Trash2 },
     ]
   },
   {
     icon: BookOpen, 
     label: 'Accounts', 
     path: '/accounts', 
-    resource: 'accounts',  // ✅ FIXED: accounts
+    resource: 'accounts',
     submenu: [
-      { label: 'Accounts List', path: '/accounts' },
-      { label: 'Payment Voucher', path: '/accounts/payment-voucher' },
-      { label: 'Expense Voucher', path: '/accounts/expense-voucher' },
-      { label: 'Voucher List', path: '/accounts/vouchers' },
-      { label: 'Ledger', path: '/accounts/ledger' },
-      { label: 'Day Book', path: '/accounts/day-book' },
+      { label: 'Accounts List', path: '/accounts', icon: Landmark },
+      { label: 'Payment Voucher', path: '/accounts/payment-voucher', icon: CreditCard },
+      { label: 'Expense Voucher', path: '/accounts/expense-voucher', icon: Receipt },
+      { label: 'Voucher List', path: '/accounts/vouchers', icon: FileText },
+      { label: 'Ledger', path: '/accounts/ledger', icon: BookOpen },
+      { label: 'Day Book', path: '/accounts/day-book', icon: Clock },
     ]
   },
   {
     icon: Briefcase, 
     label: 'Fixed Assets', 
     path: '/fixed-assets', 
-    resource: 'fixed_assets',  // ✅ FIXED: fixed_assets
+    resource: 'fixed_assets',
     submenu: [
-      { label: 'Assets List', path: '/fixed-assets' },
-      // { label: 'Add Asset', path: '/fixed-assets/add' },
-      { label: 'Asset Adjustments', path: '/fixed-assets/adjustments' },
+      { label: 'Assets List', path: '/fixed-assets', icon: Building },
+      { label: 'Asset Adjustments', path: '/fixed-assets/adjustments', icon: RefreshCw },
     ]
   },
   {
     icon: Truck, 
     label: 'Procurement', 
     path: '/procurement', 
-    resource: 'procurement',  // ✅ FIXED: procurement
+    resource: 'procurement',
     submenu: [
-      { label: 'Suppliers', path: '/procurement/suppliers' },
-      { label: 'Purchase Orders', path: '/procurement/purchase-orders' },
-      { label: 'Create PO', path: '/procurement/purchase-orders/create' },
-      { label: 'GRN (Bills)', path: '/procurement/grn' },
-      { label: 'Purchase Return', path: '/procurement/purchase-return' },
+      { label: 'Suppliers', path: '/procurement/suppliers', icon: Store },
+      { label: 'Purchase Orders', path: '/procurement/purchase-orders', icon: ClipboardCheck },
+      { label: 'Create PO', path: '/procurement/purchase-orders/create', icon: PlusCircle },
+      { label: 'GRN (Bills)', path: '/procurement/grn', icon: Receipt },
+      { label: 'Purchase Return', path: '/procurement/purchase-return', icon: RotateCcw },
     ]
   },
   {
     icon: Users, 
     label: 'HR', 
     path: '/hr', 
-    resource: 'hr',  // ✅ FIXED: hr
+    resource: 'hr',
     submenu: [
-      { label: 'Staff List', path: '/hr' },
-      { label: 'Add Employee', path: '/hr/employees/add' },
-      { label: 'Attendance', path: '/hr/attendance' },
-      { label: 'Payroll', path: '/hr/payroll' },
-      { label: 'Leave', path: '/hr/leave' },
-      { label: 'Advance & Loan', path: '/hr/advance-loan' },
-      { label: 'Event Staff', path: '/hr/event-staff' },
-      { label: 'HR Setup', path: '/hr/setup' },
+      { label: 'Staff List', path: '/hr', icon: Users },
+      { label: 'Add Employee', path: '/hr/employees/add', icon: UserPlus },
+      { label: 'Attendance', path: '/hr/attendance', icon: CalendarCheck2 },
+      { label: 'Payroll', path: '/hr/payroll', icon: Banknote },
+      { label: 'Leave', path: '/hr/leave', icon: CalendarOff },
+      { label: 'Advance & Loan', path: '/hr/advance-loan', icon: Coins },
+      { label: 'Event Staff', path: '/hr/event-staff', icon: UserCheck },
+      { label: 'HR Setup', path: '/hr/setup', icon: Settings2 },
     ]
   },
   {
     icon: Activity, 
     label: 'Reports', 
     path: '/reports', 
-    resource: 'reports',  // ✅ FIXED: reports
+    resource: 'reports',
     submenu: [
-      { label: 'Dashboard', path: '/reports' },
-      { label: 'Profit & Loss', path: '/reports/profit_loss' },
-      { label: 'Booking & Event', path: '/reports/bookings' },
-      { label: 'Inventory & Stock', path: '/reports/inventory' },
-      { label: 'HR & Payroll', path: '/reports/hr' },
-      { label: 'Financial Reports', path: '/reports/finance' },
-      { label: 'Kitchen & Production', path: '/reports/kitchenreport' },
-      { label: 'Supplier & Purchase', path: '/reports/purchases' },
-      { label: 'Customer & Sale', path: '/reports/customerreport' },
+      { label: 'Dashboard', path: '/reports', icon: BarChart3 },
+      { label: 'Profit & Loss', path: '/reports/profit_loss', icon: TrendingUp },
+      { label: 'Booking & Event', path: '/reports/bookings', icon: CalendarCheck },
+      { label: 'Inventory & Stock', path: '/reports/inventory', icon: Boxes },
+      { label: 'HR & Payroll', path: '/reports/hr', icon: Users },
+      { label: 'Financial Reports', path: '/reports/finance', icon: LineChart },
+      { label: 'Kitchen & Production', path: '/reports/kitchenreport', icon: ChefHat },
+      { label: 'Supplier & Purchase', path: '/reports/purchases', icon: ShoppingBag },
+      { label: 'Customer & Sale', path: '/reports/customerreport', icon: BadgeDollarSign },
     ]
   },
   {
     icon: Settings, 
     label: 'Settings', 
     path: '/settings', 
-    resource: 'settings',  // ✅ FIXED: settings
+    resource: 'settings',
     submenu: [
-      { label: 'Branch Settings', path: '/settings/branches' },
-      { label: 'Hall Settings', path: '/settings/halls' },
-      { label: 'Receipt Settings', path: '/settings/receipt' },
-      { label: 'Tax Config', path: '/settings/tax' },
-      { label: 'Roles', path: '/settings/roles' },
-      { label: 'Backup', path: '/settings/backup' },
+      { label: 'Branch Settings', path: '/settings/branches', icon: Building2 },
+      { label: 'Hall Settings', path: '/settings/halls', icon: Building },
+      { label: 'Receipt Settings', path: '/settings/receipt', icon: Printer },
+      { label: 'Tax Config', path: '/settings/tax', icon: Percent },
+      { label: 'Roles', path: '/settings/roles', icon: ShieldCheck },
+      { label: 'Backup', path: '/settings/backup', icon: Database },
     ]
   },
 ];
@@ -305,23 +313,27 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         )}
 
         {hasSubmenu && isExpanded && !collapsed && (
-          <div className="ml-9 mt-1 space-y-0.5 border-l-2 border-slate-200 pl-3">
-            {item.submenu.map((sub) => (
-              <NavLink
-                key={sub.path}
-                to={sub.path}
-                onClick={() => setMobileOpen(false)}
-                className={() => {
-                  const isSubActive = location.pathname === sub.path || location.pathname.startsWith(sub.path + '/');
-                  return `block px-3 py-2 rounded-lg text-xs font-medium transition-all
+          <div className="ml-5 mt-1 space-y-0.5">
+            {item.submenu.map((sub) => {
+              const SubIcon = sub.icon;
+              const isSubActive = location.pathname === sub.path || (sub.path !== item.path && location.pathname.startsWith(sub.path + '/'));
+              return (
+                <NavLink
+                  key={sub.path}
+                  to={sub.path}
+                  onClick={() => setMobileOpen(false)}
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all group/sub
                     ${isSubActive 
                       ? 'text-blue-700 bg-blue-50 font-bold' 
-                      : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100 font-medium'}`;
-                }}
-              >
-                <span className="truncate">{sub.label}</span>
-              </NavLink>
-            ))}
+                      : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100 font-medium'}`}
+                >
+                  {SubIcon && (
+                    <SubIcon className={`w-3.5 h-3.5 shrink-0 transition-colors ${isSubActive ? 'text-blue-600' : 'text-slate-400 group-hover/sub:text-blue-600'}`} />
+                  )}
+                  <span className="truncate">{sub.label}</span>
+                </NavLink>
+              );
+            })}
           </div>
         )}
       </div>

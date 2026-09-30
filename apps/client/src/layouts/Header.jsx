@@ -311,18 +311,18 @@ const Header = ({ sidebarCollapsed }) => {
       {/* ── Right Side: Actions + Profile ── */}
       <div className="flex items-center gap-3">
         {/* Notification Bell */}
-        <button className="relative p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-200 group">
+        {/* <button className="relative p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-200 group">
           <Bell className="w-5 h-5 text-slate-500 group-hover:text-blue-600 transition-colors" />
           <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(244,63,94,0.4)]" />
-        </button>
+        </button> */}
 
         {/* Settings */}
-        <button 
+        {/* <button 
           onClick={() => navigate('/settings/company')}
           className="p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-200 group"
         >
           <Settings className="w-5 h-5 text-slate-500 group-hover:text-blue-600 transition-colors" />
-        </button>
+        </button> */}
 
         {/* Divider */}
         <div className="w-px h-7 bg-slate-200 mx-1" />

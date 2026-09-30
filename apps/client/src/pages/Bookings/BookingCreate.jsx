@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // pages/BookingCreate.jsx
 // COMPLETE v9 — Hall PerSeat/FullHall | Collapsible Packages, Menus & Services | Exact Qty & Correct Prices
 // ═══════════════════════════════════════════════════════════
@@ -947,6 +947,10 @@ const updateServiceHours = (serviceId, hours) => {
   const handleCreateCustomer = async () => {
     if (!newCustomer.name || !newCustomer.phone) {
       toast.error('Customer name and phone are required');
+      return false;
+    }
+    if (newCustomer.phone.length !== 11) {
+      toast.error('Phone number must be exactly 11 digits (e.g. 03001234567)');
       return false;
     }
     if (newCustomer.customerType !== 'individual' && !newCustomer.businessName.trim()) {
@@ -2087,7 +2091,7 @@ console.log('📊 Final Services:', payloadServices.length);
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <input type="text" placeholder="Full Name *" value={newCustomer.name} onChange={e => setNewCustomer({ ...newCustomer, name: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" style={{ borderColor: '#CBD5E1' }} />
-                    <input type="text" placeholder="Phone *" value={newCustomer.phone} onChange={e => setNewCustomer({ ...newCustomer, phone: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" style={{ borderColor: '#CBD5E1' }} />
+                    <input type="tel" placeholder="Phone *" value={newCustomer.phone} onChange={e => setNewCustomer({ ...newCustomer, phone: e.target.value.replace(/\D/g, '').slice(0, 11) })} maxLength={11} inputMode="numeric" className="border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" style={{ borderColor: '#CBD5E1' }} />
                     <input type="text" placeholder="Email" value={newCustomer.email} onChange={e => setNewCustomer({ ...newCustomer, email: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" style={{ borderColor: '#CBD5E1' }} />
                     <input type="text" placeholder="CNIC" value={newCustomer.cnic} onChange={e => setNewCustomer({ ...newCustomer, cnic: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" style={{ borderColor: '#CBD5E1' }} />
                     <input type="text" placeholder="City" value={newCustomer.city} onChange={e => setNewCustomer({ ...newCustomer, city: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" style={{ borderColor: '#CBD5E1' }} />
@@ -2124,7 +2128,7 @@ console.log('📊 Final Services:', payloadServices.length);
                         <span className="text-[11px] font-bold text-blue-900 uppercase block mb-2">Primary Contact Person</span>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           <input type="text" placeholder="Contact Name" value={newCustomer.contactPersonName} onChange={e => setNewCustomer({ ...newCustomer, contactPersonName: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm" style={{ borderColor: '#CBD5E1' }} />
-                          <input type="text" placeholder="Contact Phone" value={newCustomer.contactPersonPhone} onChange={e => setNewCustomer({ ...newCustomer, contactPersonPhone: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm font-mono" style={{ borderColor: '#CBD5E1' }} />
+                          <input type="tel" placeholder="Contact Phone" value={newCustomer.contactPersonPhone} onChange={e => setNewCustomer({ ...newCustomer, contactPersonPhone: e.target.value.replace(/\D/g, '').slice(0, 11) })} maxLength={11} inputMode="numeric" className="border rounded-xl px-3 py-2.5 text-sm font-mono" style={{ borderColor: '#CBD5E1' }} />
                           <input type="text" placeholder="Designation" value={newCustomer.contactPersonDesignation} onChange={e => setNewCustomer({ ...newCustomer, contactPersonDesignation: e.target.value })} className="border rounded-xl px-3 py-2.5 text-sm" style={{ borderColor: '#CBD5E1' }} />
                         </div>
                       </div>
@@ -2157,8 +2161,9 @@ console.log('📊 Final Services:', payloadServices.length);
                         <input type="text" placeholder="Relation" value={ec.relation}
                           onChange={e => { const updated = [...newCustomer.emergencyContacts]; updated[idx].relation = e.target.value; setNewCustomer({ ...newCustomer, emergencyContacts: updated }); }}
                           className="border rounded-xl px-3 py-2 text-sm" style={{ borderColor: '#CBD5E1' }} />
-                        <input type="text" placeholder="Phone Number" value={ec.phone}
-                          onChange={e => { const updated = [...newCustomer.emergencyContacts]; updated[idx].phone = e.target.value; setNewCustomer({ ...newCustomer, emergencyContacts: updated }); }}
+                        <input type="tel" placeholder="Phone Number" value={ec.phone}
+                          onChange={e => { const updated = [...newCustomer.emergencyContacts]; updated[idx].phone = e.target.value.replace(/\D/g, '').slice(0, 11); setNewCustomer({ ...newCustomer, emergencyContacts: updated }); }}
+                          maxLength={11} inputMode="numeric"
                           className="border rounded-xl px-3 py-2 text-sm" style={{ borderColor: '#CBD5E1' }} />
                       </div>
                     ))}

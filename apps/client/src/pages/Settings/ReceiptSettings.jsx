@@ -74,7 +74,7 @@ const Toggle = ({ label, checked, onChange, icon: Icon, disabled }) => (
   </div>
 );
 
-const Input = ({ label, value, onChange, placeholder, type = 'text', icon: Icon, disabled }) => (
+const Input = ({ label, value, onChange, placeholder, type = 'text', icon: Icon, disabled, maxLength, inputMode }) => (
   <div>
     <label className="text-xs font-bold uppercase mb-1.5 block text-gray-500 flex items-center gap-1.5">
       {Icon && <Icon size={12} style={{ color: '#2563EB' }} />}
@@ -86,6 +86,8 @@ const Input = ({ label, value, onChange, placeholder, type = 'text', icon: Icon,
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
       disabled={disabled}
+      maxLength={maxLength}
+      inputMode={inputMode}
       className="w-full border rounded-xl px-3 py-2.5 text-sm transition-all focus:ring-2 focus:ring-amber-200 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
       style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' }}
     />
@@ -655,7 +657,7 @@ const ReceiptSettings = () => {
                 <Input label="Company Name" value={settings.companyName} onChange={v => updateField('companyName', v)} placeholder="Your Business Name" icon={Type} disabled={saving} />
                 <Input label="Slogan / Tagline" value={settings.companySlogan} onChange={v => updateField('companySlogan', v)} placeholder="Premium Event Management" icon={Sparkles} disabled={saving} />
                 <Input label="Address" value={settings.address} onChange={v => updateField('address', v)} placeholder="Full address" icon={MapPin} disabled={saving} />
-                <Input label="Phone Number" value={settings.phone} onChange={v => updateField('phone', v)} placeholder="0300-1234567" icon={Phone} disabled={saving} />
+                <Input label="Phone Number" value={settings.phone} onChange={v => updateField('phone', v.replace(/\D/g, '').slice(0, 11))} maxLength={11} inputMode="numeric" placeholder="03001234567" icon={Phone} disabled={saving} />
                 <Input label="Email" value={settings.email} onChange={v => updateField('email', v)} placeholder="info@company.com" type="email" icon={Mail} disabled={saving} />
                 <Input label="Website" value={settings.website} onChange={v => updateField('website', v)} placeholder="www.company.com" icon={Globe} disabled={saving} />
               </div>

@@ -1,4 +1,4 @@
-﻿// pages/Purchases/GoodsReceivedNote.jsx
+// pages/Purchases/GoodsReceivedNote.jsx
 // COMPLETE FIXED - Blank page issue resolved
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -963,10 +963,12 @@ export default function GoodsReceivedNote() {
                     <div className="relative">
                       <PhoneCall size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       <input
-                        type="text"
+                        type="tel"
                         value={form.driverPhone}
-                        onChange={(e) => setForm(prev => ({ ...prev, driverPhone: e.target.value }))}
-                        placeholder="0300-1234567"
+                        onChange={(e) => setForm(prev => ({ ...prev, driverPhone: e.target.value.replace(/\D/g, '').slice(0, 11) }))}
+                        maxLength={11}
+                        inputMode="numeric"
+                        placeholder="03001234567"
                         className="w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-white"
                       />
                     </div>

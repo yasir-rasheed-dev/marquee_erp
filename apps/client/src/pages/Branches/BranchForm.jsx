@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
   ArrowLeft, Save, X, Building2, 
@@ -65,9 +65,13 @@ const BranchForm = () => {
   // ── Handle Change ──
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    let val = type === 'checkbox' ? checked : value;
+    if (name === 'phone') {
+      val = value.replace(/\D/g, '').slice(0, 11);
+    }
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: val
     }));
   };
 
@@ -212,7 +216,9 @@ const BranchForm = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="Enter phone number"
+                  maxLength={11}
+                  inputMode="numeric"
+                  placeholder="03001234567"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
                   style={{
                     backgroundColor: '#FFFFFF',

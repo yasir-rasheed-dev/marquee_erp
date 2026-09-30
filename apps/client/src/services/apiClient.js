@@ -1,4 +1,4 @@
-﻿import axios from 'axios';
+import axios from 'axios';
 
 const apiClient = axios.create({
   baseURL: 'http://localhost:5000/api',
@@ -17,7 +17,6 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
   (response) => {
-    console.log('✅ API Response:', response.config.url, response.data);
     return response.data;
   },
   (error) => {

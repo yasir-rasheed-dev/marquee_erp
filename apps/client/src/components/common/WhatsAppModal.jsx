@@ -309,9 +309,17 @@ const WhatsAppModal = ({
             </div>
             <div className="relative">
               <input
-                type="text"
+                type="tel"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val.startsWith('+')) {
+                    setPhone('+' + val.slice(1).replace(/\D/g, '').slice(0, 12));
+                  } else {
+                    setPhone(val.replace(/\D/g, '').slice(0, 11));
+                  }
+                }}
+                maxLength={14}
                 placeholder="e.g. 03001234567 or +923001234567"
                 className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-mono"
               />
