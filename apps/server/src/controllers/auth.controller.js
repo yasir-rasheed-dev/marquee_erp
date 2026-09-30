@@ -7,9 +7,8 @@ const prisma = new PrismaClient();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'marquee-super-secret-key-2026';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'marquee-refresh-secret-key-2026';
-// ✅ Yahan expiry time 15m aur 7d se barha kar 1d kar diya gaya hai (ya aap apni marzi ka rakh sakte hain)
-const JWT_ACCESS_EXPIRY = process.env.JWT_ACCESS_EXPIRY || '1d'; 
-const JWT_REFRESH_EXPIRY = process.env.JWT_REFRESH_EXPIRY || '7d';
+const JWT_ACCESS_EXPIRY = process.env.JWT_ACCESS_EXPIRY || '12h'; 
+const JWT_REFRESH_EXPIRY = process.env.JWT_REFRESH_EXPIRY || '30d';
 
 // ── Generate Tokens ──
 const generateTokens = (user) => {

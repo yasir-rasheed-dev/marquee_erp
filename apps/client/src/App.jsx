@@ -6,10 +6,12 @@ import { BranchProvider } from './context/BranchContext';
 import { DataRefreshProvider } from './context/DataRefreshContext';
 import DataRefreshWrapper from './components/ui/DataRefreshWrapper';
 import { PermissionProvider } from './hooks/usePermissions';
+import ScrollToTop from './components/common/ScrollToTop';
 
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <AuthContextProvider>
         <BranchProvider>
           <PermissionProvider>

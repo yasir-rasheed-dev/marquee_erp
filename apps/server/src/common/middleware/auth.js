@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'marquee-erp-super-secret-key-2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'marquee-super-secret-key-2026';
 
 // ═══════════════════════════════════════════════════════════
 // 1. AUTHENTICATE — Verify JWT Token
