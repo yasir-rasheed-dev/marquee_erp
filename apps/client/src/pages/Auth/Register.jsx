@@ -314,6 +314,32 @@ const Register = () => {
               </div>
             </div>
 
+            {/* Admin Phone */}
+            <div>
+              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
+                Admin Phone
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  maxLength={11}
+                  inputMode="numeric"
+                  placeholder="03001234567"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
+                  style={{
+                    backgroundColor: '#FFFFFF',
+                    borderColor: '#CBD5E1',
+                    color: '#0F172A',
+                    focusRingColor: 'rgba(37,99,235,0.2)'
+                  }}
+                />
+              </div>
+            </div>
+
             {/* Password */}
             <div>
               <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
@@ -383,32 +409,6 @@ const Register = () => {
                     <Eye className="w-4 h-4" style={{ color: '#475569' }} />
                   )}
                 </button>
-              </div>
-            </div>
-
-            {/* Admin Phone */}
-            <div>
-              <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>
-                Admin Phone
-              </label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  maxLength={11}
-                  inputMode="numeric"
-                  placeholder="03001234567"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 text-sm"
-                  style={{
-                    backgroundColor: '#FFFFFF',
-                    borderColor: '#CBD5E1',
-                    color: '#0F172A',
-                    focusRingColor: 'rgba(37,99,235,0.2)'
-                  }}
-                />
               </div>
             </div>
 
