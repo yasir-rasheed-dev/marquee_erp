@@ -439,7 +439,7 @@ const createPurchaseBill = async (req, res) => {
 
     // ✅ FIX: Use correct BillStatus enum values
     let billStatus = 'PENDING';
-    let paymentStatus = 'UNPAID';
+    let paymentStatus = 'PENDING'; // PurchasePaymentStatus has no 'UNPAID' — that made every unpaid GRN fail
     
     if (paymentAmount > 0) {
       if (paymentAmount >= totalAmount) {
@@ -654,11 +654,11 @@ const createPurchaseBill = async (req, res) => {
 
     let message = `GRN ${billNo} generated successfully`;
     if (billStatus === 'PAID') {
-      message = `✅ GRN ${billNo} generated & FULLY PAID (${paymentAmount})`;
+      message = `GRN ${billNo} generated & FULLY PAID (${paymentAmount})`;
     } else if (billStatus === 'PARTIAL') {
-      message = `⚠️ GRN ${billNo} generated with PARTIAL payment. Due: ${dueAmount}`;
+      message = `GRN ${billNo} generated with PARTIAL payment. Due: ${dueAmount}`;
     } else {
-      message = `📋 GRN ${billNo} generated. Payment pending.`;
+      message = `GRN ${billNo} generated. Payment pending.`;
     }
 
     res.status(201).json({

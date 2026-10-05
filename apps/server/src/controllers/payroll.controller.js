@@ -6,6 +6,13 @@
 
 const prisma = require('../config/database');
 
+// Staff payment methods (PaymentMethod enum, lowercase) → AccountTransaction.paymentMode (PaymentMode enum)
+const PAYMENT_MODE = {
+  cash: 'CASH', bank_transfer: 'BANK_TRANSFER', cheque: 'CHEQUE', jazzcash: 'JAZZCASH', easypaisa: 'EASYPAISA',
+  card: 'CREDIT_CARD', upi: 'ONLINE', credit: 'OTHER', other: 'OTHER',
+};
+const toPaymentMode = (method) => PAYMENT_MODE[String(method || '').toLowerCase()] || 'BANK_TRANSFER';
+
 const getBranchId = (req) => {
   if (req.query.branchId) return parseInt(req.query.branchId);
   if (req.body.branchId) return parseInt(req.body.branchId);
@@ -358,21 +365,22 @@ const payPayrollItem = async (req, res) => {
       });
 
       // Update employee balance
-      await tx.employee.update({
+      const updatedEmployee = await tx.employee.update({
         where: { id: item.employeeId },
         data: {
           currentBalance: { increment: amount },
           totalPaid: { increment: amount },
         },
+        select: { currentBalance: true },
       });
 
-      // Staff ledger entry
+      // Staff ledger entry (balance must be a value — `increment` only works in updates)
       await tx.staffLedger.create({
         data: {
           employeeId: item.employeeId,
           type: 'salary',
           amount,
-          balance: { increment: amount },
+          balance: updatedEmployee.currentBalance,
           referenceType: 'PayrollItem',
           referenceId: itemId,
           notes: `Salary for ${item.payroll.month}/${item.payroll.year}`,
@@ -530,12 +538,13 @@ const createLoan = async (req, res) => {
       });
 
       // Update employee totals
-      await tx.employee.update({
+      const updatedEmployee = await tx.employee.update({
         where: { id: parseInt(employeeId) },
         data: {
           totalLoan: { increment: amt },
           currentBalance: { decrement: amt }, // Negative balance = company gave loan
         },
+        select: { currentBalance: true },
       });
 
       // Ledger entry
@@ -544,7 +553,7 @@ const createLoan = async (req, res) => {
           employeeId: parseInt(employeeId),
           type: type?.toLowerCase() === 'advance' ? 'advance' : 'loan_given',
           amount: -amt,
-          balance: { decrement: amt },
+          balance: updatedEmployee.currentBalance,
           referenceType: 'EmployeeLoan',
           referenceId: loan.id,
           notes: purpose || `${type || 'Loan'} approved`,
@@ -677,20 +686,21 @@ const addLoanInstallment = async (req, res) => {
         },
       });
 
-      await tx.employee.update({
+      const updatedEmployee = await tx.employee.update({
         where: { id: loan.employeeId },
         data: {
           totalLoanPaid: { increment: amt },
           currentBalance: { increment: amt },
         },
+        select: { currentBalance: true },
       });
 
       await tx.staffLedger.create({
         data: {
           employeeId: loan.employeeId,
-          type: 'loan_repayment',
+          type: 'loan_recovery', // StaffLedgerType has no 'loan_repayment'
           amount: amt,
-          balance: { increment: amt },
+          balance: updatedEmployee.currentBalance,
           referenceType: 'LoanInstallment',
           referenceId: installment.id,
           notes: notes || `Loan installment #${loan.installments?.length + 1 || 1}`,
@@ -1196,7 +1206,7 @@ const payEventAssignment = async (req, res) => {
               type: 'DEBIT',
               amount: amount,
               balanceAfter: newBal,
-              category: 'EVENT_STAFF',
+              category: 'SALARY', // TransactionCategory has no EVENT_STAFF
               description: `Event payment to ${assignment.employee?.name || 'Staff'}`,
               relatedEntityType: 'StaffPayment',
               relatedEntityId: staffPayment.id,
@@ -1415,12 +1425,13 @@ const createStaffPayment = async (req, res) => {
       });
 
       // Update employee balance
-      await tx.employee.update({
+      const updatedEmployee = await tx.employee.update({
         where: { id: parseInt(employeeId) },
         data: {
           currentBalance: { increment: amt },
           totalPaid: { increment: amt },
         },
+        select: { currentBalance: true },
       });
 
       // Ledger entry
@@ -1429,7 +1440,7 @@ const createStaffPayment = async (req, res) => {
           employeeId: parseInt(employeeId),
           type: paymentType,
           amount: amt,
-          balance: { increment: amt },
+          balance: updatedEmployee.currentBalance,
           referenceType: 'StaffPayment',
           referenceId: payment.id,
           notes: notes || `${paymentType} payment`,
@@ -1453,11 +1464,11 @@ const createStaffPayment = async (req, res) => {
               type: 'DEBIT',
               amount: amt,
               balanceAfter: newBal,
-              category: 'STAFF_PAYMENT',
+              category: 'SALARY', // TransactionCategory has no STAFF_PAYMENT
               description: `${paymentType} to ${emp.name}`,
               relatedEntityType: 'StaffPayment',
               relatedEntityId: payment.id,
-              paymentMode: method?.toUpperCase() || 'BANK_TRANSFER',
+              paymentMode: toPaymentMode(method),
               transactionDate: new Date(),
               branchId,
               companyId,
@@ -1518,7 +1529,7 @@ const deleteStaffPayment = async (req, res) => {
               type: 'CREDIT',
               amount: parseFloat(existing.amount),
               balanceAfter: newBal,
-              category: 'STAFF_PAYMENT_REVERSAL',
+              category: 'ADJUSTMENT', // reversal of a staff payment
               description: `Reversal of payment ${existing.paymentNo}`,
               transactionDate: new Date(),
               branchId,
