@@ -2,8 +2,7 @@
 // controllers/service.controller.js
 // ═══════════════════════════════════════════════════════════
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 
 const VALID_PRICING_TYPES = ['FIXED', 'HOURLY'];
 

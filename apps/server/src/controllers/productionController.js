@@ -3,9 +3,8 @@
 // Production Plans | Recipe Auto-Fill | Stock Deduct | Cost Track
 // ═══════════════════════════════════════════════════════════
 
-const { PrismaClient } = require('@prisma/client');
 const { deductInventoryForBooking, previewDeduction } = require('../services/inventoryDeduction.service');
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 
 const VALID_PLAN_STATUSES = ['planned', 'in_progress', 'completed', 'cancelled'];
 

@@ -4,8 +4,7 @@
 // Zero Double-Counting, Full-Day Boundaries, Strict Scoping
 // ═══════════════════════════════════════════════════════════
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 
 // ── Helper: Normalize Date Range to Full Day UTC Boundaries ──
 const normalizeDateRange = (fromDate, toDate) => {

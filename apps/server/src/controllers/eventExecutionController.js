@@ -3,9 +3,8 @@
 // EVENT EXECUTION — Secure & Multi-Tenant
 // ═══════════════════════════════════════════════════════════
 
-const { PrismaClient } = require('@prisma/client');
 const { deductInventoryForBooking, rollbackInventoryDeduction, previewDeduction } = require('../services/inventoryDeduction.service');
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 
 // ── Helper: STRICT branch filter ──
 const getBranchId = (req) => {

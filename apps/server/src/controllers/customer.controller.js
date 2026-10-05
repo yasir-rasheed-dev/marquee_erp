@@ -3,8 +3,7 @@
 // CUSTOMERS & HISTORY LEDGER — B2C + B2B (Individual + Corporate)
 // ═══════════════════════════════════════════════════════════
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 
 // ── Helper: STRICT branch filter ──
 const getBranchId = (req) => {

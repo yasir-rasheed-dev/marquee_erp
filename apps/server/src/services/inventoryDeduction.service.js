@@ -4,8 +4,7 @@
 // Formula: Total Guests / conversionRate (e.g. 50) = Deghs × Recipe Qty (e.g. 12kg) = Raw Stock
 // ═══════════════════════════════════════════════════════════
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 
 // ── Stock Transaction Reference Type ──
 const AUTO_DEDUCT_REF_TYPE = 'AUTO_RECIPE_DEDUCT';

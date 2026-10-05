@@ -3,8 +3,7 @@
 // Wastage Logs | Stock Deduct | Reason Tracking | Cost Analysis
 // ═══════════════════════════════════════════════════════════
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 
 const VALID_WASTAGE_REASONS = [
   'expired',

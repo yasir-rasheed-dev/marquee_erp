@@ -4,8 +4,7 @@
 // Follows EXACT pattern from category.controller.js
 // ═══════════════════════════════════════════════════════════
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 
 // ── Helper: STRICT branch filter ──
 const getBranchId = (req) => {

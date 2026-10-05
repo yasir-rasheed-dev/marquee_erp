@@ -1,6 +1,5 @@
 // controllers/company.controller.js
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 
 // ── Helper: Check if user has access to company ──
 const hasCompanyAccess = (req, companyId) => {

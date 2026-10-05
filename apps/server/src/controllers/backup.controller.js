@@ -3,8 +3,7 @@
 // BACKUP LOG — Local + Google Drive + Auto Cleanup
 // ═══════════════════════════════════════════════════════════
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 const path = require('path');
 const fs = require('fs').promises;
 const backupService = require('../services/backup.service');

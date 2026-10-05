@@ -4,8 +4,7 @@
 // Follows EXACT pattern from accounts.controller.js
 // ═══════════════════════════════════════════════════════════
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 
 const getBranchId = (req) => {
   if (req.query.branchId) return parseInt(req.query.branchId);

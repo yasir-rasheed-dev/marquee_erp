@@ -3,8 +3,7 @@
 // Kitchen Orders | Recipe Auto-Fill | Stock Deduct | Status Flow
 // ═══════════════════════════════════════════════════════════
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 
 const VALID_ORDER_STATUSES = ['pending', 'preparing', 'ready', 'served', 'cancelled'];
 const VALID_PRIORITIES = ['low', 'normal', 'high', 'urgent'];

@@ -1,8 +1,7 @@
 // controllers/rolePermission.controller.js
 // COMPLETE FIXED - getMyPermissions returns array format
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 
 // ═══════════════════════════════════════════════════════════
 // HELPERS

@@ -8,8 +8,7 @@ const util = require('util');
 const fs = require('fs');
 const fsPromises = require('fs').promises;
 const path = require('path');
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 const googleDriveOAuthService = require('./googleDriveOAuth.service');
 
 const execAsync = util.promisify(exec);
@@ -55,7 +54,7 @@ class BackupService {
 
   async ensureBackupDir() {
     try {
-      await fs.mkdir(BACKUP_DIR, { recursive: true });
+      await fsPromises.mkdir(BACKUP_DIR, { recursive: true });
     } catch (err) {
       console.error('Failed to create backup directory:', err);
     }
@@ -241,7 +240,7 @@ class BackupService {
         // Delete local file
         if (backup.filePath) {
           try {
-            await fs.unlink(backup.filePath);
+            await fsPromises.unlink(backup.filePath);
             console.log('🗑️  Deleted local file:', backup.filePath);
           } catch (e) {
             console.warn('Local file delete failed:', e.message);

@@ -1,9 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { PrismaClient } = require('@prisma/client');
 const { validationResult } = require('express-validator');
 
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'marquee-super-secret-key-2026';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'marquee-refresh-secret-key-2026';

@@ -2,8 +2,7 @@
 // Departments | Designations | Employees | User Account Creation
 // ═══════════════════════════════════════════════════════════
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/database');
 const bcrypt = require('bcryptjs');
 
 // ── Helpers ──
