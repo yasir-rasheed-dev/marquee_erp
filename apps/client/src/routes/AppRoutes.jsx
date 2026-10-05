@@ -322,6 +322,7 @@ const AppRoutes = () => {
             {/* ADMIN SETTINGS */}
             <Route element={<PrivateRoute allowedRoles={['admin', 'super_admin']} />}>
               <Route path="/settings" element={<Navigate to="/settings/branches" replace />} />
+              <Route path="/settings/onboarding" element={<Onboarding />} />
               <Route path="/settings/branches" element={<BranchSettings />} />
               <Route path="/settings/halls" element={<HallSettings />} />
               <Route path="/settings/tax" element={<TaxConfiguration />} />

@@ -24,7 +24,6 @@ import { usePermissions } from '../hooks/usePermissions';
 // ✅ ALL RESOURCES MATCH EXACTLY WITH BACKEND PERMISSIONS
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', resource: 'dashboard' },
-  { icon: Compass, label: 'Onboarding Setup', path: '/onboarding' },
   {
     icon: Calendar, 
     label: 'Bookings', 
@@ -178,6 +177,7 @@ const menuItems = [
     path: '/settings', 
     resource: 'settings',
     submenu: [
+      { label: 'Onboarding / Setup', path: '/settings/onboarding', icon: Compass },
       { label: 'Branch Settings', path: '/settings/branches', icon: Building2 },
       { label: 'Hall Settings', path: '/settings/halls', icon: Building },
       { label: 'Receipt Settings', path: '/settings/receipt', icon: Printer },
