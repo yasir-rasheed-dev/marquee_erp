@@ -1981,7 +1981,7 @@ console.log('📊 Final Services:', payloadServices.length);
     <div className="min-h-screen" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       {/* ═══ HEADER ═══ */}
       <div className="sticky top-0 z-40 border-b backdrop-blur-xl" style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderColor: '#CBD5E1' }}>
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <div className="w-full px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <button onClick={() => navigate(-1)} className="p-2 rounded-xl transition-all hover:scale-105" style={{ backgroundColor: '#F8F5F0' }}>
@@ -2009,10 +2009,10 @@ console.log('📊 Final Services:', payloadServices.length);
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="max-w-7xl mx-auto px-4 py-6 md:px-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <form onSubmit={handleSubmit} className="w-full px-4 py-6 md:px-6 space-y-6">
 
-        {/* ═══════ LEFT COLUMN (2/3) ═══════ */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* ═══════ MAIN FORM SECTIONS (FULL WIDTH) ═══════ */}
+        <div className="space-y-6">
 
           {/* ── Customer Section ── */}
           <div className="bg-white rounded-2xl border overflow-hidden shadow-sm" style={{ borderColor: '#CBD5E1' }}>
@@ -2963,391 +2963,454 @@ console.log('📊 Final Services:', payloadServices.length);
           </div>
         </div>
 
-        {/* ═══════ RIGHT COLUMN (1/3) ═══════ */}
-        <div className="space-y-6">
+        {/* ═══════ BOTTOM SECTION: HORIZONTAL FULL-WIDTH CARDS ═══════ */}
 
-          {/* ── Financial Summary ── */}
-          <div className="bg-white rounded-2xl border p-6 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2" style={{ color: '#0F172A' }}>
-              <Receipt size={20} style={{ color: '#2563EB' }} /> Financial Summary
-            </h3>
+        {/* ── 1. BOOKING SUMMARY & PREVIEW (HORIZONTAL) ── */}
+        <div className="bg-white rounded-2xl border overflow-hidden shadow-sm" style={{ borderColor: '#CBD5E1' }}>
+          <div className="px-5 py-4 border-b flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.08) 0%, transparent 100%)', borderColor: '#CBD5E1' }}>
+            <div className="flex items-center gap-2">
+              <History size={18} style={{ color: '#2563EB' }} />
+              <h2 className="font-bold text-base" style={{ color: '#0F172A' }}>Booking Summary & Preview</h2>
+            </div>
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-blue-100 text-blue-700">
+              Review details
+            </span>
+          </div>
+          <div className="p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Customer */}
+              <div className="rounded-xl p-3.5" style={{ backgroundColor: '#F8FAFC', border: '1px solid #CBD5E1' }}>
+                <span className="text-gray-500 text-xs font-semibold block mb-1">Customer</span>
+                <p className="font-bold text-gray-800 text-sm truncate">{selectedCustomer?.businessName ? `${selectedCustomer.businessName} (${selectedCustomer.name})` : (selectedCustomer?.name || newCustomer.name || form.guestName || 'Not selected')}</p>
+                <p className="text-xs text-gray-500 mt-0.5 truncate">{selectedCustomer?.phone || newCustomer.phone || form.guestPhone || 'No phone'}</p>
+              </div>
 
-            <div className="space-y-3 text-sm">
-  {/* ── Hall Rent (Hamesha alag) ── */}
-  {selectedHall && (
-    <div className="flex justify-between text-gray-600">
-      <span className="flex items-center gap-1.5">
-        <Building2 size={14} />
-        Hall Rent {form.hallChargeMode === 'per_seat' ? `(×${form.guestCount})` : '(Fixed)'}
-      </span>
-      <span className="font-mono font-medium">{formatCurrency(hallPrice)}</span>
-    </div>
-  )}
+              {/* Event & Hall */}
+              <div className="rounded-xl p-3.5" style={{ backgroundColor: '#F8FAFC', border: '1px solid #CBD5E1' }}>
+                <span className="text-gray-500 text-xs font-semibold block mb-1">Event & Hall</span>
+                <p className="font-bold text-gray-800 text-sm truncate">{form.eventType || 'N/A'} @ {selectedHall?.name || 'N/A'}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{form.hallChargeMode === 'full_hall' ? 'Full Hall Booking' : `Per Seat — ${form.guestCount || 0} guests`}</p>
+              </div>
 
-  {/* ── Package (if selected) ── */}
-  {form.isMealIncluded && selectedPackage && (
-    <div className="flex justify-between text-gray-600 border-t pt-2" style={{ borderColor: '#CBD5E1' }}>
-      <span className="flex items-center gap-1.5"><Package size={14} /> Package</span>
-      <span className="font-mono font-medium">{formatCurrency(packageMealTotal)}</span>
-    </div>
-  )}
+              {/* Date & Time */}
+              <div className="rounded-xl p-3.5" style={{ backgroundColor: '#F8FAFC', border: '1px solid #CBD5E1' }}>
+                <span className="text-gray-500 text-xs font-semibold block mb-1">Date & Time</span>
+                <p className="font-bold text-gray-800 text-sm">{form.eventDate ? new Date(form.eventDate).toLocaleDateString() : 'N/A'}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{form.startTime && form.endTime ? `${form.startTime} — ${form.endTime}` : 'Time not specified'}</p>
+              </div>
 
-  {/* ── Extra Menus (jo package se nahi hain) ── */}
-  {form.isMealIncluded && form.selectedMenus.filter(m => !m.fromPackage).length > 0 && (
-    <div className="flex justify-between text-gray-600">
-      <span className="flex items-center gap-1.5"><Utensils size={14} /> Extra Menus ({form.selectedMenus.filter(m => !m.fromPackage).length})</span>
-      <span className="font-mono font-medium">
-        {formatCurrency(form.selectedMenus.filter(m => !m.fromPackage).reduce((sum, m) => sum + Number(m.totalPrice || 0), 0))}
-      </span>
-    </div>
-  )}
+              {/* Guests & Selections */}
+              <div className="rounded-xl p-3.5" style={{ backgroundColor: '#F8FAFC', border: '1px solid #CBD5E1' }}>
+                <span className="text-gray-500 text-xs font-semibold block mb-1">Guests & Inclusions</span>
+                <p className="font-bold text-gray-800 text-sm">{form.guestCount || 0} Expected {form.actualGuestCount ? `(${form.actualGuestCount} actual)` : ''}</p>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {selectedPackage && <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">Package</span>}
+                  {form.selectedMenus.length > 0 && <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">{form.selectedMenus.length} Menus</span>}
+                  {form.customItems.length > 0 && <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">{form.customItems.length} Custom</span>}
+                  {form.services.length > 0 && <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800">{form.services.length} Services</span>}
+                  {!selectedPackage && form.selectedMenus.length === 0 && form.customItems.length === 0 && form.services.length === 0 && (
+                    <span className="text-[10px] text-gray-400">No items selected</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-  {/* ── Custom Items ── */}
-  {form.isMealIncluded && form.customItems.length > 0 && (
-    <div className="flex justify-between text-gray-600">
-      <span className="flex items-center gap-1.5"><Settings size={14} /> Custom Items ({form.customItems.length})</span>
-      <span className="font-mono font-medium">{formatCurrency(customMealTotal)}</span>
-    </div>
-  )}
+        {/* ── 2. FINANCIAL CHARGES & ADJUSTMENTS (HORIZONTAL) ── */}
+        <div className="bg-white rounded-2xl border overflow-hidden shadow-sm" style={{ borderColor: '#CBD5E1' }}>
+          <div className="px-5 py-4 border-b flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.08) 0%, transparent 100%)', borderColor: '#CBD5E1' }}>
+            <div className="flex items-center gap-2">
+              <Receipt size={18} style={{ color: '#2563EB' }} />
+              <h2 className="font-bold text-base" style={{ color: '#0F172A' }}>Financial Charges & Adjustments</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500 font-medium">Subtotal:</span>
+              <span className="font-mono font-bold text-base text-gray-800">{formatCurrency(baseTotal + discountAmount)}</span>
+            </div>
+          </div>
 
-  {/* ── Extra Services (jo package se nahi hain) ── */}
-  {form.services.filter(s => !s.fromPackage).length > 0 && (
-    <div className="flex justify-between text-gray-600">
-      <span className="flex items-center gap-1.5"><Tag size={14} /> Extra Services ({form.services.filter(s => !s.fromPackage).length})</span>
-      <span className="font-mono font-medium">
-        {formatCurrency(form.services.filter(s => !s.fromPackage).reduce((sum, s) => sum + Number(s.totalPrice || 0), 0))}
-      </span>
-    </div>
-  )}
+          <div className="p-5 space-y-4">
+            {/* Horizontal Itemized Charges Badges */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              {/* Hall Rent */}
+              <div className="bg-slate-50 border rounded-xl p-3 text-center" style={{ borderColor: '#E2E8F0' }}>
+                <span className="text-xs text-gray-500 block truncate flex items-center justify-center gap-1">
+                  <Building2 size={13} /> Hall Rent
+                </span>
+                <span className="font-mono font-bold text-sm text-gray-800 mt-1 block">
+                  {selectedHall ? formatCurrency(hallPrice) : 'Rs 0'}
+                </span>
+              </div>
 
-  {/* ── Subtotal ── */}
-  <div className="border-t pt-2 flex justify-between text-gray-600" style={{ borderColor: '#CBD5E1' }}>
-    <span>Subtotal</span>
-    <span className="font-mono font-medium">{formatCurrency(baseTotal + discountAmount)}</span>
-  </div>
+              {/* Package */}
+              <div className="bg-slate-50 border rounded-xl p-3 text-center" style={{ borderColor: '#E2E8F0' }}>
+                <span className="text-xs text-gray-500 block truncate flex items-center justify-center gap-1">
+                  <Package size={13} /> Package
+                </span>
+                <span className="font-mono font-bold text-sm text-gray-800 mt-1 block">
+                  {form.isMealIncluded && selectedPackage ? formatCurrency(packageMealTotal) : 'Rs 0'}
+                </span>
+              </div>
 
-  {/* ── Discount ── */}
-  <div className="flex justify-between items-center text-gray-600">
-    <span>Discount</span>
-    <div className="flex items-center gap-2">
-      <ReactSelect
-        value={form.discountType}
-        onChange={(val) => updateField('discountType', val)}
-        options={[
-          { value: 'percent', label: '%' },
-          { value: 'fixed', label: 'Rs' }
-        ]}
-        placeholder="% / Rs"
-        isSearchable={true}
-        isClearable={false}
-      />
-      <input 
-        type="number" 
-        min="0" 
-        value={form.discount} 
-        onChange={e => updateField('discount', e.target.value)}
-        className="w-20 border rounded-lg px-2 py-1 text-sm text-right font-mono" 
-        style={{ borderColor: '#CBD5E1' }} 
-      />
-    </div>
-  </div>
+              {/* Extra Menus */}
+              <div className="bg-slate-50 border rounded-xl p-3 text-center" style={{ borderColor: '#E2E8F0' }}>
+                <span className="text-xs text-gray-500 block truncate flex items-center justify-center gap-1">
+                  <Utensils size={13} /> Extra Menus ({form.selectedMenus.filter(m => !m.fromPackage).length})
+                </span>
+                <span className="font-mono font-bold text-sm text-gray-800 mt-1 block">
+                  {formatCurrency(form.isMealIncluded ? form.selectedMenus.filter(m => !m.fromPackage).reduce((sum, m) => sum + Number(m.totalPrice || 0), 0) : 0)}
+                </span>
+              </div>
 
-  {/* ── Discount Amount ── */}
-  {discountAmount > 0 && (
-    <div className="flex justify-between text-green-600 text-sm">
-      <span>Discount Amount</span>
-      <span className="font-mono font-medium">-{formatCurrency(discountAmount)}</span>
-    </div>
-  )}
+              {/* Custom Items */}
+              <div className="bg-slate-50 border rounded-xl p-3 text-center" style={{ borderColor: '#E2E8F0' }}>
+                <span className="text-xs text-gray-500 block truncate flex items-center justify-center gap-1">
+                  <Settings size={13} /> Custom Items ({form.customItems.length})
+                </span>
+                <span className="font-mono font-bold text-sm text-gray-800 mt-1 block">
+                  {formatCurrency(form.isMealIncluded ? customMealTotal : 0)}
+                </span>
+              </div>
 
-  {/* ── Tax Toggle ── */}
-  <div className="flex justify-between items-center py-2 border-t" style={{ borderColor: '#CBD5E1' }}>
-    <label className="flex items-center gap-2 cursor-pointer font-semibold text-sm text-gray-700">
-      <input
-        type="checkbox"
-        checked={form.taxEnabled}
-        onChange={(e) => updateField('taxEnabled', e.target.checked)}
-        className="w-5 h-5 accent-[#2563EB]"
-      />
-      <Percent size={14} /> Apply Tax
-    </label>
-    <span className={`text-xs font-bold px-2 py-1 rounded-lg ${form.taxEnabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-      {form.taxEnabled ? 'ON' : 'OFF'}
-    </span>
-  </div>
-
-  {/* ── Tax Breakdown ── */}
-  {taxBreakdown.length > 0 && taxBreakdown.map((tax, idx) => (
-    <div key={tax.id || idx} className="flex justify-between text-gray-600 text-sm border-t pt-2" style={{ borderColor: '#CBD5E1' }}>
-      <span className="flex items-center gap-1.5">
-        <Percent size={14} /> Tax ({tax.name} @ {tax.percent}%)
-      </span>
-      <span className="font-mono font-medium">+{formatCurrency(tax.amount)}</span>
-    </div>
-  ))}
-
-  {/* ── Grand Total ── */}
-  <div className="flex justify-between text-lg font-bold border-t-2 pt-2" style={{ borderColor: '#CBD5E1', color: '#0F172A' }}>
-    <span>Grand Total</span>
-    <span className="font-mono text-lg" style={{ color: '#2563EB' }}>{formatCurrency(form.totalAmount || finalTotal || 0)}</span>
-  </div>
-
-  {/* ── Advance Payment ── */}
-  <div className="flex justify-between items-center text-gray-600">
-    <span className="flex items-center gap-1.5"><CreditCard size={14} /> Advance</span>
-    <input 
-      type="number" 
-      min="0" 
-      value={form.advanceAmount || 0} 
-      onChange={e => {
-        const val = parseFloat(e.target.value) || 0;
-        updateField('advanceAmount', val);
-      }}
-      className="w-28 border rounded-lg px-2 py-1 text-sm text-right font-mono" 
-      style={{ borderColor: '#CBD5E1' }} 
-    />
-  </div>
-
-  {/* ── Due Balance ── */}
-  <div className="flex justify-between font-bold rounded-xl px-3 py-2.5" style={{ backgroundColor: '#FEF2F2', color: '#B91C1C' }}>
-    <span className="flex items-center gap-1.5"><AlertCircle size={16} /> Due Balance</span>
-    <span className="font-mono text-base">{formatCurrency(dueAmount)}</span>
-  </div>
-</div>
-
-            {/* ── Payment Mode ── */}
-            <div>
-              <label className="text-xs font-bold uppercase tracking-wider block mb-1" style={{ color: '#334155' }}>Payment Mode *</label>
-              <ReactSelect
-                value={form.paymentMode}
-                onChange={(val) => {
-                  // 🔥 Payment mode change hone par account reset karein
-                  updateField('paymentMode', val);
-                  updateField('bankAccountId', ''); // Account selection clear karein
-                }}
-                options={[
-                  { value: 'Cash', label: '💵 Cash' },
-                  { value: 'Bank Transfer', label: '🏦 Bank Transfer' },
-                  { value: 'JazzCash / EasyPaisa', label: '📱 JazzCash / EasyPaisa' },
-                  { value: 'Credit Card', label: '💳 Credit Card' },
-                  { value: 'Cheque', label: '📄 Cheque' }
-                ]}
-                placeholder="Select Payment Mode"
-                isSearchable={true}
-                isClearable={false}
-              />
+              {/* Extra Services */}
+              <div className="bg-slate-50 border rounded-xl p-3 text-center" style={{ borderColor: '#E2E8F0' }}>
+                <span className="text-xs text-gray-500 block truncate flex items-center justify-center gap-1">
+                  <Tag size={13} /> Extra Services ({form.services.filter(s => !s.fromPackage).length})
+                </span>
+                <span className="font-mono font-bold text-sm text-gray-800 mt-1 block">
+                  {formatCurrency(form.services.filter(s => !s.fromPackage).reduce((sum, s) => sum + Number(s.totalPrice || 0), 0))}
+                </span>
+              </div>
             </div>
 
-            {/* ── Bank Account (Filtered by Payment Mode) ── */}
-            <div className="mt-4">
-              <label className="text-xs font-bold uppercase tracking-wider mb-1.5 block" style={{ color: '#334155' }}>
-                Receive Payment In Account *
-                {form.paymentMode && (
-                  <span className="ml-2 text-[10px] font-normal text-gray-500">
-                    ({form.paymentMode} accounts only)
-                  </span>
-                )}
-              </label>
-
-              <ReactSelect
-  value={form.bankAccountId}
-  onChange={(val) => updateField('bankAccountId', val)}
-  options={(() => {
-    // 🔥 Payment mode ke hisaab se accounts filter karein
-    const modeToAccountType = {
-      'Cash': 'CASH',
-      'Bank Transfer': 'BANK',
-      'JazzCash / EasyPaisa': 'JAZZCASH',
-      'Credit Card': 'CREDIT',
-      'Cheque': 'BANK'
-    };
-
-    const requiredType = form.paymentMode ? modeToAccountType[form.paymentMode] : null;
-    
-    // 🔥 FIX: filteredAccounts use karein jo safe hai
-    let filtered = filteredAccounts;
-    if (requiredType) {
-      filtered = (bankAccounts || []).filter(acc => acc.accountType === requiredType);
-    }
-
-    return filtered.map(acc => ({
-      value: String(acc.id),
-      label: `${acc.bankName || acc.accountName || 'Account'} — ${acc.accountNumber || 'N/A'} (Bal: ${formatCurrency(acc.currentBalance || 0)})`
-    }));
-  })()}
-  placeholder={
-    form.paymentMode
-      ? `Select ${form.paymentMode} Account`
-      : '⚠️ First select Payment Mode'
-  }
-  isSearchable={true}
-  isClearable={true}
-  isDisabled={!form.paymentMode}
-/>
-
-              {/* ── Validation Messages ── */}
-              {!form.paymentMode && (
-                <div className="mt-2 p-2.5 rounded-lg border border-amber-200 bg-amber-50">
-                  <p className="text-xs text-amber-700 flex items-center gap-1.5">
-                    <AlertCircle size={14} />
-                    <span>Please select a <strong>Payment Mode</strong> first to see available accounts</span>
-                  </p>
+            {/* Horizontal Discount & Tax Controls */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t" style={{ borderColor: '#E2E8F0' }}>
+              {/* Discount */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-slate-50 border gap-2" style={{ borderColor: '#CBD5E1' }}>
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-700 block">Discount</span>
+                  {discountAmount > 0 && (
+                    <span className="text-xs font-mono text-green-600 font-semibold">-{formatCurrency(discountAmount)} applied</span>
+                  )}
                 </div>
-              )}
+                <div className="flex items-center gap-2">
+                  <div className="w-24">
+                    <ReactSelect
+                      value={form.discountType}
+                      onChange={(val) => updateField('discountType', val)}
+                      options={[
+                        { value: 'percent', label: '%' },
+                        { value: 'fixed', label: 'Rs' }
+                      ]}
+                      placeholder="% / Rs"
+                      isSearchable={true}
+                      isClearable={false}
+                    />
+                  </div>
+                  <input 
+                    type="number" 
+                    min="0" 
+                    value={form.discount} 
+                    onChange={e => updateField('discount', e.target.value)}
+                    className="w-28 border rounded-lg px-3 py-2 text-sm text-right font-mono bg-white" 
+                    style={{ borderColor: '#CBD5E1' }} 
+                  />
+                </div>
+              </div>
 
-              {form.paymentMode && (() => {
-                const modeToAccountType = {
-                  'Cash': 'CASH',
-                  'Bank Transfer': 'BANK',
-                  'JazzCash / EasyPaisa': 'JAZZCASH',
-                  'Credit Card': 'CREDIT',
-                  'Cheque': 'BANK'
-                };
-                const requiredType = modeToAccountType[form.paymentMode];
-                const hasAccounts = bankAccounts.some(acc => acc.accountType === requiredType);
+              {/* Tax */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-slate-50 border gap-2" style={{ borderColor: '#CBD5E1' }}>
+                <label className="flex items-center gap-2.5 cursor-pointer font-bold text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={form.taxEnabled}
+                    onChange={(e) => updateField('taxEnabled', e.target.checked)}
+                    className="w-5 h-5 accent-[#2563EB]"
+                  />
+                  <span className="flex items-center gap-1.5"><Percent size={15} /> Apply Tax</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${form.taxEnabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                    {form.taxEnabled ? 'TAX ON' : 'TAX OFF'}
+                  </span>
+                  {taxBreakdown.length > 0 && (
+                    <span className="font-mono text-xs font-bold text-gray-700">
+                      +{formatCurrency(taxBreakdown.reduce((sum, t) => sum + Number(t.amount || 0), 0))}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
 
-                if (!hasAccounts) {
-                  return (
-                    <div className="mt-2 p-2.5 rounded-lg border border-red-200 bg-red-50">
-                      <p className="text-xs text-red-600 flex items-center gap-1.5">
-                        <AlertCircle size={14} />
-                        <span>No <strong>{form.paymentMode}</strong> account found! Please create one in <strong>Settings → Chart of Accounts</strong></span>
-                      </p>
-                    </div>
-                  );
-                }
-                return null;
-              })()}
+            {/* Tax Breakdown badges if any */}
+            {taxBreakdown.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-2 border-t" style={{ borderColor: '#E2E8F0' }}>
+                {taxBreakdown.map((tax, idx) => (
+                  <span key={tax.id || idx} className="text-xs px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 border border-blue-200 font-medium">
+                    {tax.name} ({tax.percent}%): +{formatCurrency(tax.amount)}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
 
-              {/* ── Selected Account Badge ── */}
-              {form.bankAccountId && form.paymentMode && (() => {
-                const selectedAcc = bankAccounts.find(acc => String(acc.id) === String(form.bankAccountId));
-                if (!selectedAcc) return null;
+        {/* ── 3. PAYMENT SETTLEMENT & CONFIRMATION (HORIZONTAL) ── */}
+        <div className="bg-white rounded-2xl border overflow-hidden shadow-sm" style={{ borderColor: '#CBD5E1' }}>
+          <div className="px-5 py-4 border-b flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.08) 0%, transparent 100%)', borderColor: '#CBD5E1' }}>
+            <div className="flex items-center gap-2">
+              <CreditCard size={18} style={{ color: '#2563EB' }} />
+              <h2 className="font-bold text-base" style={{ color: '#0F172A' }}>Payment Settlement & Confirmation</h2>
+            </div>
+          </div>
 
-                const accountTypeColors = {
-                  'CASH': { bg: '#FEF3C7', text: '#1E3A8A', label: '💰 Cash' },
-                  'BANK': { bg: '#DBEAFE', text: '#1E40AF', label: '🏦 Bank' },
-                  'JAZZCASH': { bg: '#FCE7F3', text: '#9D174D', label: '📱 JazzCash' },
-                  'CREDIT': { bg: '#EDE9FE', text: '#5B21B6', label: '💳 Credit' },
-                  'EASYPAISA': { bg: '#D1FAE5', text: '#065F46', label: '📱 EasyPaisa' },
-                  'OTHER': { bg: '#F3F4F6', text: '#374151', label: '📌 Other' }
-                };
+          <div className="p-5 space-y-5">
+            {/* Row 1: Horizontal Metrics Tiles */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Grand Total */}
+              <div className="rounded-xl p-4 bg-blue-50/70 border border-blue-200 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-blue-700 uppercase tracking-wider block">Grand Total</span>
+                  <p className="font-mono font-extrabold text-2xl text-blue-900 mt-0.5">{formatCurrency(form.totalAmount || finalTotal || 0)}</p>
+                </div>
+                <div className="p-2.5 rounded-xl bg-blue-600 text-white shadow-sm">
+                  <Receipt size={22} />
+                </div>
+              </div>
 
-                const colors = accountTypeColors[selectedAcc.accountType] || accountTypeColors['OTHER'];
+              {/* Advance Input */}
+              <div className="rounded-xl p-4 bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-gray-700 uppercase tracking-wider block">Advance Payment</span>
+                  <span className="text-[11px] text-gray-400">Received now</span>
+                </div>
+                <input 
+                  type="number" 
+                  min="0" 
+                  value={form.advanceAmount || 0} 
+                  onChange={e => {
+                    const val = parseFloat(e.target.value) || 0;
+                    updateField('advanceAmount', val);
+                  }}
+                  className="w-36 border rounded-xl px-3 py-2 text-base font-extrabold text-right font-mono bg-white shadow-sm focus:ring-2 focus:ring-blue-500/20" 
+                  style={{ borderColor: '#CBD5E1' }} 
+                />
+              </div>
 
+              {/* Due Balance */}
+              <div className="rounded-xl p-4 flex items-center justify-between" style={{ backgroundColor: dueAmount > 0 ? '#FEF2F2' : '#F0FDF4', border: `1px solid ${dueAmount > 0 ? '#FECACA' : '#BBF7D0'}` }}>
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: dueAmount > 0 ? '#B91C1C' : '#15803D' }}>Due Balance</span>
+                  <p className="font-mono font-extrabold text-2xl mt-0.5" style={{ color: dueAmount > 0 ? '#B91C1C' : '#15803D' }}>{formatCurrency(dueAmount)}</p>
+                </div>
+                <div className="p-2.5 rounded-xl text-white shadow-sm" style={{ backgroundColor: dueAmount > 0 ? '#DC2626' : '#16A34A' }}>
+                  <AlertCircle size={22} />
+                </div>
+              </div>
+            </div>
+
+            {/* Row 2: Horizontal Payment Mode & Bank Account Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+              {/* Payment Mode */}
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>Payment Mode *</label>
+                <ReactSelect
+                  value={form.paymentMode}
+                  onChange={(val) => {
+                    updateField('paymentMode', val);
+                    updateField('bankAccountId', '');
+                  }}
+                  options={[
+                    { value: 'Cash', label: '💵 Cash' },
+                    { value: 'Bank Transfer', label: '🏦 Bank Transfer' },
+                    { value: 'JazzCash / EasyPaisa', label: '📱 JazzCash / EasyPaisa' },
+                    { value: 'Credit Card', label: '💳 Credit Card' },
+                    { value: 'Cheque', label: '📄 Cheque' }
+                  ]}
+                  placeholder="Select Payment Mode"
+                  isSearchable={true}
+                  isClearable={false}
+                />
+              </div>
+
+              {/* Bank Account */}
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider mb-1.5 block" style={{ color: '#334155' }}>
+                  Receive Payment In Account *
+                  {form.paymentMode && (
+                    <span className="ml-2 text-[10px] font-normal text-gray-500">
+                      ({form.paymentMode} accounts only)
+                    </span>
+                  )}
+                </label>
+
+                <ReactSelect
+                  value={form.bankAccountId}
+                  onChange={(val) => updateField('bankAccountId', val)}
+                  options={(() => {
+                    const modeToAccountType = {
+                      'Cash': 'CASH',
+                      'Bank Transfer': 'BANK',
+                      'JazzCash / EasyPaisa': 'JAZZCASH',
+                      'Credit Card': 'CREDIT',
+                      'Cheque': 'BANK'
+                    };
+
+                    const requiredType = form.paymentMode ? modeToAccountType[form.paymentMode] : null;
+                    
+                    let filtered = filteredAccounts;
+                    if (requiredType) {
+                      filtered = (bankAccounts || []).filter(acc => acc.accountType === requiredType);
+                    }
+
+                    return filtered.map(acc => ({
+                      value: String(acc.id),
+                      label: `${acc.bankName || acc.accountName || 'Account'} — ${acc.accountNumber || 'N/A'} (Bal: ${formatCurrency(acc.currentBalance || 0)})`
+                    }));
+                  })()}
+                  placeholder={
+                    form.paymentMode
+                      ? `Select ${form.paymentMode} Account`
+                      : '⚠️ First select Payment Mode'
+                  }
+                  isSearchable={true}
+                  isClearable={true}
+                  isDisabled={!form.paymentMode}
+                />
+              </div>
+            </div>
+
+            {/* Alerts & Selected Account Badge */}
+            {!form.paymentMode && (
+              <div className="p-3 rounded-xl border border-amber-200 bg-amber-50">
+                <p className="text-xs text-amber-700 flex items-center gap-1.5 font-medium">
+                  <AlertCircle size={15} />
+                  <span>Please select a <strong>Payment Mode</strong> first to see available accounts</span>
+                </p>
+              </div>
+            )}
+
+            {form.paymentMode && (() => {
+              const modeToAccountType = {
+                'Cash': 'CASH',
+                'Bank Transfer': 'BANK',
+                'JazzCash / EasyPaisa': 'JAZZCASH',
+                'Credit Card': 'CREDIT',
+                'Cheque': 'BANK'
+              };
+              const requiredType = modeToAccountType[form.paymentMode];
+              const hasAccounts = bankAccounts.some(acc => acc.accountType === requiredType);
+
+              if (!hasAccounts) {
                 return (
-                  <div className="mt-2.5 p-3 rounded-xl border border-green-200" style={{ backgroundColor: '#F0FDF4' }}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-green-600 text-lg">✓</span>
-                        <div>
-                          <p className="text-sm font-bold text-gray-800">{selectedAcc.bankName || selectedAcc.accountName}</p>
-                          <p className="text-xs text-gray-500 font-mono">{selectedAcc.accountNumber}</p>
-                        </div>
-                      </div>
-                      <span
-                        className="px-3 py-1 rounded-full text-[10px] font-bold uppercase"
-                        style={{ backgroundColor: colors.bg, color: colors.text }}
-                      >
+                  <div className="p-3 rounded-xl border border-red-200 bg-red-50">
+                    <p className="text-xs text-red-600 flex items-center gap-1.5 font-medium">
+                      <AlertCircle size={15} />
+                      <span>No <strong>{form.paymentMode}</strong> account found! Please create one in <strong>Settings → Chart of Accounts</strong></span>
+                    </p>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
+            {form.bankAccountId && form.paymentMode && (() => {
+              const selectedAcc = bankAccounts.find(acc => String(acc.id) === String(form.bankAccountId));
+              if (!selectedAcc) return null;
+
+              const accountTypeColors = {
+                'CASH': { bg: '#FEF3C7', text: '#1E3A8A', label: '💰 Cash' },
+                'BANK': { bg: '#DBEAFE', text: '#1E40AF', label: '🏦 Bank' },
+                'JAZZCASH': { bg: '#FCE7F3', text: '#9D174D', label: '📱 JazzCash' },
+                'CREDIT': { bg: '#EDE9FE', text: '#5B21B6', label: '💳 Credit' },
+                'EASYPAISA': { bg: '#D1FAE5', text: '#065F46', label: '📱 EasyPaisa' },
+                'OTHER': { bg: '#F3F4F6', text: '#374151', label: '📌 Other' }
+              };
+
+              const colors = accountTypeColors[selectedAcc.accountType] || accountTypeColors['OTHER'];
+
+              return (
+                <div className="p-3.5 rounded-xl border border-green-200" style={{ backgroundColor: '#F0FDF4' }}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-green-600 font-bold text-base">✓ Selected:</span>
+                      <p className="text-sm font-bold text-gray-800">{selectedAcc.bankName || selectedAcc.accountName}</p>
+                      <span className="text-xs text-gray-500 font-mono">({selectedAcc.accountNumber})</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {selectedAcc.currentBalance !== undefined && (
+                        <span className="text-xs font-semibold text-gray-600">
+                          Current Balance: <strong className="font-mono text-blue-700">{formatCurrency(selectedAcc.currentBalance || 0)}</strong>
+                        </span>
+                      )}
+                      <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase" style={{ backgroundColor: colors.bg, color: colors.text }}>
                         {colors.label}
                       </span>
                     </div>
-                    {selectedAcc.currentBalance !== undefined && (
-                      <div className="mt-1.5 pt-1.5 border-t border-green-100 flex justify-between">
-                        <span className="text-[10px] text-gray-500">Current Balance</span>
-                        <span className="text-xs font-bold font-mono" style={{ color: '#2563EB' }}>
-                          {formatCurrency(selectedAcc.currentBalance || 0)}
-                        </span>
-                      </div>
-                    )}
                   </div>
-                );
-              })()}
-            </div>
-
-            {/* ── Submit Button ── */}
-            {/* ── Submit Button ── */}
-            <button
-              type="submit"
-              disabled={loading || slotInfo.hasError}
-              className="w-full mt-4 py-3 rounded-xl font-bold text-white shadow-md transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              style={{ background: 'linear-gradient(135deg, #1E40AF, #2563EB)' }}
-            >
-              <Save size={18} /> {loading ? 'Creating...' : 'Create Booking'}
-            </button>
-
-            {/* ── Validation Messages ── */}
-            {(() => {
-              const advanceAmount = Number(form.advanceAmount || 0);
-              const finalTotalValue = Number(form.totalAmount || finalTotal || 0);
-              
-              if (advanceAmount > 0) {
-                if (!form.paymentMode) {
-                  return (
-                    <p className="text-xs text-red-500 text-center mt-2 font-medium flex items-center justify-center gap-1.5">
-                      <AlertCircle size={14} /> ⚠️ Please select Payment Mode to receive advance of {formatCurrency(advanceAmount)}
-                    </p>
-                  );
-                }
-                if (!form.bankAccountId) {
-                  return (
-                    <p className="text-xs text-red-500 text-center mt-2 font-medium flex items-center justify-center gap-1.5">
-                      <AlertCircle size={14} /> ⚠️ Please select Bank Account to receive advance of {formatCurrency(advanceAmount)}
-                    </p>
-                  );
-                }
-                return (
-                  <p className="text-xs text-green-600 text-center mt-2 font-medium flex items-center justify-center gap-1.5">
-                    ✓ Advance of {formatCurrency(advanceAmount)} will be received in {form.paymentMode} account
-                  </p>
-                );
-              } else {
-                return (
-                  <p className="text-xs text-amber-600 text-center mt-2 font-medium flex items-center justify-center gap-1.5">
-                    ℹ️ Full amount of {formatCurrency(finalTotalValue)} will be marked as Due (No advance received)
-                  </p>
-                );
-              }
+                </div>
+              );
             })()}
 
-            {slotInfo.hasError && (
-              <p className="text-xs text-red-500 text-center mt-2 font-medium">Fix slot error to proceed</p>
-            )}
-          </div>
+            {/* Row 3: Horizontal Action & Submit Bar */}
+            <div className="pt-4 border-t flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderColor: '#E2E8F0' }}>
+              <div>
+                {(() => {
+                  const advanceAmount = Number(form.advanceAmount || 0);
+                  const finalTotalValue = Number(form.totalAmount || finalTotal || 0);
+                  
+                  if (advanceAmount > 0) {
+                    if (!form.paymentMode) {
+                      return (
+                        <p className="text-xs text-red-500 font-medium flex items-center gap-1.5">
+                          <AlertCircle size={14} /> ⚠️ Please select Payment Mode to receive advance of {formatCurrency(advanceAmount)}
+                        </p>
+                      );
+                    }
+                    if (!form.bankAccountId) {
+                      return (
+                        <p className="text-xs text-red-500 font-medium flex items-center gap-1.5">
+                          <AlertCircle size={14} /> ⚠️ Please select Bank Account to receive advance of {formatCurrency(advanceAmount)}
+                        </p>
+                      );
+                    }
+                    return (
+                      <p className="text-xs text-green-700 font-medium flex items-center gap-1.5">
+                        ✓ Advance of {formatCurrency(advanceAmount)} will be received in {form.paymentMode} account
+                      </p>
+                    );
+                  } else {
+                    return (
+                      <p className="text-xs text-amber-700 font-medium flex items-center gap-1.5">
+                        ℹ️ Full amount of {formatCurrency(finalTotalValue)} will be marked as Due (No advance received)
+                      </p>
+                    );
+                  }
+                })()}
 
-          {/* ── Booking Preview ── */}
-          <div className="bg-white rounded-2xl border p-5 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2" style={{ color: '#0F172A' }}>
-              <History size={20} style={{ color: '#2563EB' }} /> Preview
-            </h3>
-            <div className="space-y-2 text-sm">
-              <div className="rounded-xl p-3" style={{ backgroundColor: '#F8FAFC', border: '1px solid #CBD5E1' }}>
-                <span className="text-gray-500 text-xs block">Customer</span>
-                <p className="font-semibold">{selectedCustomer?.businessName ? `${selectedCustomer.businessName} (${selectedCustomer.name})` : (selectedCustomer?.name || newCustomer.name || form.guestName || 'Not selected')}</p>
-                <p className="text-xs text-gray-500">{selectedCustomer?.phone || newCustomer.phone || form.guestPhone || ''}</p>
-              </div>
-              <div className="rounded-xl p-3" style={{ backgroundColor: '#F8FAFC', border: '1px solid #CBD5E1' }}>
-                <span className="text-gray-500 text-xs block">Event & Hall</span>
-                <p className="font-semibold">{form.eventType || 'N/A'} @ {selectedHall?.name || 'N/A'}</p>
-                <p className="text-xs text-gray-500">{form.hallChargeMode === 'full_hall' ? 'Full Hall Booking' : `Per Seat — ${form.guestCount || 0} guests`}</p>
-              </div>
-              <div className="rounded-xl p-3" style={{ backgroundColor: '#F8FAFC', border: '1px solid #CBD5E1' }}>
-                <span className="text-gray-500 text-xs block">Date & Time</span>
-                <p className="font-semibold">{form.eventDate ? new Date(form.eventDate).toLocaleDateString() : 'N/A'} | {form.startTime}-{form.endTime}</p>
-              </div>
-              <div className="rounded-xl p-3" style={{ backgroundColor: '#F8FAFC', border: '1px solid #CBD5E1' }}>
-                <span className="text-gray-500 text-xs block">Guests</span>
-                <p className="font-semibold">{form.guestCount || 0} expected {form.actualGuestCount ? `(${form.actualGuestCount} actual)` : ''}</p>
-              </div>
-              <div className="rounded-xl p-3 text-xs" style={{ backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1E40AF' }}>
-                <strong>Selected:</strong>
-                {selectedPackage && <span className="inline-block ml-1 px-2 py-0.5 rounded bg-amber-100">Package</span>}
-                {form.selectedMenus.length > 0 && <span className="inline-block ml-1 px-2 py-0.5 rounded bg-green-100">{form.selectedMenus.length} Menus</span>}
-                {form.customItems.length > 0 && <span className="inline-block ml-1 px-2 py-0.5 rounded bg-blue-100">{form.customItems.length} Custom</span>}
-                {form.services.length > 0 && <span className="inline-block ml-1 px-2 py-0.5 rounded bg-purple-100">{form.services.length} Services</span>}
-                {!selectedPackage && form.selectedMenus.length === 0 && form.customItems.length === 0 && form.services.length === 0 && (
-                  <span className="text-gray-400">No items selected yet</span>
+                {slotInfo.hasError && (
+                  <p className="text-xs text-red-500 font-medium mt-1">Fix slot error to proceed</p>
                 )}
+              </div>
+
+              <div className="w-full sm:w-auto flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => navigate('/bookings')}
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl border font-bold text-gray-700 hover:bg-gray-50 transition-all text-sm"
+                  style={{ borderColor: '#CBD5E1' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading || slotInfo.hasError}
+                  className="w-full sm:w-auto px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base"
+                  style={{ background: 'linear-gradient(135deg, #1E40AF, #2563EB)' }}
+                >
+                  <Save size={18} /> {loading ? 'Creating...' : 'Create Booking'}
+                </button>
               </div>
             </div>
           </div>

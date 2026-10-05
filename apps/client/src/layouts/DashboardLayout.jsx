@@ -25,12 +25,12 @@ const DashboardLayout = () => {
       <main
         className={`
           min-h-screen transition-all duration-300
-          pt-4 pb-8
+          pt-4 pb-8 px-3 sm:px-4 md:px-6
           ${collapsed ? 'lg:ml-[80px] lg:px-6' : 'lg:ml-[280px] lg:px-8'}
         `}
         style={{ marginTop: '64px' }}
       >
-        <div className="container mx-auto max-w-7xl">
+        <div className="w-full">
           <Outlet />
         </div>
       </main>

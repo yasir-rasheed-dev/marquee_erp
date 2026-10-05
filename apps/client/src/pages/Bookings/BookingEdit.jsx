@@ -1414,7 +1414,7 @@ const BookingEdit = () => {
     <div className="min-h-screen" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
       {/* HEADER */}
       <div className="sticky top-0 z-40 border-b backdrop-blur-xl" style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderColor: '#CBD5E1' }}>
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <div className="w-full px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <button onClick={() => navigate('/bookings')} className="p-2 rounded-xl transition-all hover:scale-105" style={{ backgroundColor: '#F8F5F0' }}>
@@ -1438,7 +1438,7 @@ const BookingEdit = () => {
       </div>
 
       {/* STATUS BAR */}
-      <div className="max-w-7xl mx-auto px-4 pt-4">
+      <div className="w-full px-4 pt-4">
         <div className="bg-white rounded-2xl border p-4 shadow-sm flex flex-wrap items-center justify-between gap-3" style={{ borderColor: '#CBD5E1' }}>
           <div className="flex items-center gap-3 flex-wrap">
             <span className="text-xs font-bold px-3 py-1.5 rounded-lg" style={{ backgroundColor: s.bg, color: s.color }}>
@@ -1459,10 +1459,10 @@ const BookingEdit = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="max-w-7xl mx-auto px-4 py-6 md:px-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <form onSubmit={handleSubmit} className="w-full px-4 py-6 md:px-6 space-y-6">
 
-        {/* ═══════ LEFT COLUMN (2/3) ═══════ */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* ═══════ MAIN FORM SECTIONS (FULL WIDTH) ═══════ */}
+        <div className="space-y-6">
 
           {/* ── QUICK STATS ── */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -1992,213 +1992,313 @@ const BookingEdit = () => {
 
         </div>
 
-        {/* ═══════ RIGHT COLUMN (1/3) ═══════ */}
-        <div className="space-y-6">
+        {/* ═══════ BOTTOM SECTION: HORIZONTAL FULL-WIDTH CARDS ═══════ */}
 
-          {/* ── Financial Summary ── */}
-          <div className="bg-white rounded-2xl border p-6 shadow-sm" style={{ borderColor: '#CBD5E1' }}>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2" style={{ color: '#0F172A' }}>
-              <Receipt size={20} style={{ color: '#2563EB' }} /> Financial Summary
-            </h3>
+        {/* ── 1. FINANCIAL CHARGES & ADJUSTMENTS (HORIZONTAL) ── */}
+        <div className="bg-white rounded-2xl border overflow-hidden shadow-sm" style={{ borderColor: '#CBD5E1' }}>
+          <div className="px-5 py-4 border-b flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.08) 0%, transparent 100%)', borderColor: '#CBD5E1' }}>
+            <div className="flex items-center gap-2">
+              <Receipt size={18} style={{ color: '#2563EB' }} />
+              <h2 className="font-bold text-base" style={{ color: '#0F172A' }}>Financial Charges & Adjustments</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500 font-medium">Subtotal:</span>
+              <span className="font-mono font-bold text-base text-gray-800">{formatCurrency(baseTotal)}</span>
+            </div>
+          </div>
 
-            <div className="space-y-3 text-sm">
+          <div className="p-5 space-y-4">
+            {/* Horizontal Itemized Charges Badges */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               {/* Hall Rent */}
-              {selectedHall && (
-                <div className="flex justify-between text-gray-600">
-                  <span className="flex items-center gap-1.5"><Building2 size={14} /> Hall Rent {form.hallChargeMode === 'per_seat' ? `(×${form.guestCount})` : '(Fixed)'}</span>
-                  <span className="font-mono font-medium">{formatCurrency(hallPrice)}</span>
-                </div>
-              )}
-
-              {/* Package */}
-              {form.isMealIncluded && selectedPackage && (
-                <div className="flex justify-between text-gray-600 border-t pt-2" style={{ borderColor: '#CBD5E1' }}>
-                  <span className="flex items-center gap-1.5"><Package size={14} /> Package: {selectedPackage.name}</span>
-                  <span className="font-mono font-medium" style={{ color: '#2563EB' }}>
-                    {formatCurrency(selectedPackage.finalPrice || selectedPackage.baseTotal || 0)}
-                  </span>
-                </div>
-              )}
-
-              {/* Individual Menus (jo package se nahi hain) */}
-              {form.isMealIncluded && form.selectedMenus.filter(m => !m.fromPackage).length > 0 && (
-                <div className="flex justify-between text-gray-600">
-                  <span className="flex items-center gap-1.5"><Utensils size={14} /> Menus ({form.selectedMenus.filter(m => !m.fromPackage).length})</span>
-                  <span className="font-mono font-medium">
-                    {formatCurrency(form.selectedMenus.filter(m => !m.fromPackage).reduce((sum, m) => sum + Number(m.totalPrice || 0), 0))}
-                  </span>
-                </div>
-              )}
-
-              {/* Custom Items */}
-              {form.isMealIncluded && form.customItems.length > 0 && (
-                <div className="flex justify-between text-gray-600">
-                  <span className="flex items-center gap-1.5"><Settings size={14} /> Custom Items ({form.customItems.length})</span>
-                  <span className="font-mono font-medium">
-                    {formatCurrency(form.customItems.reduce((sum, i) => sum + Number(i.totalPrice || 0), 0))}
-                  </span>
-                </div>
-              )}
-
-              {/* Extra Services (jo package se nahi hain) */}
-              {form.services.filter(s => !s.fromPackage).length > 0 && (
-                <div className="flex justify-between text-gray-600">
-                  <span className="flex items-center gap-1.5"><Tag size={14} /> Extra Services ({form.services.filter(s => !s.fromPackage).length})</span>
-                  <span className="font-mono font-medium">
-                    {formatCurrency(form.services.filter(s => !s.fromPackage).reduce((sum, s) => sum + Number(s.totalPrice || 0), 0))}
-                  </span>
-                </div>
-              )}
-
-              {/* Subtotal */}
-              <div className="border-t pt-2 flex justify-between font-bold" style={{ borderColor: '#CBD5E1', color: '#0F172A' }}>
-                <span>Subtotal</span>
-                <span className="font-mono font-bold">{formatCurrency(baseTotal)}</span>
-              </div>
-
-              {/* Discount */}
-              <div className="flex justify-between items-center text-gray-600">
-                <span>Discount</span>
-                <div className="flex items-center gap-2">
-                  <ReactSelect
-                    value={form.discountType}
-                    onChange={(val) => updateField('discountType', val)}
-                    options={[
-                      { value: 'percent', label: '%' },
-                      { value: 'fixed', label: 'Rs' }
-                    ]}
-                    placeholder="% / Rs"
-                    isSearchable={true}
-                    isClearable={false}
-                  />
-                  <input type="number" min="0" value={form.discount} onChange={e => updateField('discount', e.target.value)}
-                    className="w-20 border rounded-lg px-2 py-1 text-sm text-right font-mono" style={{ borderColor: '#CBD5E1' }} />
-                </div>
-              </div>
-
-              {discountAmount > 0 && (
-                <div className="flex justify-between text-green-600 text-sm">
-                  <span>Discount Amount</span>
-                  <span className="font-mono font-medium">-{formatCurrency(discountAmount)}</span>
-                </div>
-              )}
-
-              {/* Tax Toggle */}
-              <div className="flex justify-between items-center py-2 border-t" style={{ borderColor: '#CBD5E1' }}>
-                <label className="flex items-center gap-2 cursor-pointer font-semibold text-sm text-gray-700">
-                  <input type="checkbox" checked={form.taxEnabled} onChange={(e) => updateField('taxEnabled', e.target.checked)} className="w-5 h-5 accent-[#2563EB]" />
-                  <Percent size={14} /> Apply Tax
-                </label>
-                <span className={`text-xs font-bold px-2 py-1 rounded-lg ${form.taxEnabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                  {form.taxEnabled ? 'ON' : 'OFF'}
+              <div className="bg-slate-50 border rounded-xl p-3 text-center" style={{ borderColor: '#E2E8F0' }}>
+                <span className="text-xs text-gray-500 block truncate flex items-center justify-center gap-1">
+                  <Building2 size={13} /> Hall Rent
+                </span>
+                <span className="font-mono font-bold text-sm text-gray-800 mt-1 block">
+                  {selectedHall ? formatCurrency(hallPrice) : 'Rs 0'}
                 </span>
               </div>
 
-              {/* Tax Breakdown */}
-              {taxBreakdown.length > 0 && taxBreakdown.map((tax, idx) => (
-                <div key={tax.id || idx} className="flex justify-between text-gray-600 text-sm border-t pt-2" style={{ borderColor: '#CBD5E1' }}>
-                  <span className="flex items-center gap-1.5"><Percent size={14} /> Tax ({tax.name} @ {tax.percent}%)</span>
-                  <span className="font-mono font-medium">+{formatCurrency(tax.amount)}</span>
-                </div>
-              ))}
-
-              {/* Grand Total */}
-              <div className="flex justify-between text-lg font-bold border-t-2 pt-2" style={{ borderColor: '#CBD5E1', color: '#0F172A' }}>
-                <span>Grand Total</span>
-                <span className="font-mono text-lg" style={{ color: '#2563EB' }}>{formatCurrency(finalTotal)}</span>
+              {/* Package */}
+              <div className="bg-slate-50 border rounded-xl p-3 text-center" style={{ borderColor: '#E2E8F0' }}>
+                <span className="text-xs text-gray-500 block truncate flex items-center justify-center gap-1">
+                  <Package size={13} /> Package
+                </span>
+                <span className="font-mono font-bold text-sm text-gray-800 mt-1 block">
+                  {form.isMealIncluded && selectedPackage ? formatCurrency(selectedPackage.finalPrice || selectedPackage.baseTotal || 0) : 'Rs 0'}
+                </span>
               </div>
 
-              {/* Advance */}
-              <div className="flex justify-between items-center text-gray-600">
-                <span className="flex items-center gap-1.5"><CreditCard size={14} /> Advance</span>
-                <input type="number" min="0" value={form.advanceAmount || 0} onChange={e => updateField('advanceAmount', e.target.value)}
-                  className="w-28 border rounded-lg px-2 py-1 text-sm text-right font-mono" style={{ borderColor: '#CBD5E1' }} />
+              {/* Extra Menus */}
+              <div className="bg-slate-50 border rounded-xl p-3 text-center" style={{ borderColor: '#E2E8F0' }}>
+                <span className="text-xs text-gray-500 block truncate flex items-center justify-center gap-1">
+                  <Utensils size={13} /> Extra Menus ({form.selectedMenus.filter(m => !m.fromPackage).length})
+                </span>
+                <span className="font-mono font-bold text-sm text-gray-800 mt-1 block">
+                  {formatCurrency(form.isMealIncluded ? form.selectedMenus.filter(m => !m.fromPackage).reduce((sum, m) => sum + Number(m.totalPrice || 0), 0) : 0)}
+                </span>
+              </div>
+
+              {/* Custom Items */}
+              <div className="bg-slate-50 border rounded-xl p-3 text-center" style={{ borderColor: '#E2E8F0' }}>
+                <span className="text-xs text-gray-500 block truncate flex items-center justify-center gap-1">
+                  <Settings size={13} /> Custom Items ({form.customItems.length})
+                </span>
+                <span className="font-mono font-bold text-sm text-gray-800 mt-1 block">
+                  {formatCurrency(form.isMealIncluded ? form.customItems.reduce((sum, i) => sum + Number(i.totalPrice || 0), 0) : 0)}
+                </span>
+              </div>
+
+              {/* Extra Services */}
+              <div className="bg-slate-50 border rounded-xl p-3 text-center" style={{ borderColor: '#E2E8F0' }}>
+                <span className="text-xs text-gray-500 block truncate flex items-center justify-center gap-1">
+                  <Tag size={13} /> Extra Services ({form.services.filter(s => !s.fromPackage).length})
+                </span>
+                <span className="font-mono font-bold text-sm text-gray-800 mt-1 block">
+                  {formatCurrency(form.services.filter(s => !s.fromPackage).reduce((sum, s) => sum + Number(s.totalPrice || 0), 0))}
+                </span>
+              </div>
+            </div>
+
+            {/* Horizontal Discount & Tax Controls */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t" style={{ borderColor: '#E2E8F0' }}>
+              {/* Discount */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-slate-50 border gap-2" style={{ borderColor: '#CBD5E1' }}>
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-700 block">Discount</span>
+                  {discountAmount > 0 && (
+                    <span className="text-xs font-mono text-green-600 font-semibold">-{formatCurrency(discountAmount)} applied</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-24">
+                    <ReactSelect
+                      value={form.discountType}
+                      onChange={(val) => updateField('discountType', val)}
+                      options={[
+                        { value: 'percent', label: '%' },
+                        { value: 'fixed', label: 'Rs' }
+                      ]}
+                      placeholder="% / Rs"
+                      isSearchable={true}
+                      isClearable={false}
+                    />
+                  </div>
+                  <input 
+                    type="number" 
+                    min="0" 
+                    value={form.discount} 
+                    onChange={e => updateField('discount', e.target.value)}
+                    className="w-28 border rounded-lg px-3 py-2 text-sm text-right font-mono bg-white" 
+                    style={{ borderColor: '#CBD5E1' }} 
+                  />
+                </div>
+              </div>
+
+              {/* Tax */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-slate-50 border gap-2" style={{ borderColor: '#CBD5E1' }}>
+                <label className="flex items-center gap-2.5 cursor-pointer font-bold text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={form.taxEnabled}
+                    onChange={(e) => updateField('taxEnabled', e.target.checked)}
+                    className="w-5 h-5 accent-[#2563EB]"
+                  />
+                  <span className="flex items-center gap-1.5"><Percent size={15} /> Apply Tax</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${form.taxEnabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                    {form.taxEnabled ? 'TAX ON' : 'TAX OFF'}
+                  </span>
+                  {taxBreakdown.length > 0 && (
+                    <span className="font-mono text-xs font-bold text-gray-700">
+                      +{formatCurrency(taxBreakdown.reduce((sum, t) => sum + Number(t.amount || 0), 0))}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Tax Breakdown badges if any */}
+            {taxBreakdown.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-2 border-t" style={{ borderColor: '#E2E8F0' }}>
+                {taxBreakdown.map((tax, idx) => (
+                  <span key={tax.id || idx} className="text-xs px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 border border-blue-200 font-medium">
+                    {tax.name} ({tax.percent}%): +{formatCurrency(tax.amount)}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── 2. PAYMENT SETTLEMENT & CONFIRMATION (HORIZONTAL) ── */}
+        <div className="bg-white rounded-2xl border overflow-hidden shadow-sm" style={{ borderColor: '#CBD5E1' }}>
+          <div className="px-5 py-4 border-b flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.08) 0%, transparent 100%)', borderColor: '#CBD5E1' }}>
+            <div className="flex items-center gap-2">
+              <CreditCard size={18} style={{ color: '#2563EB' }} />
+              <h2 className="font-bold text-base" style={{ color: '#0F172A' }}>Payment Settlement & Confirmation</h2>
+            </div>
+          </div>
+
+          <div className="p-5 space-y-5">
+            {/* Row 1: Horizontal Metrics Tiles */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Grand Total */}
+              <div className="rounded-xl p-4 bg-blue-50/70 border border-blue-200 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-blue-700 uppercase tracking-wider block">Grand Total</span>
+                  <p className="font-mono font-extrabold text-2xl text-blue-900 mt-0.5">{formatCurrency(finalTotal)}</p>
+                </div>
+                <div className="p-2.5 rounded-xl bg-blue-600 text-white shadow-sm">
+                  <Receipt size={22} />
+                </div>
+              </div>
+
+              {/* Advance / Paid Input */}
+              <div className="rounded-xl p-4 bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-gray-700 uppercase tracking-wider block">Advance / Paid</span>
+                  <span className="text-[11px] text-gray-400">Total received</span>
+                </div>
+                <input 
+                  type="number" 
+                  min="0" 
+                  value={form.advanceAmount || 0} 
+                  onChange={e => updateField('advanceAmount', e.target.value)}
+                  className="w-36 border rounded-xl px-3 py-2 text-base font-extrabold text-right font-mono bg-white shadow-sm focus:ring-2 focus:ring-blue-500/20" 
+                  style={{ borderColor: '#CBD5E1' }} 
+                />
               </div>
 
               {/* Due Balance */}
-              <div className="flex justify-between font-bold rounded-xl px-3 py-2.5" style={{ backgroundColor: '#FEF2F2', color: '#B91C1C' }}>
-                <span className="flex items-center gap-1.5"><AlertCircle size={16} /> Due Balance</span>
-                <span className="font-mono text-base">{formatCurrency(dueAmount)}</span>
+              <div className="rounded-xl p-4 flex items-center justify-between" style={{ backgroundColor: dueAmount > 0 ? '#FEF2F2' : '#F0FDF4', border: `1px solid ${dueAmount > 0 ? '#FECACA' : '#BBF7D0'}` }}>
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: dueAmount > 0 ? '#B91C1C' : '#15803D' }}>Due Balance</span>
+                  <p className="font-mono font-extrabold text-2xl mt-0.5" style={{ color: dueAmount > 0 ? '#B91C1C' : '#15803D' }}>{formatCurrency(dueAmount)}</p>
+                </div>
+                <div className="p-2.5 rounded-xl text-white shadow-sm" style={{ backgroundColor: dueAmount > 0 ? '#DC2626' : '#16A34A' }}>
+                  <AlertCircle size={22} />
+                </div>
               </div>
             </div>
 
-            {/* ── Payment Mode ── */}
-            <div className="mt-4">
-              <label className="text-xs font-bold uppercase tracking-wider block mb-1" style={{ color: '#334155' }}>Payment Mode *</label>
-              <ReactSelect
-                value={form.paymentMode}
-                onChange={(val) => {
-                  updateField('paymentMode', val);
-                  updateField('bankAccountId', '');
-                }}
-                options={[
-                  { value: 'Cash', label: '💵 Cash' },
-                  { value: 'Bank Transfer', label: '🏦 Bank Transfer' },
-                  { value: 'JazzCash / EasyPaisa', label: '📱 JazzCash / EasyPaisa' },
-                  { value: 'Credit Card', label: '💳 Credit Card' },
-                  { value: 'Cheque', label: '📄 Cheque' }
-                ]}
-                placeholder="Select Payment Mode"
-                isSearchable={true}
-                isClearable={false}
-              />
+            {/* Row 2: Horizontal Payment Mode & Bank Account Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+              {/* Payment Mode */}
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider block mb-1.5" style={{ color: '#334155' }}>Payment Mode *</label>
+                <ReactSelect
+                  value={form.paymentMode}
+                  onChange={(val) => {
+                    updateField('paymentMode', val);
+                    updateField('bankAccountId', '');
+                  }}
+                  options={[
+                    { value: 'Cash', label: '💵 Cash' },
+                    { value: 'Bank Transfer', label: '🏦 Bank Transfer' },
+                    { value: 'JazzCash / EasyPaisa', label: '📱 JazzCash / EasyPaisa' },
+                    { value: 'Credit Card', label: '💳 Credit Card' },
+                    { value: 'Cheque', label: '📄 Cheque' }
+                  ]}
+                  placeholder="Select Payment Mode"
+                  isSearchable={true}
+                  isClearable={false}
+                />
+              </div>
+
+              {/* Bank Account */}
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider mb-1.5 block" style={{ color: '#334155' }}>
+                  Receive Payment In Account *
+                  {form.paymentMode && (
+                    <span className="ml-2 text-[10px] font-normal text-gray-500">
+                      ({form.paymentMode} accounts only)
+                    </span>
+                  )}
+                </label>
+                <ReactSelect
+                  value={form.bankAccountId}
+                  onChange={(val) => updateField('bankAccountId', val)}
+                  options={(() => {
+                    const modeToAccountType = {
+                      'Cash': 'CASH',
+                      'Bank Transfer': 'BANK',
+                      'JazzCash / EasyPaisa': 'JAZZCASH',
+                      'Credit Card': 'CREDIT',
+                      'Cheque': 'BANK'
+                    };
+                    const requiredType = form.paymentMode ? modeToAccountType[form.paymentMode] : null;
+                    let filtered = bankAccounts;
+                    if (requiredType) {
+                      filtered = bankAccounts.filter(acc => acc.accountType === requiredType);
+                    }
+                    return filtered.map(acc => ({
+                      value: String(acc.id),
+                      label: `${acc.bankName || acc.accountName || 'Account'} — ${acc.accountNumber || 'N/A'} (Bal: ${formatCurrency(acc.currentBalance || 0)})`
+                    }));
+                  })()}
+                  placeholder={form.paymentMode ? `Select ${form.paymentMode} Account` : '⚠️ First select Payment Mode'}
+                  isSearchable={true}
+                  isClearable={true}
+                  isDisabled={!form.paymentMode}
+                />
+              </div>
             </div>
 
-            {/* ── Bank Account ── */}
-            <div className="mt-4">
-              <label className="text-xs font-bold uppercase tracking-wider mb-1.5 block" style={{ color: '#334155' }}>
-                Receive Payment In Account *
-                {form.paymentMode && <span className="ml-2 text-[10px] font-normal text-gray-500">({form.paymentMode} accounts only)</span>}
-              </label>
-              <ReactSelect
-                value={form.bankAccountId}
-                onChange={(val) => updateField('bankAccountId', val)}
-                options={(() => {
-                  const modeToAccountType = {
-                    'Cash': 'CASH',
-                    'Bank Transfer': 'BANK',
-                    'JazzCash / EasyPaisa': 'JAZZCASH',
-                    'Credit Card': 'CREDIT',
-                    'Cheque': 'BANK'
-                  };
-                  const requiredType = form.paymentMode ? modeToAccountType[form.paymentMode] : null;
-                  let filtered = bankAccounts;
-                  if (requiredType) {
-                    filtered = bankAccounts.filter(acc => acc.accountType === requiredType);
-                  }
-                  return filtered.map(acc => ({
-                    value: String(acc.id),
-                    label: `${acc.bankName || acc.accountName || 'Account'} — ${acc.accountNumber || 'N/A'} (Bal: ${formatCurrency(acc.currentBalance || 0)})`
-                  }));
-                })()}
-                placeholder={form.paymentMode ? `Select ${form.paymentMode} Account` : '⚠️ First select Payment Mode'}
-                isSearchable={true}
-                isClearable={true}
-                isDisabled={!form.paymentMode}
-              />
-            </div>
-
-            {/* ── Submit ── */}
-            <button
-              type="submit"
-              disabled={loading || slotInfo.hasError || !form.bankAccountId || !form.paymentMode}
-              className="w-full mt-4 py-3 rounded-xl font-bold text-white shadow-md transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              style={{ background: 'linear-gradient(135deg, #1E40AF, #2563EB)' }}
-            >
-              <Save size={18} /> {loading ? 'Updating...' : 'Update Booking'}
-            </button>
-
+            {/* Validation messages */}
             {!form.paymentMode && (
-              <p className="text-xs text-amber-600 text-center mt-2 font-medium">Please select Payment Mode first</p>
+              <div className="p-3 rounded-xl border border-amber-200 bg-amber-50">
+                <p className="text-xs text-amber-700 flex items-center gap-1.5 font-medium">
+                  <AlertCircle size={15} />
+                  <span>Please select a <strong>Payment Mode</strong> first to see available accounts</span>
+                </p>
+              </div>
             )}
             {form.paymentMode && !form.bankAccountId && (
-              <p className="text-xs text-red-500 text-center mt-2 font-medium">Please select an account to receive payment</p>
+              <div className="p-3 rounded-xl border border-red-200 bg-red-50">
+                <p className="text-xs text-red-600 flex items-center gap-1.5 font-medium">
+                  <AlertCircle size={15} />
+                  <span>Please select an account to receive payment</span>
+                </p>
+              </div>
             )}
             {slotInfo.hasError && (
-              <p className="text-xs text-red-500 text-center mt-2 font-medium">Fix slot error to proceed</p>
+              <div className="p-3 rounded-xl border border-red-200 bg-red-50">
+                <p className="text-xs text-red-600 flex items-center gap-1.5 font-medium">
+                  <AlertCircle size={15} />
+                  <span>Fix slot error to proceed</span>
+                </p>
+              </div>
             )}
-          </div>
 
+            {/* Row 3: Horizontal Action Bar */}
+            <div className="pt-4 border-t flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderColor: '#E2E8F0' }}>
+              <div className="text-xs text-gray-500 font-medium">
+                Make sure all event and billing details are verified before updating.
+              </div>
+
+              <div className="w-full sm:w-auto flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => navigate('/bookings')}
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl border font-bold text-gray-700 hover:bg-gray-50 transition-all text-sm"
+                  style={{ borderColor: '#CBD5E1' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading || slotInfo.hasError || !form.bankAccountId || !form.paymentMode}
+                  className="w-full sm:w-auto px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base"
+                  style={{ background: 'linear-gradient(135deg, #1E40AF, #2563EB)' }}
+                >
+                  <Save size={18} /> {loading ? 'Updating...' : 'Update Booking'}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </form>
 
