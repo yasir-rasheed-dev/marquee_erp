@@ -8,7 +8,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -255,12 +255,12 @@ enum ChangeType {
 
 model Company {
   id        Int       @id @default(autoincrement())
-  name      String
-  address   String?
-  phone     String?
-  email     String?
-  taxNumber String?
-  logo      String?
+  name      String@db.VarChar(255)
+  address   String?@db.Text
+  phone     String?@db.VarChar(255)
+  email     String?@db.VarChar(255)
+  taxNumber String?@db.VarChar(255)
+  logo      String?@db.LongText
   isActive  Boolean   @default(true)
   deletedAt DateTime?
 
@@ -329,16 +329,16 @@ model CompanySettings {
   companyId       Int       @unique
   company         Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  timezone        String    @default("Asia/Karachi")
-  dateFormat      String    @default("DD/MM/YYYY")
-  timeFormat      String    @default("12h")
+  timezone        String    @default("Asia/Karachi") @db.VarChar(255)
+  dateFormat      String    @default("DD/MM/YYYY") @db.VarChar(255)
+  timeFormat      String    @default("12h") @db.VarChar(255)
   currencyId      Int?
   currency        Currency? @relation(fields: [currencyId], references: [id], onDelete: SetNull)
 
-  fiscalYearStart String?
-  invoicePrefix   String    @default("INV")
-  bookingPrefix   String    @default("BKG")
-  receiptPrefix   String    @default("RCP")
+  fiscalYearStart String?@db.VarChar(255)
+  invoicePrefix   String    @default("INV") @db.VarChar(255)
+  bookingPrefix   String    @default("BKG") @db.VarChar(255)
+  receiptPrefix   String    @default("RCP") @db.VarChar(255)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -348,10 +348,10 @@ model CompanySettings {
 
 model Branch {
   id        Int       @id @default(autoincrement())
-  name      String
-  address   String?
-  phone     String?
-  email     String?
+  name      String@db.VarChar(255)
+  address   String?@db.Text
+  phone     String?@db.VarChar(255)
+  email     String?@db.VarChar(255)
   isActive  Boolean   @default(true)
   deletedAt DateTime?
 
@@ -429,10 +429,10 @@ model BranchSettings {
   branchId         Int     @unique
   branch           Branch  @relation(fields: [branchId], references: [id], onDelete: Cascade)
 
-  receiptFooter    String?
-  receiptHeader    String?
-  kitchenPrinterIp String?
-  receiptPrinterIp String?
+  receiptFooter    String?@db.Text
+  receiptHeader    String?@db.Text
+  kitchenPrinterIp String?@db.VarChar(255)
+  receiptPrinterIp String?@db.VarChar(255)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -473,7 +473,7 @@ model PurchaseOrder {
   discount      Decimal         @default(0) @db.Decimal(12, 2)
   totalAmount   Decimal         @default(0) @db.Decimal(12, 2)
   
-  notes         String?
+  notes         String?@db.Text
 companyId     Int
   company       Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
   branchId      Int?
@@ -552,7 +552,7 @@ model Supplier {
   contactPerson String?        @db.VarChar(100)
   phone         String         @db.VarChar(20)
   email         String?        @db.VarChar(100)
-  address       String?
+  address       String?@db.Text
   city          String?        @db.VarChar(100)
   type          SupplierType   @default(WHOLESALE)
   
@@ -592,13 +592,13 @@ model SupplierLedger {
   supplierId    Int
   supplier      Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
   
-  type          String   // PO_CREATED, BILL_RECEIVED, PAYMENT_MADE, RETURN_ISSUED
+  type          String   // PO_CREATED, BILL_RECEIVED, PAYMENT_MADE, RETURN_ISSUED @db.VarChar(255)
   amount        Decimal  @db.Decimal(12, 2)
   balance       Decimal  @db.Decimal(12, 2)
   
   referenceId   Int?
-  referenceType String?
-  notes         String?
+  referenceType String?@db.VarChar(255)
+  notes         String?@db.Text
   
   branchId      Int?
   branch        Branch?  @relation(fields: [branchId], references: [id], onDelete: SetNull)
@@ -639,7 +639,7 @@ model PurchaseBill {
   
   vehicleNo       String?          @db.VarChar(50)
   driverPhone     String?          @db.VarChar(20)
-  notes           String?
+  notes           String?@db.Text
 
   companyId       Int
   company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -703,7 +703,7 @@ model Purchase {
   paidAmount      Decimal               @default(0) @db.Decimal(12, 2)
   dueAmount       Decimal               @default(0) @db.Decimal(12, 2)
   
-  notes           String?
+  notes           String?@db.Text
   vehicleNo       String?               @db.VarChar(50) // Shipment tracking ke liye
   driverPhone     String?               @db.VarChar(20)
 
@@ -765,7 +765,7 @@ model PurchaseReturn {
   
   status      ReturnStatus  @default(PENDING)
   totalAmount Decimal       @default(0) @db.Decimal(12, 2)
-  reason      String?
+  reason      String?@db.Text
   
   companyId   Int
   branchId    Int?
@@ -795,7 +795,7 @@ model PurchaseReturnItem {
   quantity    Decimal        @db.Decimal(12, 3)
   unitPrice   Decimal        @db.Decimal(12, 2)
   totalPrice  Decimal        @db.Decimal(12, 2)
-  reason      String?
+  reason      String?@db.Text
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -812,8 +812,8 @@ model PurchaseReturnItem {
 model Currency {
   id       Int     @id @default(autoincrement())
   code     String  @unique @db.VarChar(3)
-  name     String
-  symbol   String
+  name     String@db.VarChar(255)
+  symbol   String@db.VarChar(255)
   isActive Boolean @default(true)
 
   companySettings CompanySettings[]
@@ -826,7 +826,7 @@ model Currency {
 
 model TaxRate {
   id       Int     @id @default(autoincrement())
-  name     String
+  name     String@db.VarChar(255)
   rate     Decimal @db.Decimal(5, 2)
   isActive Boolean @default(true)
 
@@ -846,13 +846,13 @@ model TaxRate {
 
 model User {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String@db.VarChar(255)
   email     String
-  password  String
+  password  String@db.VarChar(255)
   role      String   @default("staff")
    
-  phone     String?
-  avatar    String?
+  phone     String?@db.VarChar(255)
+  avatar    String?@db.LongText
   isActive  Boolean  @default(true)
   deletedAt DateTime?
 
@@ -932,7 +932,7 @@ model CompanyMember {
   user      User     @relation("CompanyMemberUser", fields: [userId], references: [id], onDelete: Cascade)
   companyId Int
   company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  role      String   @default("staff")
+  role      String   @default("staff") @db.VarChar(255)
   isActive  Boolean  @default(true)
 
   createdAt DateTime @default(now())
@@ -957,7 +957,7 @@ model Customer {
   cnic        String?  @db.VarChar(20)
   
   // ── Customer Type ──
-  customerType String  @default("individual") // individual | corporate | university | ngo | government
+  customerType String  @default("individual") @db.VarChar(255) // individual | corporate | university | ngo | government
   
   // ── Business/Organization Details (for B2B) ──
   businessName    String?  @db.VarChar(200)  // "Fast University", "UBL Bank", "Al-Khidmat NGO"
@@ -972,7 +972,7 @@ model Customer {
   contactPersonDesignation String?  @db.VarChar(100) // "HR Manager", "Admin Officer", "Event Coordinator"
   
   // ── Address ──
-  address     String?
+  address     String?@db.Text
   city        String?  @db.VarChar(100)
   billingAddress String? @db.VarChar(300) // sometimes different from event location
   
@@ -984,7 +984,7 @@ model Customer {
   
   // ── Meta ──
   referralSource String?  @db.VarChar(100) // "Facebook", "Reference from Ahmed", "Google"
-  notes          String?
+  notes          String?@db.Text
 
   companyId   Int
   company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -1028,7 +1028,7 @@ model Service {
   id           Int      @id @default(autoincrement())
   name         String   @db.VarChar(200)
   code         String?  @db.VarChar(50)
-  description  String?
+  description  String?@db.Text
   category     String?  @db.VarChar(100)
   
   // ── Pricing ──
@@ -1071,8 +1071,8 @@ model Service {
 model Unit {
   id          Int      @id @default(autoincrement())
   name        String
-  symbol      String?
-  description String?
+  symbol      String?@db.VarChar(255)
+  description String?@db.Text
   scope       String   @default("ALL")
   type        UnitType @default(BOTH)
   isActive    Boolean  @default(true)
@@ -1168,7 +1168,7 @@ enum PaymentMode {
 model BankAccount {
   id              Int      @id @default(autoincrement())
   bankName        String
-  accountHolder   String?
+  accountHolder   String?@db.VarChar(255)
   accountType     AccountType   @default(BANK)
   accountNumber   String   @unique
   initialBalance  Decimal  @default(0) @db.Decimal(15, 2)
@@ -1215,7 +1215,7 @@ model AccountTransaction {
   // Categorization
   category           TransactionCategory
   description        String       @db.Text
-  referenceNumber    String?                       // Cheque #, Txn ID, etc.
+  referenceNumber    String?                       // Cheque #, Txn ID, etc. @db.VarChar(255)
 
   // Link to other modules (polymorphic)
   relatedEntityType  String?                       // "Booking", "Expense", "Vendor", "Salary"
@@ -1226,8 +1226,8 @@ model AccountTransaction {
   transactionDate    DateTime                 @default(now())
 
   // Parties involved
-  paidTo             String?                       // Vendor name, Employee name, etc.
-  paidFrom           String?                       // Payer name
+  paidTo             String?                       // Vendor name, Employee name, etc. @db.VarChar(255)
+  paidFrom           String?                       // Payer name @db.VarChar(255)
 
   // Multi-tenant + Audit
   branchId           Int
@@ -1294,8 +1294,8 @@ model AccountTransfer {
 
   amount            Decimal  @db.Decimal(15, 2)
   transferDate      DateTime @default(now())
-  description       String?
-  referenceNumber   String?
+  description       String?@db.Text
+  referenceNumber   String?@db.VarChar(255)
 
   // Auto-created transaction IDs
   debitTransactionId  Int?
@@ -1338,7 +1338,7 @@ model Department {
   id          Int       @id @default(autoincrement())
   name        String    @db.VarChar(100)
   code        String?   @db.VarChar(50)
-  description String?
+  description String?@db.Text
   isActive    Boolean   @default(true)
   deletedAt   DateTime?
 
@@ -1364,7 +1364,7 @@ model Designation {
   id              Int        @id @default(autoincrement())
   name            String     @db.VarChar(100)
   code            String?    @db.VarChar(50)
-  description     String?
+  description     String?@db.Text
   defaultSalary   Decimal    @default(0) @db.Decimal(12, 2)
   defaultSalaryType SalaryType @default(fixed_monthly)
   isActive        Boolean    @default(true)
@@ -1401,11 +1401,11 @@ model Employee {
   dateOfBirth     DateTime?
   gender          String?        @db.VarChar(10)
   maritalStatus   String?        @db.VarChar(20)
-  address         String?
+  address         String?@db.Text
   city            String?        @db.VarChar(100)
   emergencyContact String?       @db.VarChar(20)
   emergencyName   String?        @db.VarChar(200)
- notes           String? 
+ notes           String? @db.Text
   // ── Job Info ──
   designationId   Int
   designation     Designation    @relation(fields: [designationId], references: [id], onDelete: Cascade)
@@ -1480,7 +1480,7 @@ model EmployeeDocument {
   employeeId  Int
   employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   title       String   @db.VarChar(100)
-  fileUrl     String
+  fileUrl     String@db.Text
   fileType    String?  @db.VarChar(50)
   expiryDate  DateTime?
   createdAt   DateTime @default(now())
@@ -1518,7 +1518,7 @@ model EmployeeSalaryHistory {
   oldSalaryType   SalaryType
   newSalaryType   SalaryType
   effectiveDate   DateTime
-  reason          String?
+  reason          String?@db.Text
   createdById     Int?
   createdAt       DateTime   @default(now())
 
@@ -1538,8 +1538,8 @@ model Attendance {
   overtimeHours   Decimal          @default(0) @db.Decimal(5, 2)
   overtimeRate    Decimal          @default(0) @db.Decimal(12, 2)
   overtimeAmount  Decimal          @default(0) @db.Decimal(12, 2)
-  notes           String?
-  location        String?
+  notes           String?@db.Text
+  location        String?@db.VarChar(255)
 
   companyId       Int
   company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -1567,11 +1567,11 @@ model Leave {
   startDate       DateTime    @db.Date
   endDate         DateTime    @db.Date
   days            Int         @default(0)
-  reason          String?
+  reason          String?@db.Text
   status          LeaveStatus @default(pending)
   approvedById    Int?
   approvedAt      DateTime?
-  rejectionReason String?
+  rejectionReason String?@db.Text
 
   companyId       Int
   company         Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -1621,7 +1621,7 @@ model EmployeeLoan {
   totalInstallments Int        @default(1)
   installmentAmount Decimal    @db.Decimal(12, 2)
   deductFromSalary  Boolean    @default(true)
-  purpose           String?
+  purpose           String?@db.VarChar(255)
   status            LoanStatus @default(active)
   approvedById      Int?
   approvedAt        DateTime?
@@ -1648,7 +1648,7 @@ model LoanInstallment {
   amount      Decimal      @db.Decimal(12, 2)
   paidDate    DateTime     @default(now())
   payrollId   Int?
-  notes       String?
+  notes       String?@db.Text
   createdAt   DateTime     @default(now())
 
   @@index([loanId])
@@ -1672,7 +1672,7 @@ model Payroll {
   totalOvertime    Decimal       @default(0) @db.Decimal(12, 2)
   totalNetSalary   Decimal       @default(0) @db.Decimal(12, 2)
   status           PayrollStatus @default(draft)
-  notes            String?
+  notes            String?@db.Text
   companyId        Int
   company          Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   branchId         Int?
@@ -1733,7 +1733,7 @@ model PayrollItem {
   paymentStatus     String   @default("pending") @db.VarChar(20)
   bankAccountId     Int?
   paymentDate       DateTime?
-  notes             String?
+  notes             String?@db.Text
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -1754,7 +1754,7 @@ model EventStaffAssignment {
   employeeId          Int
   
   role                String?  @db.VarChar(100)
-  notes               String?
+  notes               String?@db.Text
   paymentType         String   @default("auto") @db.VarChar(20)
   agreedAmount        Decimal  @db.Decimal(12, 2)
   hoursWorked         Decimal? @db.Decimal(5, 2)
@@ -1797,7 +1797,7 @@ model StaffLedger {
   // ── Reference ──
   referenceType   String?         @db.VarChar(50) // Payroll, Event, Loan, Advance
   referenceId     Int?
-  notes           String?
+  notes           String?@db.Text
   bookingId       Int?
 
   // ── Multi-tenant + Audit ──
@@ -1836,8 +1836,8 @@ model StaffPayment {
   method          PaymentMethod @default(cash)
   bankAccountId   Int?
   bankAccount     BankAccount?  @relation(fields: [bankAccountId], references: [id], onDelete: SetNull)
-  reference       String?       // Cheque #, Txn ID
-  notes           String?
+  reference       String?       // Cheque #, Txn ID @db.VarChar(255)
+  notes           String?@db.Text
 
   // ── Multi-tenant + Audit ──
   companyId       Int
@@ -1870,7 +1870,7 @@ model Asset {
   quantity       Int            @default(1)
   costPrice      Decimal        @default(0) @db.Decimal(12, 2)
   totalValuation Decimal        @default(0) @db.Decimal(12, 2)
-  notes          String?
+  notes          String?@db.Text
   isActive       Boolean        @default(true)
   deletedAt      DateTime?
 
@@ -1899,7 +1899,7 @@ model AssetTransaction {
   asset     Asset              @relation(fields: [assetId], references: [id], onDelete: Cascade)
   type      AssetTransactionType
   quantity  Int
-  notes     String?
+  notes     String?@db.Text
 
   branchId  Int?
   branch    Branch?            @relation(fields: [branchId], references: [id], onDelete: SetNull)
@@ -1922,7 +1922,7 @@ model Category {
   id          Int       @id @default(autoincrement())
   name        String    @db.VarChar(100)
   code        String?   @db.VarChar(20)
-  description String?
+  description String?@db.Text
   color       String?   @db.VarChar(20)
   icon        String?   @db.VarChar(50)
   scope       String    @default("ALL") // MENU, INVENTORY, ASSET, POS, ALL
@@ -1963,7 +1963,7 @@ model Item {
   categoryId  Int
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
-  description String?
+  description String?@db.Text
   unit        String   @default("plate") @db.VarChar(20)
   unitId      Int?
   unitRef     Unit?    @relation(fields: [unitId], references: [id], onDelete: SetNull)
@@ -2010,9 +2010,9 @@ model Item {
 
 model Menu {
   id          Int          @id @default(autoincrement())
-  name        String
+  name        String@db.VarChar(255)
   code        String?      @db.VarChar(50)
-  description String?
+  description String?@db.Text
   eventType   String?      @db.VarChar(50)
   packageType String       @default("per_head") @db.VarChar(20)
   status      MenuStatus   @default(active)
@@ -2056,7 +2056,7 @@ model Menu {
 
 model MenuCategory {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String@db.VarChar(255)
   sortOrder Int      @default(0)
 
   menuId    Int
@@ -2079,9 +2079,9 @@ model MenuItem {
   itemId          Int?
   item            Item?        @relation(fields: [itemId], references: [id], onDelete: SetNull)
 
-  name            String
+  name            String@db.VarChar(255)
   code            String?      @db.VarChar(50)
-  description     String?
+  description     String?@db.Text
   unit            String       @default("Degh") @db.VarChar(20)
   costPrice       Decimal      @default(0) @db.Decimal(10, 2)
   salePrice       Decimal      @default(0) @db.Decimal(10, 2)
@@ -2111,8 +2111,8 @@ model MenuItem {
 
 model RecipeIngredient {
   id              Int      @id @default(autoincrement())
-  name            String
-  unit            String
+  name            String@db.VarChar(255)
+  unit            String@db.VarChar(255)
   unitId          Int?
   unitRef         Unit?    @relation(fields: [unitId], references: [id], onDelete: SetNull)
   quantity        Decimal  @db.Decimal(10, 3)
@@ -2176,7 +2176,7 @@ model RecipeItem {
 
 model InventoryItem {
   id            Int      @id @default(autoincrement())
-  name          String
+  name          String@db.VarChar(255)
   code          String?  @db.VarChar(50)
   category      String   @db.VarChar(100)
   subCategory   String?  @db.VarChar(100)
@@ -2245,7 +2245,7 @@ model StockTransaction {
   type          StockTransactionType
   quantity      Decimal            @db.Decimal(12, 3)
   costPrice     Decimal            @db.Decimal(12, 2)
-  notes         String?
+  notes         String?@db.Text
 
   referenceType String?            @db.VarChar(50)
   referenceId   Int?
@@ -2282,7 +2282,7 @@ model StockTransfer {
   toBranch      Branch        @relation("TransferTo", fields: [toBranchId], references: [id], onDelete: Cascade)
 
   quantity      Decimal       @db.Decimal(12, 3)
-  notes         String?
+  notes         String?@db.Text
   status        String        @default("COMPLETED") @db.VarChar(20)
 
   companyId     Int
@@ -2311,7 +2311,7 @@ model Package {
   code        String?       @db.VarChar(50)
   eventType   String?       @db.VarChar(50)
   status      PackageStatus @default(active)
-  description String?
+  description String?@db.Text
 
   basePrice   Decimal       @default(0) @db.Decimal(12, 2)
   discountPct Decimal       @default(0) @db.Decimal(5, 2)
@@ -2364,7 +2364,7 @@ model PackageExtra {
   id          Int      @id @default(autoincrement())
   packageId   Int
   name        String   @db.VarChar(200)
-  description String?
+  description String?@db.Text
   costPrice   Decimal  @default(0) @db.Decimal(10, 2)
   salePrice   Decimal  @default(0) @db.Decimal(10, 2)
 
@@ -2382,7 +2382,7 @@ model PackageService {
   service     Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
   
   name        String   @db.VarChar(200)
-  description String?
+  description String?@db.Text
   pricingType String   @default("FIXED") @db.VarChar(20)  // FIXED | HOURLY
   costPrice   Decimal  @default(0) @db.Decimal(10, 2)
   salePrice   Decimal  @default(0) @db.Decimal(10, 2)
@@ -2399,9 +2399,9 @@ model PackageService {
 
 model Event {
   id          Int      @id @default(autoincrement())
-  name        String
+  name        String@db.VarChar(255)
   code        String?  @db.VarChar(50)
-  description String?
+  description String?@db.Text
   color       String?  @db.VarChar(20)
   icon        String?  @db.VarChar(50)
   isActive    Boolean  @default(true)
@@ -2435,13 +2435,13 @@ model Event {
 
 model Hall {
   id          Int      @id @default(autoincrement())
-  name        String
+  name        String@db.VarChar(255)
   code        String?  @db.VarChar(50)
-  description String?
+  description String?@db.Text
   capacity    Int      @default(0)
   price       Decimal  @default(0) @db.Decimal(12, 2)
   perSeatPrice Decimal? @db.Decimal(12, 2)
-  pricingType String   @default("fixed") // fixed | per_seat | both
+  pricingType String   @default("fixed") @db.VarChar(255) // fixed | per_seat | both
   isActive    Boolean  @default(true)
   deletedAt   DateTime?
 
@@ -2471,7 +2471,7 @@ model Hall {
 
 model HallSession {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String@db.VarChar(255)
   startTime String   @db.VarChar(10)
   endTime   String   @db.VarChar(10)
   duration  Int
@@ -2495,8 +2495,8 @@ model HallSession {
 model Booking {
   id              Int           @id @default(autoincrement())
   bookingNo       String        @db.VarChar(50)
-  title           String
-  description     String?
+  title           String@db.VarChar(255)
+  description     String?@db.Text
 
   eventId         Int?
   event           Event?        @relation(fields: [eventId], references: [id], onDelete: SetNull)
@@ -2509,9 +2509,9 @@ model Booking {
   guestCount      Int           @default(0)
   actualGuestCount Int?
 
-  guestName       String
-  guestPhone      String
-  guestEmail      String?
+  guestName       String@db.VarChar(255)
+  guestPhone      String@db.VarChar(255)
+  guestEmail      String?@db.VarChar(255)
 
 
   customerId      Int?
@@ -2535,7 +2535,7 @@ model Booking {
   // ── END FIX ──
   
 
-  hallChargeMode  String?       @default("per_seat") // per_seat | full_hall
+  hallChargeMode  String?       @default("per_seat") @db.VarChar(255) // per_seat | full_hall
 
   companyId       Int
   company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -2595,12 +2595,12 @@ model BookingCustomItem {
   id        Int     @id @default(autoincrement())
   bookingId Int
   itemId    Int
-  itemName  String
+  itemName  String@db.VarChar(255)
   quantity  Int
   unitPrice Float
   totalPrice Float
-  unit      String?
-  notes     String?
+  unit      String?@db.VarChar(255)
+  notes     String?@db.Text
   booking   Booking @relation(fields: [bookingId], references: [id])
   
   @@index([bookingId])
@@ -2628,14 +2628,14 @@ model BookingMenu {
   id         Int      @id @default(autoincrement())
   bookingId  Int
   menuId     Int
-   menuName    String?
+   menuName    String?@db.VarChar(255)
   quantity   Int      @default(1)
   unit       String?  @db.VarChar(20)
   unitId     Int?
   unitRef    Unit?    @relation(fields: [unitId], references: [id], onDelete: SetNull)
   unitPrice  Decimal  @db.Decimal(12, 2)
   totalPrice Decimal  @db.Decimal(12, 2)
-  notes      String?
+  notes      String?@db.Text
 
   booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   menu       Menu     @relation(fields: [menuId], references: [id], onDelete: Cascade)
@@ -2651,13 +2651,13 @@ model BookingService {
   bookingId   Int
   booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   serviceId   Int
-  serviceName String?
+  serviceName String?@db.VarChar(255)
   service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   quantity    Int      @default(1)
   unitPrice   Decimal  @db.Decimal(12, 2)
   totalPrice  Decimal  @db.Decimal(12, 2)
-  notes       String?
+  notes       String?@db.Text
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -2702,9 +2702,9 @@ model BookingChangeLog {
 
   fieldName   String     @db.VarChar(50)
   changeType  ChangeType @default(other)
-  oldValue    String?
-  newValue    String?
-  notes       String?
+  oldValue    String?@db.VarChar(255)
+  newValue    String?@db.VarChar(255)
+  notes       String?@db.Text
 
   changedById Int
   changedBy   User       @relation(fields: [changedById], references: [id], onDelete: Cascade)
@@ -2730,7 +2730,7 @@ model BookingMenuChangeLog {
   newQuantity Int?
   oldPrice    Decimal?   @db.Decimal(12, 2)
   newPrice    Decimal?   @db.Decimal(12, 2)
-  notes       String?
+  notes       String?@db.Text
 
   changedById Int
   changedBy   User       @relation(fields: [changedById], references: [id], onDelete: Cascade)
@@ -2756,7 +2756,7 @@ model BookingServiceChangeLog {
   newQuantity Int?
   oldPrice    Decimal?   @db.Decimal(12, 2)
   newPrice    Decimal?   @db.Decimal(12, 2)
-  notes       String?
+  notes       String?@db.Text
 
   changedById Int
   changedBy   User       @relation(fields: [changedById], references: [id], onDelete: Cascade)
@@ -2801,7 +2801,7 @@ model EventExecution {
     inventoryDeducted     Boolean  @default(false)
   inventoryDeductedAt   DateTime?
 
-  notes               String?
+  notes               String?@db.Text
 
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
@@ -2829,7 +2829,7 @@ model EventDishUsage {
   costPerUnit     Decimal   @default(0) @db.Decimal(12, 2)
   totalCost       Decimal   @default(0) @db.Decimal(12, 2)
 
-  notes           String?
+  notes           String?@db.Text
 
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -2857,7 +2857,7 @@ model EventInventoryConsumption {
   costPerUnit     Decimal       @default(0) @db.Decimal(12, 2)
   totalCost       Decimal       @default(0) @db.Decimal(12, 2)
 
-  notes           String?
+  notes           String?@db.Text
 
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -2887,8 +2887,8 @@ model EventDamage {
   costPrice       Decimal        @default(0) @db.Decimal(12, 2)
   totalCost       Decimal        @default(0) @db.Decimal(12, 2)
 
-  description     String?
-  images          String?
+  description     String?@db.Text
+  images          String?@db.VarChar(255)
 
   createdById     Int
   createdBy       User           @relation(fields: [createdById], references: [id], onDelete: Cascade)
@@ -2916,7 +2916,7 @@ model Invoice {
   paidAmount  Decimal       @default(0) @db.Decimal(12, 2)
   status      InvoiceStatus @default(pending)
   dueDate     DateTime?
-  notes       String?
+  notes       String?@db.Text
 
   companyId   Int
   company     Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -2943,7 +2943,7 @@ model InvoiceItem {
   invoiceId   Int?
   invoice     Invoice?  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
-  description String
+  description String@db.Text
   quantity    Decimal  @default(1) @db.Decimal(10, 2)
   unitPrice   Decimal  @db.Decimal(12, 2)
   totalPrice  Decimal  @db.Decimal(12, 2)
@@ -2964,8 +2964,8 @@ model Payment {
   amount      Decimal       @db.Decimal(12, 2)
   method      PaymentMethod @default(cash)
   paymentType PaymentType   @default(final)
-  reference   String?
-  notes       String?
+  reference   String?@db.VarChar(255)
+  notes       String?@db.Text
   status      PaymentStatus @default(completed)
   purchaseBillId    Int?
   purchaseBill      PurchaseBill? @relation(fields: [purchaseBillId], references: [id], onDelete: SetNull)
@@ -3007,8 +3007,8 @@ bankAccountId     Int?
 
 model Task {
   id          Int          @id @default(autoincrement())
-  title       String
-  description String?
+  title       String@db.VarChar(255)
+  description String?@db.Text
   status      TaskStatus   @default(pending)
   priority    TaskPriority @default(medium)
 
@@ -3059,7 +3059,7 @@ model POSSession {
   difference   Decimal?         @db.Decimal(12, 2)
 
   status       POSSessionStatus @default(open)
-  notes        String?
+  notes        String?@db.Text
 
   transactions POSTransaction[]
 
@@ -3084,11 +3084,11 @@ model POSTransaction {
   amount        Decimal              @db.Decimal(12, 2)
   paymentMethod PaymentMethod        @default(cash)
 
-  customerName  String?
-  customerPhone String?
+  customerName  String?@db.VarChar(255)
+  customerPhone String?@db.VarChar(255)
 
   status        POSTransactionStatus @default(completed)
-  notes         String?
+  notes         String?@db.Text
 
   branchId      Int?
   branch        Branch?              @relation(fields: [branchId], references: [id], onDelete: SetNull)
@@ -3113,7 +3113,7 @@ model POSTransactionItem {
   transactionId Int
   transaction   POSTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
 
-  itemName      String
+  itemName      String@db.VarChar(255)
   quantity      Decimal        @default(1) @db.Decimal(10, 3)
   unitPrice     Decimal        @db.Decimal(12, 2)
   totalPrice    Decimal        @db.Decimal(12, 2)
@@ -3137,7 +3137,7 @@ model WhatsAppMessage {
   id          Int                   @id @default(autoincrement())
   messageId   String                @db.VarChar(100)
   phoneNumber String                @db.VarChar(20)
-  body        String
+  body        String@db.Text
   status      WhatsAppMessageStatus @default(sent)
 
   bookingId   Int?
@@ -3164,10 +3164,10 @@ model WhatsAppMessage {
 model EmailLog {
   id        Int         @id @default(autoincrement())
   emailId   String      @db.VarChar(100)
-  from      String
+  from      String@db.VarChar(255)
   to        String
-  subject   String
-  body      String
+  subject   String@db.VarChar(255)
+  body      String@db.Text
   status    EmailStatus @default(sent)
 
   bookingId Int?
@@ -3180,7 +3180,7 @@ model EmailLog {
   companyId Int
 
   sentAt    DateTime    @default(now())
-  error     String?
+  error     String?@db.Text
 
   @@unique([emailId, companyId])
   @@index([to])
@@ -3205,7 +3205,7 @@ model WastageLog {
   unitRef       Unit?         @relation(fields: [unitId], references: [id], onDelete: SetNull)
 
   reason        String        @db.VarChar(100)
-  description   String?
+  description   String?@db.Text
 
   bookingId     Int?
   booking       Booking?      @relation(fields: [bookingId], references: [id], onDelete: SetNull)
@@ -3237,7 +3237,7 @@ model ProductionPlan {
   booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   planDate    DateTime
   status      String   @default("planned") @db.VarChar(20)
-  notes       String?
+  notes       String?@db.Text
 
   companyId   Int
   company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -3271,7 +3271,7 @@ model ProductionPlanItem {
   unitId           Int?
   unitRef          Unit?          @relation(fields: [unitId], references: [id], onDelete: SetNull)
 
-  notes            String?
+  notes            String?@db.Text
 
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
@@ -3290,7 +3290,7 @@ model KitchenOrder {
 
   status      String   @default("pending") @db.VarChar(20)
   priority    String   @default("normal") @db.VarChar(20)
-  notes       String?
+  notes       String?@db.Text
 
   companyId   Int
   company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -3326,7 +3326,7 @@ model KitchenOrderItem {
   unitRef         Unit?          @relation(fields: [unitId], references: [id], onDelete: SetNull)
 
   status          String         @default("pending") @db.VarChar(20)
-  notes           String?
+  notes           String?@db.Text
  
 
   createdAt       DateTime       @default(now())
@@ -3347,12 +3347,12 @@ model AuditLog {
   id        Int      @id @default(autoincrement())
   userId    Int
   user      User     @relation("AuditLogUser", fields: [userId], references: [id], onDelete: Cascade)
-  action    String
+  action    String@db.VarChar(255)
   entity    String
   entityId  Int?
   changes   Json?
-  ip        String?
-  userAgent String?
+  ip        String?@db.VarChar(255)
+  userAgent String?@db.Text
 
   branchId  Int?
   branch    Branch?  @relation(fields: [branchId], references: [id], onDelete: SetNull)
@@ -3375,9 +3375,9 @@ model AuditLog {
 
 model FileAttachment {
   id         Int     @id @default(autoincrement())
-  fileName   String
-  fileUrl    String
-  fileType   String?
+  fileName   String@db.VarChar(255)
+  fileUrl    String@db.Text
+  fileType   String?@db.VarChar(255)
   fileSize   Int?
   entityType String
   entityId   Int
@@ -3402,9 +3402,9 @@ model FileAttachment {
 // 1. Role Master Table (Custom roles bananay ke liye)
 model Role {
   id          Int       @id @default(autoincrement())
-  name        String    // e.g., "Hall Manager", "Head Chef", "Custom Cashier"
+  name        String    // e.g., "Hall Manager", "Head Chef", "Custom Cashier" @db.VarChar(255)
   slug        String    // e.g., "hall_manager" (system unique identifier)
-  description String?
+  description String?@db.Text
   isSystem    Boolean   @default(false) // true = default roles jo delete na ho saken (Admin/Super Admin)
 
   companyId   Int
@@ -3692,7 +3692,7 @@ model ReceiptSetting {
   phone          String?  @db.VarChar(20)
   email          String?  @db.VarChar(100)
   website        String?  @db.VarChar(100)
-  logoUrl        String?  @db.Text
+  logoUrl        String?  @db.LongText
 
   // ── Receipt Text ──
   headerText  String?  @db.VarChar(500)

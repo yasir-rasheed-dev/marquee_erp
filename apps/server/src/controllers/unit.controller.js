@@ -56,8 +56,8 @@ const getUnits = async (req, res) => {
       where.AND = [
         {
           OR: [
-            { name: { contains: search, mode: 'insensitive' } },
-            { symbol: { contains: search, mode: 'insensitive' } }
+            { name: { contains: search} },
+            { symbol: { contains: search} }
           ]
         }
       ];

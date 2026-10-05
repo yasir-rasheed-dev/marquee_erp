@@ -71,8 +71,8 @@ const getPurchaseOrders = async (req, res) => {
 
     if (search) {
       where.OR = [
-        { poNo: { contains: search, mode: 'insensitive' } },
-        { notes: { contains: search, mode: 'insensitive' } },
+        { poNo: { contains: search} },
+        { notes: { contains: search} },
       ];
     }
 
@@ -320,8 +320,8 @@ const getPurchaseBills = async (req, res) => {
 
     if (search) {
       where.OR = [
-        { billNo: { contains: search, mode: 'insensitive' } },
-        { vehicleNo: { contains: search, mode: 'insensitive' } },
+        { billNo: { contains: search} },
+        { vehicleNo: { contains: search} },
       ];
     }
 

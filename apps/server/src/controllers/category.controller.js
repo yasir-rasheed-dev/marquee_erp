@@ -45,9 +45,9 @@ const getCategories = async (req, res) => {
       where.AND = where.AND || [];
       where.AND.push({
         OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
-          { code: { contains: search, mode: 'insensitive' } },
+          { name: { contains: search} },
+          { description: { contains: search} },
+          { code: { contains: search} },
         ]
       });
     }
@@ -162,10 +162,10 @@ const createCategory = async (req, res) => {
     }
 
     const orConditions = [
-      { name: { equals: name.trim(), mode: 'insensitive' } }
+      { name: { equals: name.trim()} }
     ];
     if (code?.trim()) {
-      orConditions.push({ code: { equals: code.trim(), mode: 'insensitive' } });
+      orConditions.push({ code: { equals: code.trim()} });
     }
 
    const existing = await prisma.category.findFirst({
@@ -252,8 +252,8 @@ const updateCategory = async (req, res) => {
       const duplicate = await prisma.category.findFirst({
         where: {
           OR: [
-            name ? { name: { equals: name.trim(), mode: 'insensitive' } } : {},
-            code ? { code: { equals: code.trim(), mode: 'insensitive' } } : {}
+            name ? { name: { equals: name.trim()} } : {},
+            code ? { code: { equals: code.trim()} } : {}
           ],
           companyId: existing.companyId || (await getCompanyIdByBranch(branchId)),
           NOT: { id: id },

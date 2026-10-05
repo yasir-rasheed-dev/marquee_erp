@@ -67,9 +67,9 @@ const getWastageLogs = async (req, res) => {
       where.AND = where.AND || [];
       where.AND.push({
         OR: [
-          { description: { contains: search.trim(), mode: 'insensitive' } },
-          { inventory: { name: { contains: search.trim(), mode: 'insensitive' } } },
-          { inventory: { code: { contains: search.trim(), mode: 'insensitive' } } }
+          { description: { contains: search.trim()} },
+          { inventory: { name: { contains: search.trim()} } },
+          { inventory: { code: { contains: search.trim()} } }
         ]
       });
     }

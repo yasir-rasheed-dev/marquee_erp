@@ -63,9 +63,9 @@ const getServices = async (req, res) => {
       where.AND = where.AND || [];
       where.AND.push({
         OR: [
-          { name: { contains: search.trim(), mode: 'insensitive' } },
-          { description: { contains: search.trim(), mode: 'insensitive' } },
-          { code: { contains: search.trim(), mode: 'insensitive' } },
+          { name: { contains: search.trim()} },
+          { description: { contains: search.trim()} },
+          { code: { contains: search.trim()} },
         ]
       });
     }
@@ -165,8 +165,8 @@ const createService = async (req, res) => {
     const existing = await prisma.service.findFirst({
       where: {
         OR: [
-          { name: { equals: name.trim(), mode: 'insensitive' } },
-          code ? { code: { equals: code.trim(), mode: 'insensitive' } } : {}
+          { name: { equals: name.trim()} },
+          code ? { code: { equals: code.trim()} } : {}
         ],
         companyId: parseInt(targetCompanyId),
         deletedAt: null
@@ -289,8 +289,8 @@ const updateService = async (req, res) => {
       const duplicate = await prisma.service.findFirst({
         where: {
           OR: [
-            name ? { name: { equals: name.trim(), mode: 'insensitive' } } : {},
-            code ? { code: { equals: code.trim(), mode: 'insensitive' } } : {}
+            name ? { name: { equals: name.trim()} } : {},
+            code ? { code: { equals: code.trim()} } : {}
           ],
           companyId: existing.companyId || (await getCompanyIdByBranch(branchId)),
           NOT: { id: id },

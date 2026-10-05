@@ -140,11 +140,11 @@ const getBookings = async (req, res) => {
     if (search && search.trim() !== '') {
       const term = search.trim();
       where.OR = [
-        { bookingNo: { contains: term, mode: 'insensitive' } },
-        { title: { contains: term, mode: 'insensitive' } },
-        { guestName: { contains: term, mode: 'insensitive' } },
+        { bookingNo: { contains: term} },
+        { title: { contains: term} },
+        { guestName: { contains: term} },
         { guestPhone: { contains: term } },
-        { customer: { name: { contains: term, mode: 'insensitive' } } }
+        { customer: { name: { contains: term} } }
       ];
     }
 

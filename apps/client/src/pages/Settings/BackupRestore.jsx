@@ -81,7 +81,7 @@ const TriggerBackupModal = ({ isOpen, onClose, onTrigger, triggering }) => {
   const [googleStatus, setGoogleStatus] = useState({ connected: false, email: null });
   const [checkingGoogle, setCheckingGoogle] = useState(false);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.marquee.orangelogs.com/api';
 
   useEffect(() => {
     if (isOpen) {

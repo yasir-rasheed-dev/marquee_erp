@@ -67,9 +67,9 @@ const getProductionPlans = async (req, res) => {
       where.AND = where.AND || [];
       where.AND.push({
         OR: [
-          { notes: { contains: search.trim(), mode: 'insensitive' } },
-          { booking: { title: { contains: search.trim(), mode: 'insensitive' } } },
-          { booking: { guestName: { contains: search.trim(), mode: 'insensitive' } } }
+          { notes: { contains: search.trim()} },
+          { booking: { title: { contains: search.trim()} } },
+          { booking: { guestName: { contains: search.trim()} } }
         ]
       });
     }
@@ -635,7 +635,7 @@ const addProductionPlanItem = async (req, res) => {
       let existingItem = await prisma.inventoryItem.findFirst({
         where: {
           branchId: branchId,
-          name: { equals: trimmedName, mode: 'insensitive' }
+          name: { equals: trimmedName}
         }
       });
 

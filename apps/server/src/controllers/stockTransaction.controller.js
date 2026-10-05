@@ -41,8 +41,8 @@ const getStockTransactions = async (req, res) => {
     // Optional text search filter support
     if (search) {
       where.inventory.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { code: { contains: search, mode: 'insensitive' } }
+        { name: { contains: search} },
+        { code: { contains: search} }
       ];
     }
 

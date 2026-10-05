@@ -1,7 +1,7 @@
 // services/authApi.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://api.marquee.orangelogs.com/api';
 // const API_URL = 'https://marque.digitalinsiderinc.com/api';
 
 const api = axios.create({
@@ -237,10 +237,14 @@ const authApi = {
       };
     } catch (error) {
       console.error('Register error:', error);
+      const apiErr = error.response?.data;
+      const validationMsg = Array.isArray(apiErr?.errors) && apiErr.errors.length > 0
+        ? apiErr.errors.map(e => e.msg).join(', ')
+        : null;
       return {
         success: false,
-        message: error.response?.data?.message || 'Registration failed',
-        error: error.response?.data
+        message: apiErr?.message || validationMsg || 'Registration failed',
+        error: apiErr
       };
     }
   },

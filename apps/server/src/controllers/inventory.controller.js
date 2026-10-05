@@ -35,8 +35,8 @@ const getInventoryItems = async (req, res) => {
     const where = { branchId, deletedAt: null };
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { code: { contains: search, mode: 'insensitive' } }
+        { name: { contains: search} },
+        { code: { contains: search} }
       ];
     }
     if (category) where.category = category;

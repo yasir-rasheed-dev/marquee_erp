@@ -43,19 +43,19 @@ const getCustomers = async (req, res) => {
 
     if (isActive !== undefined) where.isActive = isActive === 'true';
     if (phone && phone.trim() !== '') where.phone = { contains: phone.trim() };
-    if (city && city.trim() !== '') where.city = { contains: city.trim(), mode: 'insensitive' };
+    if (city && city.trim() !== '') where.city = { contains: city.trim()};
     if (customerType && customerType.trim() !== '') where.customerType = customerType.trim();
     
     if (search && search.trim() !== '') {
       const s = search.trim();
       where.OR = [
-        { name: { contains: s, mode: 'insensitive' } },
+        { name: { contains: s} },
         { phone: { contains: s } },
-        { email: { contains: s, mode: 'insensitive' } },
+        { email: { contains: s} },
         { cnic: { contains: s } },
-        { address: { contains: s, mode: 'insensitive' } },
-        { businessName: { contains: s, mode: 'insensitive' } },
-        { contactPersonName: { contains: s, mode: 'insensitive' } },
+        { address: { contains: s} },
+        { businessName: { contains: s} },
+        { contactPersonName: { contains: s} },
         { contactPersonPhone: { contains: s } },
       ];
     }

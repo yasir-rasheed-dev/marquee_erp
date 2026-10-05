@@ -42,9 +42,9 @@ const getPackages = async (req, res) => {
     if (eventType) where.eventType = eventType;
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { code: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search} },
+        { code: { contains: search} },
+        { description: { contains: search} },
       ];
     }
 
@@ -190,8 +190,8 @@ const createPackage = async (req, res) => {
     const existing = await prisma.package.findFirst({
       where: {
         OR: [
-          { name: { equals: name.trim(), mode: 'insensitive' } },
-          code ? { code: { equals: code.trim(), mode: 'insensitive' } } : {}
+          { name: { equals: name.trim()} },
+          code ? { code: { equals: code.trim()} } : {}
         ],
         companyId: parseInt(targetCompanyId),
         deletedAt: null
@@ -348,8 +348,8 @@ const updatePackage = async (req, res) => {
       const duplicate = await prisma.package.findFirst({
         where: {
           OR: [
-            name ? { name: { equals: name.trim(), mode: 'insensitive' } } : {},
-            code ? { code: { equals: code.trim(), mode: 'insensitive' } } : {}
+            name ? { name: { equals: name.trim()} } : {},
+            code ? { code: { equals: code.trim()} } : {}
           ],
           companyId: existing.companyId,
           NOT: { id: id },

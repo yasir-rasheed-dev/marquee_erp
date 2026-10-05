@@ -41,8 +41,8 @@ const getRecipeIngredients = async (req, res) => {
     if (search) {
       where.AND.push({
         OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { item: { name: { contains: search, mode: 'insensitive' } } }
+          { name: { contains: search} },
+          { item: { name: { contains: search} } }
         ]
       });
     }
@@ -484,8 +484,8 @@ const getInventoryBOMs = async (req, res) => {
     if (dishId) where.dishId = parseInt(dishId);
     if (search) {
       where.OR = [
-        { dish: { name: { contains: search, mode: 'insensitive' } } },
-        { ingredient: { name: { contains: search, mode: 'insensitive' } } }
+        { dish: { name: { contains: search} } },
+        { ingredient: { name: { contains: search} } }
       ];
     }
 

@@ -1,7 +1,7 @@
 {
   "name": "marquee-erp-server",
   "version": "1.0.0",
-  "description": "MarqueeERP Backend - Node.js + Express + PostgreSQL + Prisma",
+  "description": "MarqueeERP Backend - Node.js + Express + MySQL + Prisma",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

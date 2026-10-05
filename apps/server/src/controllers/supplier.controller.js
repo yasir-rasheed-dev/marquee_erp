@@ -42,11 +42,11 @@ const getSuppliers = async (req, res) => {
       where.AND = where.AND || [];
       where.AND.push({
         OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { phone: { contains: search, mode: 'insensitive' } },
-          { email: { contains: search, mode: 'insensitive' } },
-          { code: { contains: search, mode: 'insensitive' } },
-          { city: { contains: search, mode: 'insensitive' } },
+          { name: { contains: search} },
+          { phone: { contains: search} },
+          { email: { contains: search} },
+          { code: { contains: search} },
+          { city: { contains: search} },
         ]
       });
     }
@@ -192,7 +192,7 @@ const createSupplier = async (req, res) => {
       where: {
         OR: [
           { phone: phone.trim() },
-          code ? { code: { equals: code.trim(), mode: 'insensitive' } } : {}
+          code ? { code: { equals: code.trim()} } : {}
         ],
         companyId: parseInt(targetCompanyId),
         deletedAt: null
@@ -299,7 +299,7 @@ const updateSupplier = async (req, res) => {
         where: {
           OR: [
             phone ? { phone: phone.trim() } : {},
-            code ? { code: { equals: code.trim(), mode: 'insensitive' } } : {}
+            code ? { code: { equals: code.trim()} } : {}
           ],
           companyId: existing.companyId || (await getCompanyIdByBranch(branchId)),
           NOT: { id: id },

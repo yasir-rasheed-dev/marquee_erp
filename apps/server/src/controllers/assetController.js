@@ -47,9 +47,9 @@ const getAssets = async (req, res) => {
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { code: { contains: search, mode: 'insensitive' } },
-        { category: { contains: search, mode: 'insensitive' } }
+        { name: { contains: search} },
+        { code: { contains: search} },
+        { category: { contains: search} }
       ];
     }
 

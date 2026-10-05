@@ -80,9 +80,9 @@ const getAllAccounts = async (req, res) => {
     if (accountType) where.accountType = accountType.toUpperCase();
     if (search) {
       where.OR = [
-        { bankName: { contains: search, mode: 'insensitive' } },
-        { accountHolder: { contains: search, mode: 'insensitive' } },
-        { accountNumber: { contains: search, mode: 'insensitive' } },
+        { bankName: { contains: search} },
+        { accountHolder: { contains: search} },
+        { accountNumber: { contains: search} },
       ];
     }
 
@@ -179,7 +179,7 @@ const createAccount = async (req, res) => {
     // Duplicate check: accountNumber is @unique in schema, but also check branch scope
     const existing = await prisma.bankAccount.findFirst({
       where: {
-        accountNumber: { equals: accountNumber.trim(), mode: 'insensitive' },
+        accountNumber: { equals: accountNumber.trim()},
         branchId,
         companyId,
       }
@@ -289,7 +289,7 @@ const updateAccount = async (req, res) => {
     if (accountNumber && accountNumber.trim() !== existing.accountNumber) {
       const duplicate = await prisma.bankAccount.findFirst({
         where: {
-          accountNumber: { equals: accountNumber.trim(), mode: 'insensitive' },
+          accountNumber: { equals: accountNumber.trim()},
           branchId,
           companyId: existing.companyId,
           NOT: { id }
@@ -896,9 +896,9 @@ const getAllTransactions = async (req, res) => {
 
     if (search) {
       where.OR = [
-        { description: { contains: search, mode: 'insensitive' } },
-        { paidTo: { contains: search, mode: 'insensitive' } },
-        { referenceNumber: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search} },
+        { paidTo: { contains: search} },
+        { referenceNumber: { contains: search} },
       ];
     }
 
@@ -1008,7 +1008,7 @@ const createCustomCategory = async (req, res) => {
     // Duplicate check
     const existing = await prisma.accountCustomCategory.findFirst({
       where: {
-        name: { equals: name.trim(), mode: 'insensitive' },
+        name: { equals: name.trim()},
         branchId,
       },
     });

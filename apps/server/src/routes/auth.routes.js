@@ -10,11 +10,11 @@ const registerValidation = [
   body('name').notEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Valid email is required'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  body('role').optional().isIn(['admin', 'manager', 'cashier', 'staff']).withMessage('Invalid role'),
-  body('phone').optional().isString().isLength({ max: 15 }).withMessage('Phone must not exceed 15 characters'),
-  body('companyPhone').optional().isString().isLength({ max: 15 }).withMessage('Company phone must not exceed 15 characters'),
-  body('branchId').optional().isInt().withMessage('Branch ID must be an integer'),
-  body('companyId').optional().isInt().withMessage('Company ID must be an integer')
+  body('role').optional({ nullable: true, checkFalsy: true }).isIn(['admin', 'manager', 'cashier', 'staff']).withMessage('Invalid role'),
+  body('phone').optional({ nullable: true, checkFalsy: true }).isString().isLength({ max: 15 }).withMessage('Phone must not exceed 15 characters'),
+  body('companyPhone').optional({ nullable: true, checkFalsy: true }).isString().isLength({ max: 15 }).withMessage('Company phone must not exceed 15 characters'),
+  body('branchId').optional({ nullable: true, checkFalsy: true }).isInt().withMessage('Branch ID must be an integer'),
+  body('companyId').optional({ nullable: true, checkFalsy: true }).isInt().withMessage('Company ID must be an integer')
 ];
 
 // ── PUBLIC ROUTES ──

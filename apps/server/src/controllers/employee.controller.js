@@ -190,8 +190,8 @@ const getAllDepartments = async (req, res) => {
     if (branchId) where.branchId = branchId;
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { code: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search} },
+        { code: { contains: search} },
       ];
     }
 
@@ -220,7 +220,7 @@ const createDepartment = async (req, res) => {
     if (!companyId) return res.status(400).json({ success: false, message: 'Company ID is required.' });
 
     const existing = await prisma.department.findFirst({
-      where: { code: { equals: code?.trim(), mode: 'insensitive' }, companyId },
+      where: { code: { equals: code?.trim()}, companyId },
     });
     if (existing) return res.status(409).json({ success: false, message: 'Department code already exists' });
 
@@ -314,8 +314,8 @@ const getAllDesignations = async (req, res) => {
     if (branchId) where.branchId = branchId;
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { code: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search} },
+        { code: { contains: search} },
       ];
     }
 
@@ -344,7 +344,7 @@ const createDesignation = async (req, res) => {
     if (!companyId) return res.status(400).json({ success: false, message: 'Company ID is required.' });
 
     const existing = await prisma.designation.findFirst({
-      where: { code: { equals: code?.trim(), mode: 'insensitive' }, companyId },
+      where: { code: { equals: code?.trim()}, companyId },
     });
     if (existing) return res.status(409).json({ success: false, message: 'Code already exists' });
 
@@ -445,10 +445,10 @@ const getAllEmployees = async (req, res) => {
     if (departmentId) where.departmentId = parseInt(departmentId);
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { employeeCode: { contains: search, mode: 'insensitive' } },
-        { phone: { contains: search, mode: 'insensitive' } },
-        { cnic: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search} },
+        { employeeCode: { contains: search} },
+        { phone: { contains: search} },
+        { cnic: { contains: search} },
       ];
     }
 
@@ -531,12 +531,12 @@ const createEmployee = async (req, res) => {
 
     // Check duplicates
     const existingCode = await prisma.employee.findFirst({
-      where: { employeeCode: { equals: employeeCode, mode: 'insensitive' }, companyId },
+      where: { employeeCode: { equals: employeeCode}, companyId },
     });
     if (existingCode) return res.status(409).json({ success: false, message: 'Employee code already exists' });
 
     const existingCnic = cnic ? await prisma.employee.findFirst({
-      where: { cnic: { equals: cnic.trim(), mode: 'insensitive' }, companyId },
+      where: { cnic: { equals: cnic.trim()}, companyId },
     }) : null;
     if (existingCnic) return res.status(409).json({ success: false, message: 'CNIC already registered' });
 

@@ -59,9 +59,9 @@ const getBackups = async (req, res) => {
     if (search && search.trim() !== '') {
       const s = search.trim();
       where.OR = [
-        { backupNo: { contains: s, mode: 'insensitive' } },
-        { fileName: { contains: s, mode: 'insensitive' } },
-        { dbName: { contains: s, mode: 'insensitive' } },
+        { backupNo: { contains: s} },
+        { fileName: { contains: s} },
+        { dbName: { contains: s} },
       ];
     }
 

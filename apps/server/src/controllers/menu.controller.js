@@ -36,9 +36,9 @@ const getMenus = async (req, res) => {
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { code: { contains: search, mode: 'insensitive' } },
-        { eventType: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search} },
+        { code: { contains: search} },
+        { eventType: { contains: search} },
       ];
     }
     if (status) where.status = status;

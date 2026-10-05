@@ -103,15 +103,15 @@ const Register = () => {
     const submitData = {
       // Company Data
       companyName: formData.companyName.trim(),
-      companyAddress: formData.companyAddress.trim() || null,
-      companyPhone: formData.companyPhone.trim() || null,
+      companyAddress: formData.companyAddress.trim() || undefined,
+      companyPhone: formData.companyPhone.trim() || undefined,
       
       // Admin Data
       name: formData.name.trim(),
       email: formData.email.trim().toLowerCase(),
       password: formData.password,
       role: 'admin',  // ✅ Always admin for registration
-      phone: formData.phone || null
+      phone: formData.phone.trim() || undefined
     };
 
     console.log('📤 Sending registration data:', submitData);

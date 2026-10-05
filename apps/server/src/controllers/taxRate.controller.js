@@ -44,7 +44,7 @@ const getTaxRates = async (req, res) => {
 
     if (isActive !== undefined) where.isActive = isActive === 'true';
     if (search) {
-      where.name = { contains: search, mode: 'insensitive' };
+      where.name = { contains: search};
     }
 
     const taxRates = await prisma.taxRate.findMany({
@@ -142,7 +142,7 @@ const createTaxRate = async (req, res) => {
 
     const existing = await prisma.taxRate.findFirst({
       where: {
-        name: { equals: name.trim(), mode: 'insensitive' },
+        name: { equals: name.trim()},
         companyId: parseInt(targetCompanyId)
       }
     });
@@ -215,7 +215,7 @@ const updateTaxRate = async (req, res) => {
     if (name) {
       const duplicate = await prisma.taxRate.findFirst({
         where: {
-          name: { equals: name.trim(), mode: 'insensitive' },
+          name: { equals: name.trim()},
           companyId: existing.companyId,
           NOT: { id: id }
         }

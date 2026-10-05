@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════
 // services/backup.service.js
-// BACKUP ENGINE — PostgreSQL Dump + Google Drive + Cleanup
+// BACKUP ENGINE — MySQL Dump + Google Drive + Cleanup
 // ═══════════════════════════════════════════════════════════
 
 const { exec, spawn } = require('child_process');
@@ -8,51 +8,44 @@ const util = require('util');
 const fs = require('fs');
 const fsPromises = require('fs').promises;
 const path = require('path');
-const zlib = require('zlib');
-const { pipeline } = require('stream/promises');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const googleDriveOAuthService = require('./googleDriveOAuth.service');
 
 const execAsync = util.promisify(exec);
 
-// ── Auto-detect pg_dump path (Windows + Linux/Mac) ──
-// ── Auto-detect pg_dump path (Windows + Linux/Mac) ──
-const findPgDump = () => {
+// ── Auto-detect mysqldump path (Windows + Linux/Mac) ──
+const findMysqlDump = () => {
   // 1. Pehle .env wala path check karo
-  if (process.env.PG_DUMP_PATH && fs.existsSync(process.env.PG_DUMP_PATH)) {
-    console.log('🔍 Using pg_dump from .env:', process.env.PG_DUMP_PATH);
-    return process.env.PG_DUMP_PATH;
+  if (process.env.MYSQLDUMP_PATH && fs.existsSync(process.env.MYSQLDUMP_PATH)) {
+    console.log('🔍 Using mysqldump from .env:', process.env.MYSQLDUMP_PATH);
+    return process.env.MYSQLDUMP_PATH;
   }
 
-  // 2. Automated search across common PostgreSQL versions on Windows & x86
-  const versions = ['18', '17', '16', '15', '14', '13', '12', '11', '10'];
-  const basePaths = [
-    'C:\\Program Files\\PostgreSQL',
-    'C:\\Program Files (x86)\\PostgreSQL'
+  // 2. Common install locations on Windows (XAMPP, MySQL Server, MariaDB)
+  const candidates = [
+    'C:\\xampp\\mysql\\bin\\mysqldump.exe',
+    ...['8.4', '8.0', '5.7'].map((v) => `C:\\Program Files\\MySQL\\MySQL Server ${v}\\bin\\mysqldump.exe`),
+    ...['11.4', '10.11', '10.6', '10.4'].map((v) => `C:\\Program Files\\MariaDB ${v}\\bin\\mysqldump.exe`),
   ];
-
-  for (const basePath of basePaths) {
-    for (const ver of versions) {
-      const p = path.join(basePath, ver, 'bin', 'pg_dump.exe');
-      if (fs.existsSync(p)) {
-        console.log(`✅ Auto-detected PostgreSQL v${ver} pg_dump at:`, p);
-        return p;
-      }
+  for (const p of candidates) {
+    if (fs.existsSync(p)) {
+      console.log('✅ Auto-detected mysqldump at:', p);
+      return p;
     }
   }
 
   // 3. Fallback to global command if added to system PATH
-  return 'pg_dump';
+  return 'mysqldump';
 };
 
 // ── Config ──
 const BACKUP_DIR = process.env.BACKUP_LOCAL_PATH || path.join(process.cwd(), 'backups');
-const DB_NAME = process.env.DATABASE_NAME || 'raath_db';
-const DB_USER = process.env.DATABASE_USER || 'postgres';
+const DB_NAME = process.env.DATABASE_NAME || 'marquee_erp';
+const DB_USER = process.env.DATABASE_USER || 'root';
 const DB_PASSWORD = process.env.DATABASE_PASSWORD || '';
 const DB_HOST = process.env.DATABASE_HOST || 'localhost';
-const DB_PORT = process.env.DATABASE_PORT || '5432';
+const DB_PORT = process.env.DATABASE_PORT || '3306';
 const RETENTION_DAYS = parseInt(process.env.BACKUP_RETENTION_DAYS || '30');
 
 class BackupService {
@@ -156,52 +149,47 @@ class BackupService {
   }
 
   /**
-   * Dump PostgreSQL database using pg_dump
+   * Dump MySQL database using mysqldump
    */
   async dumpDatabase(outputPath) {
-    const pgDumpPath = findPgDump();
-    const isWin = process.platform === 'win32';
+    const dumpPath = findMysqlDump();
 
-    console.log('🗄️  Running pg_dump...');
-    console.log('   Path:', pgDumpPath);
+    console.log('🗄️  Running mysqldump...');
+    console.log('   Path:', dumpPath);
 
-    const connectionUri = `postgresql://${encodeURIComponent(DB_USER)}:${encodeURIComponent(DB_PASSWORD)}@${DB_HOST}:${DB_PORT}/${DB_NAME}`;
+    const args = [
+      `--host=${DB_HOST}`,
+      `--port=${DB_PORT}`,
+      `--user=${DB_USER}`,
+      '--single-transaction',
+      '--routines',
+      '--triggers',
+      '--default-character-set=utf8mb4',
+      `--result-file=${outputPath}`,
+      DB_NAME,
+    ];
 
     await new Promise((resolve, reject) => {
-      const formattedPath = isWin && !pgDumpPath.startsWith('"') ? `"${pgDumpPath}"` : pgDumpPath;
-
-      const pgDump = spawn(formattedPath, [
-        connectionUri,
-        '--no-owner',
-        '--no-acl'
-      ], { shell: true });
-
-      // 🛠️ Yahan humne gzip hata kar seedha file write stream laga di hai
-      const outStream = fs.createWriteStream(outputPath);
+      // Password env se pass hota hai taake command line par na dikhe
+      const dump = spawn(dumpPath, args, { env: { ...process.env, MYSQL_PWD: DB_PASSWORD } });
 
       let stderrData = '';
-
-      pgDump.stderr.on('data', (data) => {
+      dump.stderr.on('data', (data) => {
         stderrData += data.toString();
       });
 
-      pgDump.on('error', (err) => {
-        reject(new Error(`pg_dump spawn failed: ${err.message}. Is PostgreSQL installed?`));
+      dump.on('error', (err) => {
+        reject(new Error(`mysqldump spawn failed: ${err.message}. Is MySQL installed?`));
       });
 
-      // Pipeline direct pg_dump se file par jaye gi (.sql file banegi)
-      pipeline(pgDump.stdout, outStream)
-        .then(() => {
-          if (stderrData && !stderrData.toLowerCase().includes('warning') && !stderrData.toLowerCase().includes('notice')) {
-            reject(new Error(`pg_dump error: ${stderrData}`));
-          } else {
-            console.log('✅ Database dumped successfully as .sql:', outputPath);
-            resolve();
-          }
-        })
-        .catch((err) => {
-          reject(new Error(`Backup pipeline failed: ${err.message}`));
-        });
+      dump.on('close', (code) => {
+        if (code !== 0) {
+          reject(new Error(`mysqldump error (code ${code}): ${stderrData}`));
+        } else {
+          console.log('✅ Database dumped successfully as .sql:', outputPath);
+          resolve();
+        }
+      });
     });
   }
 
@@ -213,7 +201,7 @@ class BackupService {
       const result = await prisma.$queryRaw`
         SELECT COUNT(*) as count 
         FROM information_schema.tables 
-        WHERE table_schema = 'public'
+        WHERE table_schema = DATABASE()
       `;
       return parseInt(result[0]?.count || 0);
     } catch (err) {
