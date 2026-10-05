@@ -16,13 +16,15 @@ import {
   RotateCcw, CalendarCheck2, Banknote, CalendarOff, Coins, UserCheck,
   Settings2, BarChart3, TrendingUp, CalendarCheck, LineChart,
   ShoppingBag, BadgeDollarSign, Building2, Printer, Percent, ShieldCheck,
-  Database
+  Database,
+  Compass
 } from 'lucide-react';
 import { usePermissions } from '../hooks/usePermissions';
 
 // ✅ ALL RESOURCES MATCH EXACTLY WITH BACKEND PERMISSIONS
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', resource: 'dashboard' },
+  { icon: Compass, label: 'Onboarding Setup', path: '/onboarding' },
   {
     icon: Calendar, 
     label: 'Bookings', 
