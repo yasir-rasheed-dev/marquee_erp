@@ -453,22 +453,49 @@ exports.updateUser = async (req, res) => {
       }
     }
 
-    if (role === 'admin' && !isSuperAdmin) {
+    // Non-admins may only edit their own basic profile (name / phone) — never role,
+    // status or branch/company, otherwise any staff user could promote themselves.
+    const changesAccess = role !== undefined || isActive !== undefined || branchId !== undefined || companyId !== undefined;
+    if (!isSuperAdmin && !isAdmin) {
+      if (existing.id !== req.userId || changesAccess) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Only an admin can change users.'
+        });
+      }
+    }
+
+    if ((role === 'admin' || role === 'super_admin') && !isSuperAdmin) {
       return res.status(403).json({
         success: false,
-        message: 'Only super admin can assign admin role'
+        message: 'Only super admin can assign admin roles'
+      });
+    }
+
+    // Only super admin can move a user to another company
+    if (companyId !== undefined && !isSuperAdmin && parseInt(companyId) !== existing.companyId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Cannot move a user to another company.'
       });
     }
 
     let targetCompanyId = companyId;
-    if (branchId && !targetCompanyId) {
+    if (branchId) {
       const branch = await prisma.branch.findUnique({
         where: { id: parseInt(branchId) },
         select: { companyId: true }
       });
-      if (branch) {
-        targetCompanyId = branch.companyId;
+      if (!branch) {
+        return res.status(400).json({ success: false, message: 'Branch not found' });
       }
+      if (!isSuperAdmin && branch.companyId !== req.companyId) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. This branch belongs to another company.'
+        });
+      }
+      targetCompanyId = branch.companyId;
     }
 
     const user = await prisma.user.update({
@@ -535,16 +562,16 @@ exports.deleteUser = async (req, res) => {
     const isAdmin = req.userRole === 'admin';
     
     if (!isSuperAdmin) {
-      if (isAdmin && user.companyId !== req.companyId) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. This user belongs to another company.'
-        });
-      }
-      if (!isAdmin && user.branchId !== req.branchId) {
+      if (!isAdmin || user.role === 'super_admin') {
         return res.status(403).json({
           success: false,
           message: 'Access denied to this user'
+        });
+      }
+      if (user.companyId !== req.companyId) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. This user belongs to another company.'
         });
       }
     }

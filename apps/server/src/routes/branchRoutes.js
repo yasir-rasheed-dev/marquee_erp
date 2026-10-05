@@ -1,5 +1,9 @@
 const express = require('express');
 const router = express.Router();
+
+// Tenant isolation for /:branchId and /:companyId path params
+const { tenantParam } = require('../common/middleware/auth');
+router.param('companyId', tenantParam);
 const branchController = require('../controllers/branchController');
 const { authMiddleware, authorize, validateBranchOwnership } = require('../common/middleware/auth');
 

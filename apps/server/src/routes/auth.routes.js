@@ -1,6 +1,10 @@
 // routes/auth.routes.js
 const express = require('express');
 const router = express.Router();
+
+// Tenant isolation for /:branchId and /:companyId path params
+const { tenantParam } = require('../common/middleware/auth');
+router.param('companyId', tenantParam);
 const { body } = require('express-validator');
 const authController = require('../controllers/auth.controller');
 const { authMiddleware, authorize } = require('../common/middleware/auth');
@@ -37,6 +41,6 @@ router.get('/users/company/:companyId', authMiddleware, authorize('admin', 'supe
 router.put('/users/:id', authMiddleware, authController.updateUser);
 
 // Delete user
-router.delete('/users/:id', authMiddleware, authController.deleteUser);
+router.delete('/users/:id', authMiddleware, authorize('admin', 'super_admin'), authController.deleteUser);
 
 module.exports = router;

@@ -6,6 +6,10 @@
 const express = require('express');
 const router = express.Router();
 
+
+// Tenant isolation for /:branchId and /:companyId path params
+const { tenantParam } = require('../common/middleware/auth');
+router.param('branchId', tenantParam);
 const {
   // ── Departments ──
   getAllDepartments,

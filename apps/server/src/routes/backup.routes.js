@@ -1,5 +1,9 @@
 const express = require('express');
 const router = express.Router();
+
+// Tenant isolation for /:branchId and /:companyId path params
+const { tenantParam } = require('../common/middleware/auth');
+router.param('branchId', tenantParam);
 const { authMiddleware, authorize } = require('../common/middleware/auth');// 🔥 YAHA APNI AUTH MIDDLEWARE PATH SET KARO
 const {
   getBackups,
@@ -22,6 +26,9 @@ router.get('/google/callback', handleGoogleCallback);
 
 // ── Protected routes (auth required) ──
 router.use(authMiddleware); // 🔥 YEH LINE ADD KARO — sab routes neeche protected ho jayenge
+// A backup is a dump of the WHOLE database (every company's data and all password hashes),
+// so only the platform super admin may create, list or download them.
+router.use(authorize('super_admin'));
 
 router.get('/', getBackups);
 router.get('/branch/:branchId', getBackupsByBranch);

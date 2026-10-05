@@ -4,6 +4,73 @@ const prisma = require('../../config/database');
 const JWT_SECRET = process.env.JWT_SECRET || 'marquee-super-secret-key-2026';
 
 // ═══════════════════════════════════════════════════════════
+// 0. TENANT SCOPE — stop users reaching other companies' data
+// ═══════════════════════════════════════════════════════════
+// Controllers trust `branchId` / `companyId` from the query string, body or headers,
+// so every one of those values is checked here, once, for every authenticated request:
+//   super_admin → any branch/company
+//   admin       → branches of their own company only
+//   others      → their own branch only
+
+// Branches never move between companies, so cache branchId → companyId lookups.
+const branchCompanyCache = new Map();
+const getBranchCompanyId = async (branchId) => {
+  if (branchCompanyCache.has(branchId)) return branchCompanyCache.get(branchId);
+  const branch = await prisma.branch.findUnique({ where: { id: branchId }, select: { companyId: true } });
+  const companyId = branch ? branch.companyId : null;
+  if (branch) branchCompanyCache.set(branchId, companyId);
+  return companyId;
+};
+
+const collectIds = (req, key, headerName) => {
+  const values = [req.query?.[key], req.body?.[key], req.params?.[key], req.headers?.[headerName]];
+  const ids = new Set();
+  for (const v of values.flat()) {
+    if (v === undefined || v === null || v === '' || v === 'all') continue;
+    const n = parseInt(v, 10);
+    if (!Number.isNaN(n)) ids.add(n);
+  }
+  return [...ids];
+};
+
+const checkTenantScope = async (req) => {
+  if (req.userRole === 'super_admin') return null;
+
+  for (const companyId of collectIds(req, 'companyId', 'x-company-id')) {
+    if (companyId !== req.companyId) return 'Access denied to this company';
+  }
+
+  for (const branchId of collectIds(req, 'branchId', 'x-branch-id')) {
+    if (req.userRole === 'admin') {
+      if ((await getBranchCompanyId(branchId)) !== req.companyId) return 'Access denied to this branch';
+    } else if (branchId !== req.branchId) {
+      return 'Access denied to this branch';
+    }
+  }
+  return null;
+};
+
+exports.checkTenantScope = checkTenantScope;
+
+// Path params (e.g. /branch/:branchId) aren't parsed yet when router-level auth runs,
+// so routers register this with router.param('branchId' | 'companyId', tenantParam).
+exports.tenantParam = async (req, res, next, value, name) => {
+  try {
+    if (!req.userRole) return next(); // unauthenticated route — auth middleware decides
+    const denied = await checkTenantScope({
+      userRole: req.userRole,
+      companyId: req.companyId,
+      branchId: req.branchId,
+      params: { [name]: value },
+    });
+    if (denied) return res.status(403).json({ success: false, message: denied });
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
 // 1. AUTHENTICATE — Verify JWT Token
 // ═══════════════════════════════════════════════════════════
 
@@ -65,7 +132,13 @@ exports.authenticate = async (req, res, next) => {
       req.branchId = user.branchId || decoded.branchId;
       req.companyId = user.companyId || decoded.companyId;
       req.user = user;
-      
+
+      // ✅ Tenant isolation: a branchId/companyId sent by the client must belong to this user
+      const denied = await checkTenantScope(req);
+      if (denied) {
+        return res.status(403).json({ success: false, message: denied });
+      }
+
       next();
     } catch (jwtError) {
       console.error('JWT Error:', jwtError.message);

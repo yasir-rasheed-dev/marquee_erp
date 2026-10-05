@@ -73,7 +73,10 @@ class BackupService {
     
     // ── CUSTOM PATH LOGIC ──
     const defaultDir = BACKUP_DIR;
-    const backupDir = customLocalPath ? path.resolve(customLocalPath) : defaultDir;
+    // Custom folders must stay inside BACKUP_DIR — never let a request write files elsewhere on the server
+    const baseDir = path.resolve(defaultDir);
+    const requestedDir = customLocalPath ? path.resolve(baseDir, customLocalPath) : baseDir;
+    const backupDir = requestedDir === baseDir || requestedDir.startsWith(baseDir + path.sep) ? requestedDir : baseDir;
     await fsPromises.mkdir(backupDir, { recursive: true });
     const filePath = path.join(backupDir, fileName);
     let driveData = null;
