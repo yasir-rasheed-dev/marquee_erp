@@ -28,6 +28,7 @@ import eventApi from '../../services/eventApi';
 import ReactSelect from '../../components/ui/ReactSelect';
 import UpcomingRemindersDrawer from '../../components/bookings/UpcomingRemindersDrawer';
 import WhatsAppModal from '../../components/common/WhatsAppModal';
+import OnboardingWidget from '../../components/dashboard/OnboardingWidget';
 
 // ── Helpers ──
 const formatCurrency = (val) => new Intl.NumberFormat('en-PK', { style: 'currency', currency: 'PKR', maximumFractionDigits: 0 }).format(val || 0);
@@ -416,6 +417,9 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
+
+      {/* ── System Readiness & Onboarding Hub Widget ── */}
+      <OnboardingWidget />
 
       {/* ══════════════════════════════════════════════════════════════
           2. UPCOMING REMINDERS ALERT BANNER (If pending)

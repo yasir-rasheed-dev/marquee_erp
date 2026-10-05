@@ -1,4 +1,4 @@
-﻿// routes/AppRoutes.jsx
+// routes/AppRoutes.jsx
 // COMPLETE FIXED - Bookings with fallback
 
 import { Routes, Route, Navigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ const Login = lazy(() => import('../pages/Auth/Login'));
 const Register = lazy(() => import('../pages/Auth/Register'));
 const ForgotPassword = lazy(() => import('../pages/Auth/ForgotPassword'));
 const Dashboard = lazy(() => import('../pages/Dashboard/Dashboard'));
+const Onboarding = lazy(() => import('../pages/Onboarding/Onboarding'));
 
 // ═══════════════════════════════════════════════════════════
 // 🎯 Bookings
@@ -187,6 +188,7 @@ const AppRoutes = () => {
 
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/onboarding" element={<Onboarding />} />
 
             {/* POS */}
             <Route element={<PrivateRoute requiredResource="pos" />}>
