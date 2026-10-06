@@ -12,6 +12,7 @@ import recipeApi from '../services/recipeApi';
 import serviceApi from '../services/serviceApi';
 import packageApi from '../services/packageApi';
 import bookingApi from '../services/bookingApi';
+import apiClient from '../services/apiClient';
 import { useBranch } from '../context/BranchContext';
 
 const extractCount = (res) => {
@@ -52,6 +53,21 @@ export const useOnboardingStatus = () => {
   const fetchStatus = useCallback(async () => {
     setLoading(true);
     try {
+      if (currentBranch?.id) {
+        try {
+          const res = await apiClient.get('/onboarding/status', {
+            params: { branchId: currentBranch.id }
+          });
+          if (res?.data?.success && res.data.data) {
+            setCounts(res.data.data);
+            setLoading(false);
+            return;
+          }
+        } catch (endpointErr) {
+          // Fallback below
+        }
+      }
+
       const results = await Promise.allSettled([
         hallApi.getAll(),
         accountApi.getAll(),
